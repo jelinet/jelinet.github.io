@@ -1,7 +1,15 @@
-redis笔记-单机数据库实现-数据库
-======  
+---
+layout: post
+title:  "redis笔记-单机数据库实现 "
+date:   2018-06-22 15:18 +0800
+categories: redis
+---
+redis笔记-单机数据库实现 
+------
 
 [TOC]
+
+
 
 ### 结构
 
@@ -155,32 +163,4 @@ def notifyKeyspaceEvent(type, event, key, dbid):
 ~~~
 
 
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
-​	
 ​	
