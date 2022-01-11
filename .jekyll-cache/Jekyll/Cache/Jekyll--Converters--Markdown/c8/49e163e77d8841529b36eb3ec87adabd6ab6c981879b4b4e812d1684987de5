@@ -1,0 +1,131 @@
+I"�<h2 id="redis笔记-数据结构">redis笔记-数据结构</h2>
+
+<p>[TOC]</p>
+
+<h4 id="跳跃表">跳跃表</h4>
+
+<ul>
+  <li>
+    <p>两个地方用到：有序集合键；集群节点中，内部数据结构</p>
+  </li>
+  <li>
+    <p>实现：
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/skipLIst1.jpg" alt="一个跳跃表" /></p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
+  <span class="c1">// 表头节点和表尾节点</span>
+  <span class="n">structz</span> <span class="n">skiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
+  <span class="c1">// 表中节点的数量</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>
+  <span class="c1">// 表中层数最大的节点的层数</span>
+  <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
+  <span class="c1">// 层</span>
+  <span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+      <span class="c1">// 前进指针</span>
+      <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
+      <span class="c1">// 跨度</span>
+      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">span</span><span class="p">;</span>
+  <span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
+  <span class="c1">// 后退指针</span>
+  <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+  <span class="c1">// 分值</span>
+  <span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+  <span class="c1">// 成员对象</span>
+  <span class="n">robj</span> <span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <ol>
+      <li>zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length；</li>
+      <li>zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj;</li>
+      <li>跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加；</li>
+      <li>成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS；</li>
+      <li>obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头；</li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="整数集合">整数集合</h4>
+
+<ul>
+  <li>
+    <p>一个集合包含整数元素，个数不多；</p>
+  </li>
+  <li>
+    <p>实现</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">intset</span> <span class="p">{</span>
+  <span class="c1">// 编码方式</span>
+  <span class="kt">uint32_t</span> <span class="n">encoding</span><span class="p">;</span>
+  <span class="c1">// 集合包含的元素数量</span>
+  <span class="kt">uint32_t</span> <span class="n">length</span><span class="p">;</span>
+  <span class="c1">// 保存元素的数组</span>
+  <span class="kt">int8_t</span> <span class="n">contents</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">intset</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <ol>
+      <li>int16,int32,int64的整数值；有序,无重复元素；</li>
+      <li>contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值;</li>
+      <li>添加新元素的时间复杂度为O(N)</li>
+      <li>仅支持升级，不支持降级；</li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="压缩列表">压缩列表</h4>
+
+<ul>
+  <li>列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串；</li>
+  <li>结构
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/ziplist1.jpg" alt="ziplist结构" /></li>
+</ul>
+
+<h4 id="对象">对象</h4>
+
+<ul>
+  <li>
+    <p>字符串对象、列表对象、哈希对象、集合对象和有序集合对象；</p>
+  </li>
+  <li>
+    <p>引用计数法实现的内存回收和对象共享机制；</p>
+  </li>
+  <li>
+    <p>创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象；</p>
+  </li>
+  <li>
+    <p>结构</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">redisObject</span> <span class="p">{</span>
+  <span class="c1">// 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET</span>
+  <span class="kt">unsigned</span> <span class="n">type</span><span class="o">:</span><span class="mi">4</span><span class="p">;</span>
+  <span class="c1">// 编码</span>
+  <span class="kt">unsigned</span> <span class="n">encoding</span><span class="o">:</span><span class="mi">4</span><span class="p">;</span>
+  <span class="c1">// 指向底层实现数据结构的指针</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span> <span class="n">robj</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <p><img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/object1.jpg" alt="编码常量" /></p>
+  </li>
+  <li>
+    <p>对象会在不同场景使用不同的编码；</p>
+
+    <ol>
+      <li>字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；</li>
+      <li>列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&lt;=64，元素数量&lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；</li>
+      <li>哈希对象编码：ziplist,hashtable;
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/objecthash1.jpg" alt="hash的ziplist编码" />
+  ziplist条件：键和值长度都&lt;=64，键值对&lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；</li>
+      <li>集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；</li>
+      <li>有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/zsetziplist1.jpg" alt="hash的ziplist编码" /></li>
+    </ol>
+  </li>
+</ul>
+:ET
