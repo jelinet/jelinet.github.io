@@ -1,1 +1,0 @@
-# jelinet.github.io
