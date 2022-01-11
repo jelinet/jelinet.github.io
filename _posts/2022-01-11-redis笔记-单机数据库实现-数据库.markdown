@@ -33,7 +33,7 @@ typedef struct redisDb {
 - dbnum 默认是16,select 命令切换数据库，默认使用db[0];
 - redisDb中dict，保存了所有的键值对;
 - EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
-  ![redisDb](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/redisDb1.jpg)
+  ![redisDb](http://redisbook.com/_images/graphviz-e201646a2797e756d94777ea28a94cd2f7177806.png)
 
 ### 过期时间
 
@@ -57,7 +57,7 @@ typedef struct redisDb {
 ![expireIfNeeded](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/expireIfNeeded.jpg)  
 
     2. **定期删除**:过期键的定期删除策略由redis.c/activeExpireCycle函数实现 伪代码:
-
+    
     ~~~c
     # 默认每次检查的数据库数量
     
