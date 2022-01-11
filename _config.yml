@@ -24,7 +24,7 @@ description: # this means to ignore newlines until "baseurl:"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: j3l1n37
-github_username:  jelinet7
+github_username:  jelinet
 instagram_username: j3l1n37
 
 # Build settings
@@ -40,8 +40,9 @@ plainwhite:
   sitemap: true
   social_links:
     twitter: j3l1n37
-    github:  jelinet7
+    github:  jelinet
     instagram: j3l1n37
+
 
 
 
