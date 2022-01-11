@@ -47,8 +47,6 @@ plainwhite:
 plainwhite:
   portfolio_image:  "8B3F9B49-F597-4CAC-9511-E54ABB1601A1.jpeg" # the path from the base directory of the site to the image to display (no / at the start)
 
-plainwhite:
-  sitemap: true
 
 
 
