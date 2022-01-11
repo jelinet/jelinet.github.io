@@ -1,0 +1,132 @@
+---
+layout: post
+title:  "redis笔记-单机数据库实现-RDB持久化 "
+date:   2018-06-23 15:18 +0800
+categories: redis
+---
+redis笔记-单机数据库实现-RDB持久化
+------
+
+[TOC]
+
+
+## RDB 文件的创建与载入
+一个概念：服务器中非空数据库以及数据库中的键值对 称为 **数据库状态**
+### 创建
+~~~c
+def SAVE():
+
+# 创建RDB文件
+rdbSave()
+
+
+
+def BGSAVE():
+   
+	# 创建子进程
+   pid = fork()
+    			
+	if pid == 0:
+			
+		# 子进程负责创建RDB文件
+		rdbSave()
+		
+		# 完成之后向父进程发送信号
+		signal_parent()
+	else if pid > 0:
+	
+		# 父进程继续处理命令请求，并通过轮询等待子进程的信
+		handle_request_and_wait_signal()
+		
+	else:
+	
+		# 处理出错情况
+		handle_fork_error()
+~~~
+- SAVE命令会阻塞Redis服务器进程，直到RDB文件创建完毕为止，在服务器进程阻塞期间，服务器不能处理任何命令请求
+- BGSAVE命令会派生出一个子进程，然后由子进程负责创建RDB文件，服务器进程（父进程）继续处理命令请求
+- BGSAVE命令执行时的服务器状态
+	1. BGSAVE执行期间，客户端发送的SAVE、BGSAVE 会被服务器拒绝，避免rdbSave()重复调用
+	2. BGSAVE正在执行，客户端发送的BGREWRITEAOF命令会被延迟到BGSAVE命令执行完毕之后执行；BGREWRITEAOF正在执行，客户端发送的BGSAVE命令会被服务器拒绝。原因是性能考虑，这两个操作并发出两个子线程，并且都进行了大量磁盘写入操作
+
+### 载入
+服务器载入RDB文件会一直处于阻塞状态 
+
+## 自动间歇性保存
+1. 当服务器启动的时候，客户端可以设置服务器的save选项，每隔一段时间执行一次BGSAVE（serverCron()）;
+
+	~~~c
+	/**
+	  * 客户端没有配置->默认的配置
+
+  	  * 任意条件满足即合 
+  	  */
+  	save 900 1    //900秒内，对数据库至少一次修改
+  	save 300 10
+  	save 60 10000
+  	~~~
+2. 设置保存条件
+	- 结构  
+	
+		~~~c
+		struct redisServer {
+   
+	 		// ...
+    	
+    		// 记录了保存条件的数组
+    		struct saveparam *saveparams;
+    	
+    		// 修改计数器
+    		long long dirty;
+    	
+    		// 上一次执行保存的时间
+	 		time_t lastsave;
+    	
+	 		// ...
+	 	};
+	 	
+	 	struct saveparam {
+	 		// 秒数    
+	 		time_t seconds;
+	 		// 修改数
+	 		int changes;
+	 	};
+	 	
+	 	~~~  
+	
+	- 根据配置来设置redisServer中的saveparams  
+	- dirty计数器：记录上一次SAVE或BGSAVE后，数据库状态进行了多少次修改[^1]  
+	- lastsave是UNIX时间戳，上一次SAVE或BGSAVE时间
+3. 检查保存条件是否满足
+	- 伪代码
+	
+		~~~c
+		def serverCron():    
+			# ...
+			  
+			# 遍历所有保存条件    
+			for saveparam in server.saveparams:
+			
+		        # 计算距离上次执行保存操作有多少秒        
+		        save_interval = unixtime_now()-server.lastsave
+		        
+		        # 如果数据库状态的修改次数超过条件所设置的次数        
+		        # 并且距离上次保存的时间超过条件所设置的时间        
+		        # 那么执行保存操作
+		        if  server.dirty >= saveparam.changes 
+		        	and save_interval > saveparam.seconds:
+		        	
+		            BGSAVE()
+		            
+			# ...
+		~~~
+	- 服务器周期性函数serverCorn默认每100mm执行一次，其中一项工作就是检查BGSAVE命令的条件是否满足  
+	- 任意saveparam满足，就执行BGSAVE
+		
+## RDB文件结构
+| REDIS | db\_version \| databases \| EOF |check_sum
+## 分析RDB文件
+
+
+
+[^1]: 如果向一个集合键增加三个新元素,dirty会加3
