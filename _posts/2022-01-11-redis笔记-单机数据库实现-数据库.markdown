@@ -4,14 +4,14 @@ title:  "redis笔记-单机数据库实现 "
 date:   2018-06-22 15:18 +0800
 categories: redis
 ---
-redis笔记-单机数据库实现 
-------
+redis笔记-单机数据库实现-数据库
+======
 
 [TOC]
 
 
 
-### 结构
+## 结构
 
 ~~~c
 struct redisServer {
@@ -41,7 +41,7 @@ typedef struct redisDb {
 - EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
   ![redisDb](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/redisDb1.jpg)
 
-### 过期时间
+## 过期时间
 
 - EXPIRE \<key> \<ttl> 命令用于将键key的生存时间设置为ttl秒。
 - PEXPIRE \<key> \<ttl> 命令用于将键key的生存时间设置为ttl毫秒。
@@ -50,9 +50,9 @@ typedef struct redisDb {
 - EXPIRE、PEXPIRE、EXPIREAT三个命令都是使用PEXPIREAT命令来实现的。  
   ![db_expier](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/db_expier1.jpg)
 
-### Redis服务器实际使用的是惰性删除和定期删除两种策略
+## Redis服务器实际使用的是惰性删除和定期删除两种策略
 
-> ####概念：过期键的三种删除策略:  
+> #### 概念：过期键的三种删除策略:  
 >
 > 1. 定时删除：设置过期时间时，创建timer来控制；对内存友好，对cpu不友好；创建一个定时器需要用到时间事件，当前是用无序链表实现的，查找一个事件的时间复杂度为O(N)，并不能高效地处理大量时间事件;
 > 2. 惰性删除：每次取键值对时，检查是否过期；cpu友好，内存不友好;
@@ -117,7 +117,7 @@ typedef struct redisDb {
             if reach_time_limit(): return
     ~~~ 
 
-### AOF、RDB和复制功能对过期键的处理
+## AOF、RDB和复制功能对过期键的处理
 
 - **RDB持久化** 
   1. 生成RDB，已过期的键不会被保存到新创建的RDB文件中
@@ -128,7 +128,7 @@ typedef struct redisDb {
 - **复制** 
   1. 从服务器只有在接到主服务器发来的DEL命令之后，才会删除过期键
 
-### 数据库通知
+## 数据库通知
 
 客户端通过订阅给定的频道或者模式，来获知数据库中键的变化，以及数据库中命令的执行情况；[详细文档](http://redisdoc.com/topic/notification.html)  
 伪代码  
