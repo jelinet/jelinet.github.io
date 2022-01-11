@@ -1,0 +1,188 @@
+redis笔记-单机数据库实现-数据库
+======  
+
+[TOC]
+
+
+
+### 结构
+
+~~~c
+struct redisServer {
+	// ...
+	
+  	// 数据库数组
+  	redisDb *db;
+  	// 服务器的数据库数量
+  	int dbnum;
+  	
+  	// ...   
+}
+-----------------------------
+typedef struct redisDb {
+    // 数据库键空间，保存着数据库中的所有键值对
+    dict *dict;                 /* The keyspace for this DB */
+    // 键的过期时间，字典的键为键，字典的值为过期事件 UNIX 时间戳
+    dict *expires;              /* Timeout of keys with a timeout set */
+    
+    // ...
+    
+} redisDb;
+~~~
+
+- dbnum 默认是16,select 命令切换数据库，默认使用db[0];
+- redisDb中dict，保存了所有的键值对;
+- EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
+  ![redisDb](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/redisDb1.jpg)
+
+### 过期时间
+
+- EXPIRE \<key> \<ttl> 命令用于将键key的生存时间设置为ttl秒。
+- PEXPIRE \<key> \<ttl> 命令用于将键key的生存时间设置为ttl毫秒。
+- EXPIREAT \<key> \<timestamp> 命令用于将键key的过期时间设置为timestamp所指定的秒数时间戳。
+- PEXPIREAT \<key> \<timestamp> 命令用于将键key的过期时间设置为timestamp所指定的毫秒数时间戳。
+- EXPIRE、PEXPIRE、EXPIREAT三个命令都是使用PEXPIREAT命令来实现的。  
+  ![db_expier](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/db_expier1.jpg)
+
+### Redis服务器实际使用的是惰性删除和定期删除两种策略
+
+> ####概念：过期键的三种删除策略:  
+>
+> 1. 定时删除：设置过期时间时，创建timer来控制；对内存友好，对cpu不友好；创建一个定时器需要用到时间事件，当前是用无序链表实现的，查找一个事件的时间复杂度为O(N)，并不能高效地处理大量时间事件;
+> 2. 惰性删除：每次取键值对时，检查是否过期；cpu友好，内存不友好;
+> 3. 定期删除：每隔一段时间对数据库进行一次检查;
+
+    1. **惰性删除**:过期键的惰性删除策略由db.c/expireIfNeeded函数实现;
+
+![expireIfNeeded](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/expireIfNeeded.jpg)  
+
+    2. **定期删除**:过期键的定期删除策略由redis.c/activeExpireCycle函数实现 伪代码:
+
+    ~~~c
+    # 默认每次检查的数据库数量
+    
+    DEFAULT_DB_NUMBERS = 16
+    
+    # 默认每个数据库检查的键数量
+    DEFAULT_KEY_NUMBERS = 20
+    
+    # 全局变量，记录检查进度
+    current_db = 0
+    
+    def activeExpireCycle():
+    
+    # 初始化要检查的数据库数量
+    # 如果服务器的数据库数量比 DEFAULT_DB_NUMBERS 要小
+    # 那么以服务器的数据库数量为准
+    if servesr.dbnum < DEFAULT_DB_NUMBERS:
+    	db_numbers = server.dbnum
+    else:
+    	db_numbers = DEFAULT_DB_NUMBERS
+    
+    # 遍历各个数据库
+    for i in range(db_numbers):
+    
+        # 如果current_db的值等于服务器的数据库数量
+        # 这表示检查程序已经遍历了服务器的所有数据库一次
+        # 将current_db重置为0，开始新的一轮遍历
+        if current_db == server.dbnum:
+            current_db = 0
+    
+        # 获取当前要处理的数据库
+        redisDb = server.db[current_db]
+    
+        # 将数据库索引增1，指向下一个要处理的数据库
+        current_db += 1
+    
+        # 检查数据库键
+        for j in range(DEFAULT_KEY_NUMBERS):
+    
+            # 如果数据库中没有一个键带有过期时间，那么跳过这个数据库
+            if redisDb.expires.size() == 0: break
+    
+            # 随机获取一个带有过期时间的键
+            key_with_ttl = redisDb.expires.get_random_key()
+    
+            # 检查键是否过期，如果过期就删除它
+            if is_expired(key_with_ttl):
+                delete_key(key_with_ttl)
+    
+            # 已达到时间上限，停止处理
+            if reach_time_limit(): return
+    ~~~ 
+
+### AOF、RDB和复制功能对过期键的处理
+
+- **RDB持久化** 
+  1. 生成RDB，已过期的键不会被保存到新创建的RDB文件中
+  2. 载入RDB文件，以主服务器模式运行，对键检查，过期键忽略；从服务模式运行，全部载入；
+- **AOF持久化**
+  1. AOF写入：当过期键被惰性删除或者定期删除之后，程序会向AOF文件追加（append）一条DEL命令，来显式地记录该键已被删除
+  2. AOF重写：已过期的键不会被保存到重写后的AOF文件
+- **复制** 
+  1. 从服务器只有在接到主服务器发来的DEL命令之后，才会删除过期键
+
+### 数据库通知
+
+客户端通过订阅给定的频道或者模式，来获知数据库中键的变化，以及数据库中命令的执行情况；[详细文档](http://redisdoc.com/topic/notification.html)  
+伪代码  
+
+~~~c
+def notifyKeyspaceEvent(type, event, key, dbid):
+
+   # 如果给定的通知不是服务器允许发送的通知，那么直接返回    
+   if not(server.notify_keyspace_events & type):
+           return    
+   # 发送键空间通知 
+   if server.notify_keyspace_events & REDIS_NOTIFY_KEYSPACE:
+   
+           #将通知发送给频道__keyspace@<dbid>__:<key>
+           #内容为键所发生的事件 <event>        
+           
+           # 构建频道名字        
+           chan = "__keyspace@{dbid}__:{key}".format(dbid=dbid, key=key)
+           
+           # 发送通知        
+           pubsubPublishMessage(chan, event)    
+   # 发送键事件通知    
+   if server.notify_keyspace_events & REDIS_NOTIFY_KEYEVENT:        
+   			#将通知发送给频道__keyevent@<dbid>__:<event>        
+   			#内容为发生事件的键 <key>        
+   			
+   			# 构建频道名字        
+   			chan = "__keyevent@{dbid}__:{event}".format(dbid=dbid,event=event)        
+   			
+   			# 发送通知        
+   			pubsubPublishMessage(chan, key)
+~~~
+
+
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
+​	
