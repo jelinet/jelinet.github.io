@@ -1,0 +1,118 @@
+---
+layout: post
+title:  "redis笔记-数据结构 "
+date:   2018-03-26 18:54 +0800
+categories: redis
+---
+redis笔记-数据结构 
+------
+
+[TOC]
+
+
+
+#### 跳跃表
+
+- 两个地方用到：有序集合键；集群节点中，内部数据结构  
+
+- 实现：
+  ![一个跳跃表](/Users/lixuemei08/Downloads/redis笔记/skipList1.jpg)  
+
+  ~~~c
+  typedef struct zskiplist {
+    // 表头节点和表尾节点
+    structz skiplistNode *header, *tail;
+    // 表中节点的数量
+    unsigned long length;
+    // 表中层数最大的节点的层数
+    int level;
+  } zskiplist;
+  ~~~
+
+  ~~~c
+  typedef struct zskiplistNode {
+    // 层
+    struct zskiplistLevel {
+        // 前进指针
+        struct zskiplistNode *forward;
+        // 跨度
+        unsigned int span;
+    } level[];
+    // 后退指针
+    struct zskiplistNode *backward;
+    // 分值
+    double score;
+    // 成员对象
+    robj *obj;
+  } zskiplistNode;
+  ~~~
+
+  1. zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length；
+  2. zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj; 
+  3. 跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加；
+  4. 成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS；
+  5. obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头；
+
+#### 整数集合
+
+- 一个集合包含整数元素，个数不多；
+
+- 实现  
+
+  ~~~c
+  typedef struct intset {
+    // 编码方式
+    uint32_t encoding;
+    // 集合包含的元素数量
+    uint32_t length;
+    // 保存元素的数组
+    int8_t contents[];
+  } intset;
+  ~~~
+
+  1. int16,int32,int64的整数值；有序,无重复元素；
+  2. contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值;
+  3. 添加新元素的时间复杂度为O(N)
+  4. 仅支持升级，不支持降级；
+
+#### 压缩列表  
+
+- 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串；
+- 结构
+  ![ziplist结构](/Users/lixuemei08/Downloads/redis笔记/ziplist1.jpg)  
+
+#### 对象
+
+- 字符串对象、列表对象、哈希对象、集合对象和有序集合对象；
+
+- 引用计数法实现的内存回收和对象共享机制；
+
+- 创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象；
+
+- 结构
+
+  ~~~c
+  typedef struct redisObject {
+    // 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET
+    unsigned type:4;
+    // 编码
+    unsigned encoding:4;
+    // 指向底层实现数据结构的指针
+    void *ptr;
+    // ...
+  } robj;
+  ~~~
+
+  ![编码常量](/Users/lixuemei08/Downloads/redis笔记/object1.jpg)
+
+- 对象会在不同场景使用不同的编码；  
+
+  1. 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；
+  2. 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度<=64，元素数量<=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；
+  3. 哈希对象编码：ziplist,hashtable;
+     ![hash的ziplist编码](/Users/lixuemei08/Downloads/redis笔记/objecthash1.jpg)
+       ziplist条件：键和值长度都<=64，键值对<=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；
+  4. 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；
+  5. 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
+     ![hash的ziplist编码](/Users/lixuemei08/Downloads/redis笔记/zsetziplist1.jpg)
+       ziplist条件：
