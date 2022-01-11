@@ -28,7 +28,7 @@ github_username:  jelinet7
 instagram_username: j3l1n37
 
 # Build settings
-theme: minima
+theme: jekyll-theme-slate
 plugins:
   - jekyll-feed
 
