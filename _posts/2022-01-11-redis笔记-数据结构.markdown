@@ -1,11 +1,10 @@
 ---
 layout: post
-title:  "redis笔记-数据结构 "
+title:  "redis笔记-数据结构"
 date:   2018-03-26 18:54 +0800
 categories: redis
 ---
-redis笔记-数据结构 
-======
+
 
 [TOC]
 
