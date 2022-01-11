@@ -16,7 +16,7 @@ redis笔记-数据结构
 - 两个地方用到：有序集合键；集群节点中，内部数据结构  
 
 - 实现：
-  ![一个跳跃表](/Users/lixuemei08/Downloads/redis笔记/skipList1.jpg)  
+  ![一个跳跃表](image/redis/skipList1.jpg)  
 
   ~~~c
   typedef struct zskiplist {
@@ -79,7 +79,7 @@ redis笔记-数据结构
 
 - 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串；
 - 结构
-  ![ziplist结构](/Users/lixuemei08/Downloads/redis笔记/ziplist1.jpg)  
+  ![ziplist结构](image/redis/ziplist1.jpg)  
 
 #### 对象
 
@@ -103,16 +103,15 @@ redis笔记-数据结构
   } robj;
   ~~~
 
-  ![编码常量](/Users/lixuemei08/Downloads/redis笔记/object1.jpg)
+  ![编码常量](image/redis/object1.jpg)
 
 - 对象会在不同场景使用不同的编码；  
 
   1. 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；
   2. 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度<=64，元素数量<=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；
   3. 哈希对象编码：ziplist,hashtable;
-     ![hash的ziplist编码](/Users/lixuemei08/Downloads/redis笔记/objecthash1.jpg)
+     ![hash的ziplist编码](image/redis/objecthash1.jpg)
        ziplist条件：键和值长度都<=64，键值对<=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；
   4. 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；
   5. 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
      ![hash的ziplist编码](/Users/lixuemei08/Downloads/redis笔记/zsetziplist1.jpg)
-       ziplist条件：
