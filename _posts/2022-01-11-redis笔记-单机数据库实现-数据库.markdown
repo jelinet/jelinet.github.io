@@ -3,8 +3,6 @@ redis笔记-单机数据库实现-数据库
 
 [TOC]
 
-
-
 ### 结构
 
 ~~~c
@@ -33,7 +31,7 @@ typedef struct redisDb {
 - dbnum 默认是16,select 命令切换数据库，默认使用db[0];
 - redisDb中dict，保存了所有的键值对;
 - EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
-  ![redisDb](http://redisbook.com/_images/graphviz-e201646a2797e756d94777ea28a94cd2f7177806.png)
+  ![redisDb](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/redisDb1.jpg)
 
 ### 过期时间
 

@@ -16,7 +16,7 @@ redis笔记-数据结构
 - 两个地方用到：有序集合键；集群节点中，内部数据结构  
 
 - 实现：
-  ![一个跳跃表](http://redisbook.com/_images/graphviz-8fc5de396a5b52c3d0b1991a1e09558ad055dd86.png)  
+  ![一个跳跃表](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/skipLIst1.jpg)  
 
   ~~~c
   typedef struct zskiplist {
@@ -127,8 +127,8 @@ redis笔记-数据结构
   1. 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；
   2. 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度<=64，元素数量<=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；
   3. 哈希对象编码：ziplist,hashtable;
-     ![hash的ziplist编码](http://redisbook.com/_images/graphviz-7ba8b1f3af17e2e62cdf43608914333bf14d8e91.png)
+     ![hash的ziplist编码](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/objecthash1.jpg)
        ziplist条件：键和值长度都<=64，键值对<=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；
   4. 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；
   5. 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
-     ![hash的ziplist编码](http://redisbook.com/_images/graphviz-8d7b7d0e78ad9d445ff14834e9e9618234395d46.png)
+     ![hash的ziplist编码](https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/zsetziplist1.jpg)
