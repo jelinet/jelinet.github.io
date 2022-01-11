@@ -34,6 +34,24 @@ remote_theme: samarsault/plainwhite-jekyll
 plugins:
   - jekyll-feed
 
+plainwhite:
+  name: jelinet
+  tagline: 
+  date_format: "%b %-d, %Y"
+
+  social_links:
+    twitter: j3l1n37
+    github: jelinet
+   instagram: j3l1n37
+
+plainwhite:
+  portfolio_image:  "8B3F9B49-F597-4CAC-9511-E54ABB1601A1.jpeg" # the path from the base directory of the site to the image to display (no / at the start)
+
+plainwhite:
+  sitemap: true
+
+
+
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
