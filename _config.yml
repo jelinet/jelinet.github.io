@@ -37,11 +37,13 @@ plugins:
 
 plainwhite:
   name: jelinet
-  tagline: baseball,<br>  
+  tagline: <div align="left">
+           baseball,<br>  
            console game,<br>  
            musical&classical&rock,<br>  
            LEGO,<br>  
-           programmer.  
+           programmer.
+           </div>
   portfolio_image:  "me_1.png"
   # sitemap: true
   # navigation:

@@ -6,8 +6,6 @@ categories: redis
 ---
 
 
-[TOC]
-
 
 
 ## 跳跃表
