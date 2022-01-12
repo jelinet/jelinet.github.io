@@ -36,11 +36,16 @@ plugins:
 
 plainwhite:
   name: jelinet
-  portfolio_image:  "8B3F9B49-F597-4CAC-9511-E54ABB1601A1.jpeg"
-  sitemap: true
-  navigation:
-    - title: about
-      url: "/about"
+  tagline: baseball,
+           console game,
+           musical&classical&rock,
+           LEGO,
+           programmer.
+  portfolio_image:  "me.jpeg"
+  # sitemap: true
+  # navigation:
+  #   - title: about
+  #     url: "/about"
   social_links:
     twitter: j3l1n37
     github:  jelinet
