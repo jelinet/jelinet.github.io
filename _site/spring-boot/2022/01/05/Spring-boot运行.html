@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Spring-boot运行调试</title>
+<!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Spring-boot运行调试 | Jelinet’s Blog</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Spring-boot运行调试" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="springboot核心原理" />
+<meta property="og:description" content="springboot核心原理" />
+<link rel="canonical" href="http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html" />
+<meta property="og:url" content="http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html" />
+<meta property="og:site_name" content="Jelinet’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-05T18:54:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Spring-boot运行调试" />
+<script type="application/ld+json">
+{"headline":"Spring-boot运行调试","dateModified":"2022-01-05T18:54:00+08:00","datePublished":"2022-01-05T18:54:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html"},"author":{"@type":"Person","name":"Jelinet"},"url":"http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html","@type":"BlogPosting","description":"springboot核心原理","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>onsole game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://twitter.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-twitter-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2008-2022</p>
+    </section>
+    <section class="content">
+      <div class="post-container">
+  <a class="post-link" href="/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html">
+    <h2 class="post-title">Spring-boot运行调试</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Jan 5, 2022</div><ul class="post-categories"><li>spring-boot</li></ul></div>
+  <div class="post">
+    <h2 id="springboot核心原理">springboot核心原理</h2>
+
+<ol>
+  <li>
+    <p>SpringBoot核心通过Maven继承依赖关系快速整合第三方框架</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 当你添加了相应的starter模块，就相当于添加了相应的所有必须的依赖包，包括spring-boot-starter（这是Spring Boot的核心启动器，包含了自动配置、日志和YAML）；spring-boot-starter-test（支持常规的测试依赖，包括JUnit、Hamcrest、Mockito以及spring-test模块）；spring-boot-starter-web （支持全栈式Web开发，包括Tomcat和spring-webmvc）等相关依赖。
+--&gt;</span>
+<span class="nt">&lt;parent&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>2.0.0.RELEASE<span class="nt">&lt;/version&gt;</span>	
+<span class="nt">&lt;/parent&gt;</span>
+<span class="nt">&lt;dependencies&gt;</span>
+	<span class="c">&lt;!-- SpringBoot 整合SpringMVC --&gt;</span>
+	<span class="nt">&lt;dependency&gt;</span>
+		<span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+		<span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>基于SpringMVC无配置文件（纯Java）完全注解化实现SpringBoot框架，Main函数启动。</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@SpringBootApplication</span> 
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="o">{</span>
+	<span class="c1">//方式一</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="nc">Application</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="c1">//方式二</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">SpringApplication</span> <span class="n">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SpringApplication</span><span class="o">(</span><span class="nc">MySpringConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">app</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+   <span class="c1">//方式三</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nf">SpringApplicationBuilder</span><span class="o">()</span>
+         <span class="o">.</span><span class="na">sources</span><span class="o">(</span><span class="nc">Parent</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+         <span class="o">.</span><span class="na">child</span><span class="o">(</span><span class="nc">Application</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+         <span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="springapplication">SpringApplication</h3>
+
+<p>springboot驱动spring应用上下文的引导类，run()方法启动Spring应用，实质上是为Spring应用创建并初始化Spring上下文。</p>
+
+<blockquote>
+  <ul>
+    <li>Create an appropriate ApplicationContext instance (depending on your classpath)-&gt;创建ApplicationContext实例 (基于classpath)</li>
+    <li>Register a CommandLinePropertySource to expose command line arguments as Spring properties-&gt;注册一个 CommandLinePropertySource to 命令行参数暴露为Spring 属性</li>
+    <li>Refresh the application context, loading all singleton beans</li>
+    <li>Trigger(触发) any CommandLineRunner beans</li>
+  </ul>
+</blockquote>
+
+<p>SpringApplications 可以使用<strong>@Configuration</strong> 注解加载, 也可以通过以下加载:</p>
+
+<ul>
+  <li>AnnotatedBeanDefinitionReader加载的类名</li>
+  <li>XmlBeanDefinitionReader加载的 XML ，或者 GroovyBeanDefinitionReader 加载的 groovy 脚本</li>
+  <li>ClassPathBeanDefinitionScanner 要扫描的包的名称</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="kd">public</span> <span class="nc">ConfigurableApplicationContext</span> <span class="nf">run</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+		<span class="nc">StopWatch</span> <span class="n">stopWatch</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StopWatch</span><span class="o">();</span>
+		<span class="n">stopWatch</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+		<span class="nc">ConfigurableApplicationContext</span> <span class="n">context</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+		<span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">SpringBootExceptionReporter</span><span class="o">&gt;</span> <span class="n">exceptionReporters</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+		<span class="n">configureHeadlessProperty</span><span class="o">();</span>
+		<span class="nc">SpringApplicationRunListeners</span> <span class="n">listeners</span> <span class="o">=</span> <span class="n">getRunListeners</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+		<span class="n">listeners</span><span class="o">.</span><span class="na">starting</span><span class="o">();</span>
+		<span class="k">try</span> <span class="o">{</span>
+			<span class="nc">ApplicationArguments</span> <span class="n">applicationArguments</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DefaultApplicationArguments</span><span class="o">(</span>
+					<span class="n">args</span><span class="o">);</span>
+			<span class="nc">ConfigurableEnvironment</span> <span class="n">environment</span> <span class="o">=</span> <span class="n">prepareEnvironment</span><span class="o">(</span><span class="n">listeners</span><span class="o">,</span>
+					<span class="n">applicationArguments</span><span class="o">);</span>
+			<span class="n">configureIgnoreBeanInfo</span><span class="o">(</span><span class="n">environment</span><span class="o">);</span>
+			<span class="nc">Banner</span> <span class="n">printedBanner</span> <span class="o">=</span> <span class="n">printBanner</span><span class="o">(</span><span class="n">environment</span><span class="o">);</span>
+			<span class="n">context</span> <span class="o">=</span> <span class="n">createApplicationContext</span><span class="o">();</span>
+			<span class="n">exceptionReporters</span> <span class="o">=</span> <span class="n">getSpringFactoriesInstances</span><span class="o">(</span>
+					<span class="nc">SpringBootExceptionReporter</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+					<span class="k">new</span> <span class="nc">Class</span><span class="o">[]</span> <span class="o">{</span> <span class="nc">ConfigurableApplicationContext</span><span class="o">.</span><span class="na">class</span> <span class="o">},</span> <span class="n">context</span><span class="o">);</span>
+			<span class="n">prepareContext</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">environment</span><span class="o">,</span> <span class="n">listeners</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">,</span>
+					<span class="n">printedBanner</span><span class="o">);</span>
+			<span class="n">refreshContext</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+			<span class="n">afterRefresh</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">);</span>
+			<span class="n">stopWatch</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+			<span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">logStartupInfo</span><span class="o">)</span> <span class="o">{</span>
+				<span class="k">new</span> <span class="nf">StartupInfoLogger</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">mainApplicationClass</span><span class="o">)</span>
+						<span class="o">.</span><span class="na">logStarted</span><span class="o">(</span><span class="n">getApplicationLog</span><span class="o">(),</span> <span class="n">stopWatch</span><span class="o">);</span>
+			<span class="o">}</span>
+			<span class="n">listeners</span><span class="o">.</span><span class="na">started</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+			<span class="n">callRunners</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">);</span>
+		<span class="o">}</span>
+		<span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">handleRunFailure</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">ex</span><span class="o">,</span> <span class="n">exceptionReporters</span><span class="o">,</span> <span class="n">listeners</span><span class="o">);</span>
+			<span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+		<span class="o">}</span>
+
+		<span class="k">try</span> <span class="o">{</span>
+			<span class="n">listeners</span><span class="o">.</span><span class="na">running</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+		<span class="o">}</span>
+		<span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">handleRunFailure</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">ex</span><span class="o">,</span> <span class="n">exceptionReporters</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+			<span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+		<span class="o">}</span>
+		<span class="k">return</span> <span class="n">context</span><span class="o">;</span>
+	<span class="o">}</span>
+</code></pre></div></div>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://twitter.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-twitter-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2008-2022</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>

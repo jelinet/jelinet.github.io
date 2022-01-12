@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>redis笔记-数据结构</title>
+<!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>redis笔记-数据结构 | Jelinet’s Blog</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="redis笔记-数据结构" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="跳跃表 两个地方用到：有序集合键；集群节点中，内部数据结构 实现： typedef struct zskiplist { // 表头节点和表尾节点 structz skiplistNode *header, *tail; // 表中节点的数量 unsigned long length; // 表中层数最大的节点的层数 int level; } zskiplist; typedef struct zskiplistNode { // 层 struct zskiplistLevel { // 前进指针 struct zskiplistNode *forward; // 跨度 unsigned int span; } level[]; // 后退指针 struct zskiplistNode *backward; // 分值 double score; // 成员对象 robj *obj; } zskiplistNode; zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length； zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj; 跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加； 成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS； obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头； 整数集合 一个集合包含整数元素，个数不多； 实现 typedef struct intset { // 编码方式 uint32_t encoding; // 集合包含的元素数量 uint32_t length; // 保存元素的数组 int8_t contents[]; } intset; int16,int32,int64的整数值；有序,无重复元素； contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值; 添加新元素的时间复杂度为O(N) 仅支持升级，不支持降级； 压缩列表 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串； 结构 属性 类型 长度 用途 zlbytes uint32_t 4 字节 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。 zltail uint32_t 4 字节 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 zllen uint16_t 2 字节 记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 entryX 列表节点 不定 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。 zlend uint8_t 1 字节 特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。 对象 字符串对象、列表对象、哈希对象、集合对象和有序集合对象； 引用计数法实现的内存回收和对象共享机制； 创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象； 结构 typedef struct redisObject { // 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET unsigned type:4; // 编码 unsigned encoding:4; // 指向底层实现数据结构的指针 void *ptr; // ... } robj; 编码常量 编码所对应的底层数据结构 REDIS_ENCODING_INT long 类型的整数 REDIS_ENCODING_EMBSTR embstr 编码的简单动态字符串 REDIS_ENCODING_RAW 简单动态字符串 REDIS_ENCODING_HT 字典 REDIS_ENCODING_LINKEDLIST 双端链表 REDIS_ENCODING_ZIPLIST 压缩列表 REDIS_ENCODING_INTSET 整数集合 REDIS_ENCODING_SKIPLIST 跳跃表和字典 对象会在不同场景使用不同的编码； 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的； 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&lt;=64，元素数量&lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries； 哈希对象编码：ziplist,hashtable; ziplist条件：键和值长度都&lt;=64，键值对&lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries； 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries； 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；" />
+<meta property="og:description" content="跳跃表 两个地方用到：有序集合键；集群节点中，内部数据结构 实现： typedef struct zskiplist { // 表头节点和表尾节点 structz skiplistNode *header, *tail; // 表中节点的数量 unsigned long length; // 表中层数最大的节点的层数 int level; } zskiplist; typedef struct zskiplistNode { // 层 struct zskiplistLevel { // 前进指针 struct zskiplistNode *forward; // 跨度 unsigned int span; } level[]; // 后退指针 struct zskiplistNode *backward; // 分值 double score; // 成员对象 robj *obj; } zskiplistNode; zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length； zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj; 跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加； 成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS； obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头； 整数集合 一个集合包含整数元素，个数不多； 实现 typedef struct intset { // 编码方式 uint32_t encoding; // 集合包含的元素数量 uint32_t length; // 保存元素的数组 int8_t contents[]; } intset; int16,int32,int64的整数值；有序,无重复元素； contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值; 添加新元素的时间复杂度为O(N) 仅支持升级，不支持降级； 压缩列表 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串； 结构 属性 类型 长度 用途 zlbytes uint32_t 4 字节 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。 zltail uint32_t 4 字节 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 zllen uint16_t 2 字节 记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 entryX 列表节点 不定 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。 zlend uint8_t 1 字节 特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。 对象 字符串对象、列表对象、哈希对象、集合对象和有序集合对象； 引用计数法实现的内存回收和对象共享机制； 创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象； 结构 typedef struct redisObject { // 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET unsigned type:4; // 编码 unsigned encoding:4; // 指向底层实现数据结构的指针 void *ptr; // ... } robj; 编码常量 编码所对应的底层数据结构 REDIS_ENCODING_INT long 类型的整数 REDIS_ENCODING_EMBSTR embstr 编码的简单动态字符串 REDIS_ENCODING_RAW 简单动态字符串 REDIS_ENCODING_HT 字典 REDIS_ENCODING_LINKEDLIST 双端链表 REDIS_ENCODING_ZIPLIST 压缩列表 REDIS_ENCODING_INTSET 整数集合 REDIS_ENCODING_SKIPLIST 跳跃表和字典 对象会在不同场景使用不同的编码； 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的； 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&lt;=64，元素数量&lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries； 哈希对象编码：ziplist,hashtable; ziplist条件：键和值长度都&lt;=64，键值对&lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries； 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries； 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；" />
+<link rel="canonical" href="http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html" />
+<meta property="og:url" content="http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html" />
+<meta property="og:site_name" content="Jelinet’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-03-26T18:54:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="redis笔记-数据结构" />
+<script type="application/ld+json">
+{"headline":"redis笔记-数据结构","dateModified":"2018-03-26T18:54:00+08:00","datePublished":"2018-03-26T18:54:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html"},"author":{"@type":"Person","name":"Jelinet"},"url":"http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html","@type":"BlogPosting","description":"跳跃表 两个地方用到：有序集合键；集群节点中，内部数据结构 实现： typedef struct zskiplist { // 表头节点和表尾节点 structz skiplistNode *header, *tail; // 表中节点的数量 unsigned long length; // 表中层数最大的节点的层数 int level; } zskiplist; typedef struct zskiplistNode { // 层 struct zskiplistLevel { // 前进指针 struct zskiplistNode *forward; // 跨度 unsigned int span; } level[]; // 后退指针 struct zskiplistNode *backward; // 分值 double score; // 成员对象 robj *obj; } zskiplistNode; zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length； zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj; 跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加； 成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS； obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头； 整数集合 一个集合包含整数元素，个数不多； 实现 typedef struct intset { // 编码方式 uint32_t encoding; // 集合包含的元素数量 uint32_t length; // 保存元素的数组 int8_t contents[]; } intset; int16,int32,int64的整数值；有序,无重复元素； contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值; 添加新元素的时间复杂度为O(N) 仅支持升级，不支持降级； 压缩列表 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串； 结构 属性 类型 长度 用途 zlbytes uint32_t 4 字节 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。 zltail uint32_t 4 字节 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 zllen uint16_t 2 字节 记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 entryX 列表节点 不定 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。 zlend uint8_t 1 字节 特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。 对象 字符串对象、列表对象、哈希对象、集合对象和有序集合对象； 引用计数法实现的内存回收和对象共享机制； 创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象； 结构 typedef struct redisObject { // 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET unsigned type:4; // 编码 unsigned encoding:4; // 指向底层实现数据结构的指针 void *ptr; // ... } robj; 编码常量 编码所对应的底层数据结构 REDIS_ENCODING_INT long 类型的整数 REDIS_ENCODING_EMBSTR embstr 编码的简单动态字符串 REDIS_ENCODING_RAW 简单动态字符串 REDIS_ENCODING_HT 字典 REDIS_ENCODING_LINKEDLIST 双端链表 REDIS_ENCODING_ZIPLIST 压缩列表 REDIS_ENCODING_INTSET 整数集合 REDIS_ENCODING_SKIPLIST 跳跃表和字典 对象会在不同场景使用不同的编码； 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的； 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&lt;=64，元素数量&lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries； 哈希对象编码：ziplist,hashtable; ziplist条件：键和值长度都&lt;=64，键值对&lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries； 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries； 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>onsole game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://twitter.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-twitter-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2008-2022</p>
+    </section>
+    <section class="content">
+      <div class="post-container">
+  <a class="post-link" href="/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html">
+    <h2 class="post-title">redis笔记-数据结构</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Mar 26, 2018</div><ul class="post-categories"><li>redis</li></ul></div>
+  <div class="post">
+    <h2 id="跳跃表">跳跃表</h2>
+
+<ul>
+  <li>
+    <p>两个地方用到：有序集合键；集群节点中，内部数据结构</p>
+  </li>
+  <li>
+    <p>实现：
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/skipLIst1.jpg" alt="一个跳跃表" /></p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
+  <span class="c1">// 表头节点和表尾节点</span>
+  <span class="n">structz</span> <span class="n">skiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
+  <span class="c1">// 表中节点的数量</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>
+  <span class="c1">// 表中层数最大的节点的层数</span>
+  <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
+  <span class="c1">// 层</span>
+  <span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+      <span class="c1">// 前进指针</span>
+      <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
+      <span class="c1">// 跨度</span>
+      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">span</span><span class="p">;</span>
+  <span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
+  <span class="c1">// 后退指针</span>
+  <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+  <span class="c1">// 分值</span>
+  <span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+  <span class="c1">// 成员对象</span>
+  <span class="n">robj</span> <span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <ol>
+      <li>zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length；</li>
+      <li>zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj;</li>
+      <li>跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加；</li>
+      <li>成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS；</li>
+      <li>obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头；</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="整数集合">整数集合</h2>
+
+<ul>
+  <li>
+    <p>一个集合包含整数元素，个数不多；</p>
+  </li>
+  <li>
+    <p>实现</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">intset</span> <span class="p">{</span>
+  <span class="c1">// 编码方式</span>
+  <span class="kt">uint32_t</span> <span class="n">encoding</span><span class="p">;</span>
+  <span class="c1">// 集合包含的元素数量</span>
+  <span class="kt">uint32_t</span> <span class="n">length</span><span class="p">;</span>
+  <span class="c1">// 保存元素的数组</span>
+  <span class="kt">int8_t</span> <span class="n">contents</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">intset</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <ol>
+      <li>int16,int32,int64的整数值；有序,无重复元素；</li>
+      <li>contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值;</li>
+      <li>添加新元素的时间复杂度为O(N)</li>
+      <li>仅支持升级，不支持降级；</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="压缩列表">压缩列表</h2>
+
+<ul>
+  <li>
+    <p>列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串；</p>
+  </li>
+  <li>
+    <p>结构</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">属性</th>
+          <th style="text-align: left">类型</th>
+          <th style="text-align: left">长度</th>
+          <th style="text-align: left">用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">zlbytes</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uint32_t</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">4</code> 字节</td>
+          <td style="text-align: left">记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 <code class="language-plaintext highlighter-rouge">zlend</code> 的位置时使用。</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">zltail</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uint32_t</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">4</code> 字节</td>
+          <td style="text-align: left">记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">zllen</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uint16_t</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">2</code> 字节</td>
+          <td style="text-align: left">记录了压缩列表包含的节点数量： 当这个属性的值小于 <code class="language-plaintext highlighter-rouge">UINT16_MAX</code> （<code class="language-plaintext highlighter-rouge">65535</code>）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 <code class="language-plaintext highlighter-rouge">UINT16_MAX</code> 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">entryX</code></td>
+          <td style="text-align: left">列表节点</td>
+          <td style="text-align: left">不定</td>
+          <td style="text-align: left">压缩列表包含的各个节点，节点的长度由节点保存的内容决定。</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">zlend</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uint8_t</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">1</code> 字节</td>
+          <td style="text-align: left">特殊值 <code class="language-plaintext highlighter-rouge">0xFF</code> （十进制 <code class="language-plaintext highlighter-rouge">255</code> ），用于标记压缩列表的末端。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h2 id="对象">对象</h2>
+
+<ul>
+  <li>
+    <p>字符串对象、列表对象、哈希对象、集合对象和有序集合对象；</p>
+  </li>
+  <li>
+    <p>引用计数法实现的内存回收和对象共享机制；</p>
+  </li>
+  <li>
+    <p>创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象；</p>
+  </li>
+  <li>
+    <p>结构</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">redisObject</span> <span class="p">{</span>
+  <span class="c1">// 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET</span>
+  <span class="kt">unsigned</span> <span class="n">type</span><span class="o">:</span><span class="mi">4</span><span class="p">;</span>
+  <span class="c1">// 编码</span>
+  <span class="kt">unsigned</span> <span class="n">encoding</span><span class="o">:</span><span class="mi">4</span><span class="p">;</span>
+  <span class="c1">// 指向底层实现数据结构的指针</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span> <span class="n">robj</span><span class="p">;</span>
+</code></pre></div>    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">编码常量</th>
+          <th style="text-align: left">编码所对应的底层数据结构</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_INT</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">long</code> 类型的整数</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_EMBSTR</code></td>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">embstr</code> 编码的简单动态字符串</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_RAW</code></td>
+          <td style="text-align: left">简单动态字符串</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_HT</code></td>
+          <td style="text-align: left">字典</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_LINKEDLIST</code></td>
+          <td style="text-align: left">双端链表</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_ZIPLIST</code></td>
+          <td style="text-align: left">压缩列表</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_INTSET</code></td>
+          <td style="text-align: left">整数集合</td>
+        </tr>
+        <tr>
+          <td style="text-align: left"><code class="language-plaintext highlighter-rouge">REDIS_ENCODING_SKIPLIST</code></td>
+          <td style="text-align: left">跳跃表和字典</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>对象会在不同场景使用不同的编码；</p>
+
+    <ol>
+      <li>字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；</li>
+      <li>列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&lt;=64，元素数量&lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；</li>
+      <li>哈希对象编码：ziplist,hashtable;
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/objecthash1.jpg" alt="hash的ziplist编码" />
+  ziplist条件：键和值长度都&lt;=64，键值对&lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；</li>
+      <li>集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；</li>
+      <li>有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
+<img src="https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/zsetziplist1.jpg" alt="hash的ziplist编码" /></li>
+    </ol>
+  </li>
+</ul>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://twitter.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-twitter-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2008-2022</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>
