@@ -29,18 +29,18 @@ instagram_username: j3l1n37
 
 # Build settings
 
-# remote_theme: samarsault/plainwhite-jekyll
+remote_theme: samarsault/plainwhite-jekyll
 #theme: minima
-theme: plainwhite
+# theme: plainwhite
 plugins:
   - jekyll-feed
 
 plainwhite:
   name: jelinet
-  tagline: baseball,  
-           console game,  
-           musical&classical&rock,  
-           LEGO,  
+  tagline: baseball,<br>  
+           console game,<br>  
+           musical&classical&rock,<br>  
+           LEGO,<br>  
            programmer.  
   portfolio_image:  "me_1.png"
   # sitemap: true
