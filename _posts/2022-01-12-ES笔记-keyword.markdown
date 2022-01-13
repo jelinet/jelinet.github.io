@@ -45,7 +45,7 @@ numeric类型为了能有效的支持范围查询，它的存储结构并不是�
 
 而这些PointValues是基于kd-tree存储的，根据官方文档的介绍，lucene把叶子节点在磁盘是顺序存储的，这样搜索的效率就会非常高。
 
-##### 为啥numeric对于term精确匹配的查询性能没有keyword好
+#### 为啥numeric对于term精确匹配的查询性能没有keyword好
 
 前面我们提到了IntPoint类，这个类有三个查询方法：
 
