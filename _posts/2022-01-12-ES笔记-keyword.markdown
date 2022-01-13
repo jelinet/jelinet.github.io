@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "ElasticSearch笔记-keyword、text、numeric"
-date:   2022-01-12 12:34 +0800
+date:   2020-05-06 17:28 +0800
 categories: es
 
 ---

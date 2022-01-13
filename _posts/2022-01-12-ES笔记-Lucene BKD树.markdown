@@ -22,7 +22,7 @@ BSP树在计算科学中应用广泛。BSP树不止处理标准的Map和Set操�
 
 [k-d Trees](https://en.wikipedia.org/wiki/K-d_tree) 是一种最普通的BSP树. K-D树以及下面提到的变种树，它们的key可以是任意维的数据。而其他的一些BSP树，像[Quadtrees](https://en.wikipedia.org/wiki/Quadtree) 或者 [Octrees](https://en.wikipedia.org/wiki/Octree) 只能用来表示2D和3D空间。K-D树实现起来，很像是一个二叉查找树(BST)。主要的区别是，K-D树的key对比在不同的层使用的是不同的维度值。下面是一个2维树的样例：
 
-![2880px-Tree_0001.svg](/es/2880px-Tree_0001.svg.png)
+![2880px-Tree_0001.svg](/../../image/es/2880px-Tree_0001.svg.png)
 
 和二叉查找树一样，如果K-D树是平衡的，那么他的时间复杂度就是 O(log n)。当然这个前提是树是平衡的。假如一个树先添加一个点（1，1）然后加入点（0，0），那么2个点都会在树的左侧，这就导致了不平衡。更为难办的是，在K-D树上我们不能使用类似树旋转等标准的树平衡技术。我们唯一能做的就是完全重建子树才能让树平衡，就像 [Scapegoat Tree](https://en.wikipedia.org/wiki/Scapegoat_tree) 提到的。
 
@@ -32,7 +32,7 @@ BSP树在计算科学中应用广泛。BSP树不止处理标准的Map和Set操�
 
 这个树是K-D树和 [B+ Tree](https://en.wikipedia.org/wiki/B%2B_tree)树的结合体。像标准的K-D树一样，一个内部的node把空间切分成几个不同的区域。和K-D树不一样的是，内部node不是包含的点。空间里的区域由2个点来定义，一个点是各个维度最小位置，而另一个定义了各个维度最大的位置？？？。下面的图展示了一个包含3个区域，每个叶子包含3个点的K-D-B树。需要注意的是这2个值可以不一样。通常情况下，区域的个数是小于叶子点的个数的。每个节点的区域是按照一个坐标轴来排序的，不像K-D树是在不同level分坐标轴排序的。
 
-![k-d-b-tree](/es/k-d-b-tree.png)
+![k-d-b-tree](/../../image/es/k-d-b-tree.png)
 
 因为BKD树被组织成B树一样，所以在磁盘上可以工作的很好。随着每个node有更多的扇出，node会更大，相对来说树也就更浅。通常来说，磁盘延迟较大，但是吞吐很高。也就是说读取大块的数据和读取小块的数据耗费的时间成本是差不多的，大块数据是一个优势。更浅的深度也意味着更少的非本地读。通常我们把node的大小设置的至少和page(4KB)大小一样, 或者是成倍的关系。正因为如此，一个node可以包含数百的点。
 
@@ -40,7 +40,7 @@ BSP树在计算科学中应用广泛。BSP树不止处理标准的Map和Set操�
 
 假如我们需要对左下方区域进行垂直切分。因为现在已经有4个区域了，所以它的父区域也要进行切分。这意味着要对空间的整个左侧区域进行切分。这是K-D-B树的一大缺陷。切分一个区域通常需要切分它的子区域。修改会导致树大量的修改，当需要往磁盘写的时候，就更慢了。
 
-![kdb-tree-1](/es/kdb-tree-1.png)
+![kdb-tree-1](/../../image/es/kdb-tree-1.png)
 
 另外一个劣势是内存利用率。由于没有对一个node有多满做限制，这会导致大量的空间浪费。这不止影响磁盘数据的大小，也对性能有较大的影响，因为有更少的pages可以放在 [page cache](http://duartes.org/gustavo/blog/post/page-cache-the-affair-between-memory-and-files/).
 
@@ -52,7 +52,7 @@ BSP树在计算科学中应用广泛。BSP树不止处理标准的Map和Set操�
 
 BKD树可以解决空间和插入效率问题。BKD树由多个可修改的KD树构成，并且有统一的插入方法。下面这个图是这些树的其中之一：
 
-![bkd-tree](/es/bkd-tree.png)
+![bkd-tree](/../../image/es/bkd-tree.png)
 
 BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是一个完全二叉树，而叶子node存储的则和K-D-B树一模一样。
 
@@ -62,7 +62,7 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 首先，有一个大小为M的Buffer。在论文里，他是被保存在内存的。这个Buffer, 可能仅仅是一个数组或者性能更好的一些数据结构，毕竟是有查询需求的。论文并没有给出这个Buffer的最优大小，但是直觉上来说，至少应该和被修改的K-D树node一样大。
 
-![bkd-tree-1](/es/bkd-tree-1.png)
+![bkd-tree-1](/../../image/es/bkd-tree-1.png)
 
 如果BKD树由N个数据，那么它有 log2(N/M)个可修改的K-D树。每一个树都是前一个树的2倍。数据首先被插入到内存里的Buffer里，一旦Buffer满了，先定位到第1个为空的树。这个Buffer的数据，以及空树之前所有节点的数据一起生成一个满的平衡树。在论文里，有一个对这个算法的详细描述。
 
@@ -70,7 +70,7 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 ### Real Performance真实性能
 
-![bkd-kdb-performance](/es/bkd-kdb-performance.png)
+![bkd-kdb-performance](/../../image/es/bkd-kdb-performance.png)
 
 对于插入操作，BKD树比K-D-B树有2个量级的快。插入120M点数据的时间是50ms。这个数据是令人印象深刻的，但是当你知道使用的硬件设备是什么样的时候，你会更加的震惊。
 
@@ -80,7 +80,7 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 构建和写入是很耗时、开销很大的。尽管可以通过顺序写磁盘来优化，但是大量数据的移动是不可避免的。实际上，上面的例子，肯定有一个树至少存在60M的节点。创建这个有多耗时呢？
 
-![bkd-write-performance](/es/bkd-write-performance.png)
+![bkd-write-performance](/../../image/es/bkd-write-performance.png)
 
 根据提供的测试数据，1个插入操作可以花费超过10分钟来创建和写入。这看起来令人大跌眼球，但是你需要记住一些事情。
 
@@ -94,13 +94,13 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 查询树很容易，但效率略低。必须对每个修改过的K-D树以及Buffer执行查询。由于这些树都很小，这在同等条件下会比K-D-B树慢，但不会超过一个数量级。下面是一个非常大范围的查询（占整个空间的1%，或者大约是一个400M乘400M的范围）。
 
-![bkd-kdb-performance-1](/es/bkd-kdb-performance-1.png)
+![bkd-kdb-performance-1](/../../image/es/bkd-kdb-performance-1.png)
 
 简单的查询会比这个更惊人的快，这在论文里没有体现。如果范围查询性能是你的首要关注点，BKD树有可能并不是最优的数据结果。
 
 最后，我们来看下空间利用率的问题。我们期望这可能是近乎完美。这个图表用一个统一的随机和真实的数据集来说明空间利用率。
 
-![bkd-tree-space-efficient](/es/bkd-tree-space-efficient.png)
+![bkd-tree-space-efficient](/../../image/es/bkd-tree-space-efficient.png)
 
 一个需要关注的点是，论文没有给出如何压缩已删除数据点的方法。随着更多的点从叶子node删除，空间利用率将随之降低。然而，我们可以自己来实现。
 
@@ -108,7 +108,7 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 
 
-文章网友翻译过来的，原文章404了，就不放链接了。
+文章网友翻译过来的，原文章404了，不放链接了。
 
 参考论文：
 
