@@ -11,10 +11,10 @@ categories: es
 ES 中有**精确值**（Exact Values）与**全文本**（Full Text）之分：
 
 - 精确值：包括数字，日期，一个具体字符串（例如"Hello World”）。
-  - 在 ES 中用 [**keyword**](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html) {:target="_blank"}、numeric数据类型表示。
+  - 在 ES 中用 **[keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html) {:target="_blank"}**、numeric数据类型表示。
   - 精确值**不需要**做分词处理。
 - 全文本：非结构化的文本数据。
-  - 在 ES 中用 **[text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html)** {:target="_blank"}数据类型表示。
+  - 在 ES 中用 **[text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html){:target="_blank"}**数据类型表示。
   - 全文本**需要**做分词处理。
 
 **分词**主要用于建立**单词**（Term / Token）与**倒排索引**对应关系，比如将 `hello world` 拆分为 `hello` 和 `world`
