@@ -112,5 +112,5 @@ BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是�
 
 参考论文：
 
-[papers/bkd-sstd.pdf](https://users.cs.duke.edu/~pankaj/publications/papers/bkd-sstd.pdf)
+[papers/bkd-sstd.pdf](https://users.cs.duke.edu/~pankaj/publications/papers/bkd-sstd.pdf){:target="_blank"}
 

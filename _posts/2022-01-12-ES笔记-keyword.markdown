@@ -31,7 +31,7 @@ ES 中有**精确值**（Exact Values）与**全文本**（Full Text）之分：
 
 因为numeric支持等值精确查询，所以字段类型到底使用keyword还是numeric？答案是keyword。
 
-numeric类型为了能有效的支持范围查询，它的存储结构并不是倒排索引。numeric类型从lucene6.0开始，使用了一种名为`block KD tree`的存储结构。[Block KD tree介绍在这里](https://jelinet.com/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html)，不过多阐述。
+numeric类型为了能有效的支持范围查询，它的存储结构并不是倒排索引。numeric类型从lucene6.0开始，使用了一种名为`block KD tree`的存储结构。[Block KD tree介绍在这里](https://jelinet.com/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html){:target="_blank"}，不过多阐述。
 
 具体的ES内部（其实是Lucene）目前的版本是基于所谓的PointValues，比如整型在Lucene内部是IntPoint类表示，还有DoublePoint等，完整的对应关系是：
 
