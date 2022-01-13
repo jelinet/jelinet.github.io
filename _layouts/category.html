@@ -1,0 +1,27 @@
+---
+layout: default
+---
+
+<div class="post-container">
+  <blockquote>
+    <p><strong>{{ page.tag }}</strong></p>
+  </blockquote>
+    <ul class="posts">
+    {% for post in site.categories[page.tag] %}
+      <li>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+          <h2 class="post-title">{{ post.title | escape }}</h4>
+        </a>
+        <div class="post-meta">
+          <div class="post-date">
+            <i class="icon-calendar"></i>
+            {{ post.date | date: date_format }}
+          </div>
+        </div>
+      </li>    
+    {% endfor %}
+  </ul>
+</div>
+
+
+

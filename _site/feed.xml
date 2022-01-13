@@ -1,0 +1,858 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-01-13T22:24:44+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jelinet’s Blog</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</subtitle><author><name>Jelinet</name></author><entry><title type="html">Spring-boot运行调试</title><link href="http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html" rel="alternate" type="text/html" title="Spring-boot运行调试" /><published>2022-01-05T18:54:00+08:00</published><updated>2022-01-05T18:54:00+08:00</updated><id>http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C</id><content type="html" xml:base="http://localhost:4000/spring-boot/2022/01/05/Spring-boot%E8%BF%90%E8%A1%8C.html">&lt;h2 id=&quot;springboot核心原理&quot;&gt;springboot核心原理&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;SpringBoot核心通过Maven继承依赖关系快速整合第三方框架&lt;/p&gt;
+
+    &lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 当你添加了相应的starter模块，就相当于添加了相应的所有必须的依赖包，包括spring-boot-starter（这是Spring Boot的核心启动器，包含了自动配置、日志和YAML）；spring-boot-starter-test（支持常规的测试依赖，包括JUnit、Hamcrest、Mockito以及spring-test模块）；spring-boot-starter-web （支持全栈式Web开发，包括Tomcat和spring-webmvc）等相关依赖。
+--&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;parent&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.springframework.boot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;spring-boot-starter-parent&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;2.0.0.RELEASE&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;	
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/parent&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- SpringBoot 整合SpringMVC --&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.springframework.boot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;spring-boot-starter-web&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;基于SpringMVC无配置文件（纯Java）完全注解化实现SpringBoot框架，Main函数启动。&lt;/p&gt;
+
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@SpringBootApplication&lt;/span&gt; 
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;c1&quot;&gt;//方式一&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;SpringApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;//方式二&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;SpringApplication&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SpringApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MySpringConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+   &lt;span class=&quot;c1&quot;&gt;//方式三&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SpringApplicationBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+         &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;sources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Parent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+         &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+         &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;springapplication&quot;&gt;SpringApplication&lt;/h3&gt;
+
+&lt;p&gt;springboot驱动spring应用上下文的引导类，run()方法启动Spring应用，实质上是为Spring应用创建并初始化Spring上下文。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Create an appropriate ApplicationContext instance (depending on your classpath)-&amp;gt;创建ApplicationContext实例 (基于classpath)&lt;/li&gt;
+    &lt;li&gt;Register a CommandLinePropertySource to expose command line arguments as Spring properties-&amp;gt;注册一个 CommandLinePropertySource to 命令行参数暴露为Spring 属性&lt;/li&gt;
+    &lt;li&gt;Refresh the application context, loading all singleton beans&lt;/li&gt;
+    &lt;li&gt;Trigger(触发) any CommandLineRunner beans&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;SpringApplications 可以使用&lt;strong&gt;@Configuration&lt;/strong&gt; 注解加载, 也可以通过以下加载:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;AnnotatedBeanDefinitionReader加载的类名&lt;/li&gt;
+  &lt;li&gt;XmlBeanDefinitionReader加载的 XML ，或者 GroovyBeanDefinitionReader 加载的 groovy 脚本&lt;/li&gt;
+  &lt;li&gt;ClassPathBeanDefinitionScanner 要扫描的包的名称&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ConfigurableApplicationContext&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;nc&quot;&gt;StopWatch&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stopWatch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StopWatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;stopWatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;nc&quot;&gt;ConfigurableApplicationContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+		&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SpringBootExceptionReporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exceptionReporters&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;configureHeadlessProperty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;nc&quot;&gt;SpringApplicationRunListeners&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getRunListeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;starting&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;nc&quot;&gt;ApplicationArguments&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;applicationArguments&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DefaultApplicationArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+					&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;nc&quot;&gt;ConfigurableEnvironment&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepareEnvironment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+					&lt;span class=&quot;n&quot;&gt;applicationArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;configureIgnoreBeanInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;nc&quot;&gt;Banner&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;printedBanner&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;printBanner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;createApplicationContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;exceptionReporters&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getSpringFactoriesInstances&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+					&lt;span class=&quot;nc&quot;&gt;SpringBootExceptionReporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+					&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ConfigurableApplicationContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;prepareContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;applicationArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+					&lt;span class=&quot;n&quot;&gt;printedBanner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;refreshContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;afterRefresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;applicationArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;stopWatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+			&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;logStartupInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+				&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;StartupInfoLogger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;mainApplicationClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+						&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;logStarted&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getApplicationLog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stopWatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;started&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;callRunners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;applicationArguments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Throwable&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;handleRunFailure&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exceptionReporters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;IllegalStateException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+		&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;listeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;running&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Throwable&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;handleRunFailure&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exceptionReporters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+			&lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;IllegalStateException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Jelinet</name></author><category term="spring-boot" /><summary type="html">springboot核心原理</summary></entry><entry><title type="html">ElasticSearch笔记-keyword、text、numeric</title><link href="http://localhost:4000/es/2020/05/06/ES%E7%AC%94%E8%AE%B0-keyword.html" rel="alternate" type="text/html" title="ElasticSearch笔记-keyword、text、numeric" /><published>2020-05-06T17:28:00+08:00</published><updated>2020-05-06T17:28:00+08:00</updated><id>http://localhost:4000/es/2020/05/06/ES%E7%AC%94%E8%AE%B0-keyword</id><content type="html" xml:base="http://localhost:4000/es/2020/05/06/ES%E7%AC%94%E8%AE%B0-keyword.html">&lt;h3 id=&quot;分词倒排&quot;&gt;分词、倒排&lt;/h3&gt;
+
+&lt;p&gt;ES 中有&lt;strong&gt;精确值&lt;/strong&gt;（Exact Values）与&lt;strong&gt;全文本&lt;/strong&gt;（Full Text）之分：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;精确值：包括数字，日期，一个具体字符串（例如”Hello World”）。
+    &lt;ul&gt;
+      &lt;li&gt;在 ES 中用 &lt;strong&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html&quot; target=&quot;_blank&quot;&gt;keyword&lt;/a&gt;&lt;/strong&gt;、numeric数据类型表示。&lt;/li&gt;
+      &lt;li&gt;精确值&lt;strong&gt;不需要&lt;/strong&gt;做分词处理。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;全文本：非结构化的文本数据。
+    &lt;ul&gt;
+      &lt;li&gt;在 ES 中用 &lt;strong&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html&quot; target=&quot;_blank&quot;&gt;text&lt;/a&gt;&lt;/strong&gt;数据类型表示。&lt;/li&gt;
+      &lt;li&gt;全文本&lt;strong&gt;需要&lt;/strong&gt;做分词处理。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;分词&lt;/strong&gt;主要用于建立&lt;strong&gt;单词&lt;/strong&gt;（Term / Token）与&lt;strong&gt;倒排索引&lt;/strong&gt;对应关系，比如将 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hello world&lt;/code&gt; 拆分为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hello&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;world&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;当用户向ES发送一个搜索请求的时候，搜索引擎经过了以下步骤：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;分词器对搜索字符串进行分词处理。&lt;/li&gt;
+  &lt;li&gt;在倒排索引表中查到匹配的文档。&lt;/li&gt;
+  &lt;li&gt;对每个匹配的文档进行相关性评分。&lt;/li&gt;
+  &lt;li&gt;根据相关性评分对文档进行排序。&lt;/li&gt;
+  &lt;li&gt;将排好序的文档返回给用户。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;numeric存储&quot;&gt;&lt;strong target=&quot;_blank&quot;&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/number.html&quot;&gt;numeric&lt;/a&gt;&lt;/strong&gt;存储&lt;/h3&gt;
+
+&lt;p&gt;因为numeric支持等值精确查询，所以字段类型到底使用keyword还是numeric？答案是keyword。&lt;/p&gt;
+
+&lt;p&gt;numeric类型为了能有效的支持范围查询，它的存储结构并不是倒排索引。numeric类型从lucene6.0开始，使用了一种名为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;block KD tree&lt;/code&gt;的存储结构。&lt;a href=&quot;https://jelinet.com/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html&quot; target=&quot;_blank&quot;&gt;Block KD tree介绍在这里&lt;/a&gt;，不过多阐述。&lt;/p&gt;
+
+&lt;p&gt;具体的ES内部（其实是Lucene）目前的版本是基于所谓的PointValues，比如整型在Lucene内部是IntPoint类表示，还有DoublePoint等，完整的对应关系是：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Java type&lt;/th&gt;
+      &lt;th&gt;Lucene class&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;int&lt;/td&gt;
+      &lt;td&gt;IntPoint&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;long&lt;/td&gt;
+      &lt;td&gt;LongPoint&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;float&lt;/td&gt;
+      &lt;td&gt;DoublePoint&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;byte[]&lt;/td&gt;
+      &lt;td&gt;BinaryPoint&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;而这些PointValues是基于kd-tree存储的，根据官方文档的介绍，lucene把叶子节点在磁盘是顺序存储的，这样搜索的效率就会非常高。&lt;/p&gt;
+
+&lt;h4 id=&quot;为啥numeric对于term精确匹配的查询性能没有keyword好&quot;&gt;为啥numeric对于term精确匹配的查询性能没有keyword好&lt;/h4&gt;
+
+&lt;p&gt;前面我们提到了IntPoint类，这个类有三个查询方法：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;//构造精确查询，内部还是调用newRangeQuery&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;Query&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;newExactQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 
+
+&lt;span class=&quot;c1&quot;&gt;//构造一维查询，内部是调用多维查询的方法&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;Query&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;newRangeQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lowerValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;upperValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;//构造多维查询&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;Query&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;newRangeQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;field&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lowerValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;upperValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;比如有这样一个索引：&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;err&quot;&gt;PUT&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;blogs&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; 
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;mappings&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;properties&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; 
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;keyword&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; 
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;text&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; 
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;status&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;     &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;integer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;基于status查询&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;query&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;term&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;status&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在lucene内部其实还是进行了一个2~2的范围查询。即便kd-tree的性能也很高，但是对于这种精确查询还是要到树上走一遭，而倒排索引相当于是直接在内存里就定位到了结果集的文档id。如果是bool组合查询的话，term还可以利用跳表，这点numeric字段也是做不到的。&lt;/p&gt;</content><author><name>Jelinet</name></author><category term="es" /><summary type="html">分词、倒排</summary></entry><entry><title type="html">ElasticSearch笔记-Lucene BKD树</title><link href="http://localhost:4000/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html" rel="alternate" type="text/html" title="ElasticSearch笔记-Lucene BKD树" /><published>2020-04-23T10:30:00+08:00</published><updated>2020-04-23T10:30:00+08:00</updated><id>http://localhost:4000/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene%20BKD%E6%A0%91</id><content type="html" xml:base="http://localhost:4000/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html">&lt;h2 id=&quot;block-kd-tree介绍&quot;&gt;Block KD tree介绍&lt;/h2&gt;
+
+&lt;p&gt;kd-tree（k-dimensional树的简称），是一种对k维空间中的实例点进行存储以便对其进行快速检索的树形数据结构。这种存储结构类似于mysql里的B+数，我们知道B+数这种数据结构对于范围查找的支持是非常好的。不同于mysql， Block KD tree的叶子节点存储的是一组值的集合(block)，大概是512~1024个值一组。这也是为什么叫block kd tree。同时BKD是BSP（Binary Space Partitioning）树家族的一员。&lt;/p&gt;
+
+&lt;h3 id=&quot;bsp-trees&quot;&gt;BSP Trees&lt;/h3&gt;
+
+&lt;p&gt;BSP树在计算科学中应用广泛。BSP树不止处理标准的Map和Set操作，还能把一些其他的操作更加的高效，比如范围查询(空间内所有点)和最近邻查询（离某个点最近的点）。&lt;/p&gt;
+
+&lt;p&gt;这些树在概念上和二叉查找树很像。我们把空间分割成块，而不用查找整个空间。BSP使用一个超平面来切分空间。比如，我们有一个遍布点的 100 x 100 x 100立方体，要查找（10，20，30）这个点。我们可以把这个立方体切分为2个部分：1个部分X&amp;gt;50,另1部分&amp;lt;50。因为我们是要查询X=10的点，所以我们只需要去查找第2部分就可以了。BSP树不断递归的分隔空间。下面是对这个的一个图形化展示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/3dtree.png&quot; alt=&quot;3dtree&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;k-d-trees&quot;&gt;k-d Trees&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/K-d_tree&quot;&gt;k-d Trees&lt;/a&gt; 是一种最普通的BSP树. K-D树以及下面提到的变种树，它们的key可以是任意维的数据。而其他的一些BSP树，像&lt;a href=&quot;https://en.wikipedia.org/wiki/Quadtree&quot;&gt;Quadtrees&lt;/a&gt; 或者 &lt;a href=&quot;https://en.wikipedia.org/wiki/Octree&quot;&gt;Octrees&lt;/a&gt; 只能用来表示2D和3D空间。K-D树实现起来，很像是一个二叉查找树(BST)。主要的区别是，K-D树的key对比在不同的层使用的是不同的维度值。下面是一个2维树的样例：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/2880px-Tree_0001.svg.png&quot; alt=&quot;2880px-Tree_0001.svg&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;和二叉查找树一样，如果K-D树是平衡的，那么他的时间复杂度就是 O(log n)。当然这个前提是树是平衡的。假如一个树先添加一个点（1，1）然后加入点（0，0），那么2个点都会在树的左侧，这就导致了不平衡。更为难办的是，在K-D树上我们不能使用类似树旋转等标准的树平衡技术。我们唯一能做的就是完全重建子树才能让树平衡，就像 &lt;a href=&quot;https://en.wikipedia.org/wiki/Scapegoat_tree&quot;&gt;Scapegoat Tree&lt;/a&gt; 提到的。&lt;/p&gt;
+
+&lt;p&gt;标准的K-D树在动态更新的场景下表现的并不好，只有在数据是静态的情况下才表现优异。游戏里的资产列表就是一个场景。&lt;/p&gt;
+
+&lt;h4 id=&quot;k-d-b-trees&quot;&gt;K-D-B Trees&lt;/h4&gt;
+
+&lt;p&gt;这个树是K-D树和 &lt;a href=&quot;https://en.wikipedia.org/wiki/B%2B_tree&quot;&gt;B+ Tree&lt;/a&gt;树的结合体。像标准的K-D树一样，一个内部的node把空间切分成几个不同的区域。和K-D树不一样的是，内部node不是包含的点。空间里的区域由2个点来定义，一个点是各个维度最小位置，而另一个定义了各个维度最大的位置？？？。下面的图展示了一个包含3个区域，每个叶子包含3个点的K-D-B树。需要注意的是这2个值可以不一样。通常情况下，区域的个数是小于叶子点的个数的。每个节点的区域是按照一个坐标轴来排序的，不像K-D树是在不同level分坐标轴排序的。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/k-d-b-tree.png&quot; alt=&quot;k-d-b-tree&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;因为BKD树被组织成B树一样，所以在磁盘上可以工作的很好。随着每个node有更多的扇出，node会更大，相对来说树也就更浅。通常来说，磁盘延迟较大，但是吞吐很高。也就是说读取大块的数据和读取小块的数据耗费的时间成本是差不多的，大块数据是一个优势。更浅的深度也意味着更少的非本地读。通常我们把node的大小设置的至少和page(4KB)大小一样, 或者是成倍的关系。正因为如此，一个node可以包含数百的点。&lt;/p&gt;
+
+&lt;p&gt;和其他B树的变种一样，也要求是平衡的。当然这是通过插入操作来保证的。插入一个元素到叶子上，如果叶子没有满，直接插入。如果叶子满了，就进行切分。不像你想的那样，来增加树的深度，而是增加一个新的兄弟节点来解决。如果一个区域node满了，那就有一点复杂了。&lt;/p&gt;
+
+&lt;p&gt;假如我们需要对左下方区域进行垂直切分。因为现在已经有4个区域了，所以它的父区域也要进行切分。这意味着要对空间的整个左侧区域进行切分。这是K-D-B树的一大缺陷。切分一个区域通常需要切分它的子区域。修改会导致树大量的修改，当需要往磁盘写的时候，就更慢了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/kdb-tree-1.png&quot; alt=&quot;kdb-tree-1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;另外一个劣势是内存利用率。由于没有对一个node有多满做限制，这会导致大量的空间浪费。这不止影响磁盘数据的大小，也对性能有较大的影响，因为有更少的pages可以放在 &lt;a href=&quot;http://duartes.org/gustavo/blog/post/page-cache-the-affair-between-memory-and-files/&quot;&gt;page cache&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;hb-trees&quot;&gt;hB Trees&lt;/h4&gt;
+
+&lt;p&gt;值得一提的是，有另一个K-D-B树存在。hB树或Holey Brick树试图解决这个问题，不再切分整个区域，而是切分城有空洞的不规则的区域。这超出了本片的范围，如果有兴趣的话可以去读一下，它的文档比BKD树更好。&lt;/p&gt;
+
+&lt;h3 id=&quot;bkd-trees&quot;&gt;Bkd Trees&lt;/h3&gt;
+
+&lt;p&gt;BKD树可以解决空间和插入效率问题。BKD树由多个可修改的KD树构成，并且有统一的插入方法。下面这个图是这些树的其中之一：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-tree.png&quot; alt=&quot;bkd-tree&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;BKD树是二叉树和B+树的组合。比较特殊的是，内部node必须是一个完全二叉树，而叶子node存储的则和K-D-B树一模一样。&lt;/p&gt;
+
+&lt;p&gt;有一些特点减轻了二叉树在磁盘上的使用难度。因为这是一个完全二叉树，node不需要存储到它们子node的指针，直接使用乘法就可以了。假如一个node的位置在i，那这个node的左node在位置2i，右node在2i+1。既然叶子节点包含所有点数据，node不需要包含它们自己的任何数据。更小的node，意味着更多的数据可以存储在缓存内。大量的点数据存储在节点内，也降低了树的深度。&lt;/p&gt;
+
+&lt;p&gt;一个更大更有意思的部分是，BKD树的内部树是不会被修改的。BKD使用了一个更聪明的方法来添加新的&lt;strong&gt;点数据&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;首先，有一个大小为M的Buffer。在论文里，他是被保存在内存的。这个Buffer, 可能仅仅是一个数组或者性能更好的一些数据结构，毕竟是有查询需求的。论文并没有给出这个Buffer的最优大小，但是直觉上来说，至少应该和被修改的K-D树node一样大。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-tree-1.png&quot; alt=&quot;bkd-tree-1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;如果BKD树由N个数据，那么它有 log2(N/M)个可修改的K-D树。每一个树都是前一个树的2倍。数据首先被插入到内存里的Buffer里，一旦Buffer满了，先定位到第1个为空的树。这个Buffer的数据，以及空树之前所有节点的数据一起生成一个满的平衡树。在论文里，有一个对这个算法的详细描述。&lt;/p&gt;
+
+&lt;p&gt;起初来看这可能是很耗时的，但从长远来看却是很高效的。粗略的来看，并不认为write操作之后，直接fsync刷新数据到磁盘能有多高效，论文里并没有标明。&lt;/p&gt;
+
+&lt;h3 id=&quot;real-performance真实性能&quot;&gt;Real Performance真实性能&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-kdb-performance.png&quot; alt=&quot;bkd-kdb-performance&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;对于插入操作，BKD树比K-D-B树有2个量级的快。插入120M点数据的时间是50ms。这个数据是令人印象深刻的，但是当你知道使用的硬件设备是什么样的时候，你会更加的震惊。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我们使用了Dell PowerEdge 2400工作站，Pentium III/500MHz处理器，操作系统是FreeBSD 4.3。36GB的SCSI硬盘(IBM Ultrastar 36LZX)用来存储相关文件：输入的点数据、数据结构、临时文件。这个机器本身有128MB的内存，但是我们通过限制，是的TPIE可以用到的只有64MB。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;简单来说，这是真的快，不是开玩笑的。大部分的插入操作都直接进入了Buffer，直接使用的是RAM，而不是CPU缓存。更令人感兴趣的是树的构建和写入。&lt;/p&gt;
+
+&lt;p&gt;构建和写入是很耗时、开销很大的。尽管可以通过顺序写磁盘来优化，但是大量数据的移动是不可避免的。实际上，上面的例子，肯定有一个树至少存在60M的节点。创建这个有多耗时呢？&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-write-performance.png&quot; alt=&quot;bkd-write-performance&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;根据提供的测试数据，1个插入操作可以花费超过10分钟来创建和写入。这看起来令人大跌眼球，但是你需要记住一些事情。&lt;/p&gt;
+
+&lt;p&gt;第一：这都是在极其陈旧的硬件上实现的。现代的CPU更快，SSD则可以彻底改变这种情况。&lt;/p&gt;
+
+&lt;p&gt;第二：这种情况很罕见。越是耗时的操作，出现的概率越低。就想上面看到的，真实的吞吐量是特别优异的。&lt;/p&gt;
+
+&lt;p&gt;第三：数据可以边插入边读取。插入操作不修改任何已经存在的树结构，在构建一个新的树之前。由于IO和缓存争用，读操作很可能会慢一些，但不会被阻塞。&lt;/p&gt;
+
+&lt;p&gt;如果我不得不猜测，插入的尖峰特性在现代硬件上不会成为问题，除非您需要实时插入的能力。一旦我实现了这个结构来确认这一点，我计划用我自己的基准测试来更新本文。&lt;/p&gt;
+
+&lt;p&gt;查询树很容易，但效率略低。必须对每个修改过的K-D树以及Buffer执行查询。由于这些树都很小，这在同等条件下会比K-D-B树慢，但不会超过一个数量级。下面是一个非常大范围的查询（占整个空间的1%，或者大约是一个400M乘400M的范围）。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-kdb-performance-1.png&quot; alt=&quot;bkd-kdb-performance-1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;简单的查询会比这个更惊人的快，这在论文里没有体现。如果范围查询性能是你的首要关注点，BKD树有可能并不是最优的数据结果。&lt;/p&gt;
+
+&lt;p&gt;最后，我们来看下空间利用率的问题。我们期望这可能是近乎完美。这个图表用一个统一的随机和真实的数据集来说明空间利用率。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../image/es/bkd-tree-space-efficient.png&quot; alt=&quot;bkd-tree-space-efficient&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;一个需要关注的点是，论文没有给出如何压缩已删除数据点的方法。随着更多的点从叶子node删除，空间利用率将随之降低。然而，我们可以自己来实现。&lt;/p&gt;
+
+&lt;p&gt;综上所述，BKD树是一种独特的数据结构，理论上具有很高的摊余写性能和空间利用率。当然它有许多潜在的有趣的应用场景。在下一篇文章中，我将描述此数据结构的具体实现，并进行一个现代硬件级的性能比较。&lt;/p&gt;
+
+&lt;p&gt;文章网友翻译过来的，原文章404了，不放链接了。&lt;/p&gt;
+
+&lt;p&gt;参考论文：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://users.cs.duke.edu/~pankaj/publications/papers/bkd-sstd.pdf&quot; target=&quot;_blank&quot;&gt;papers/bkd-sstd.pdf&lt;/a&gt;&lt;/p&gt;</content><author><name>Jelinet</name></author><category term="es" /><summary type="html">Block KD tree介绍</summary></entry><entry><title type="html">redis笔记-单机数据库实现-RDB持久化</title><link href="http://localhost:4000/redis/2018/06/23/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-RDB%E6%8C%81%E4%B9%85%E5%8C%96.html" rel="alternate" type="text/html" title="redis笔记-单机数据库实现-RDB持久化" /><published>2018-06-23T15:18:00+08:00</published><updated>2018-06-23T15:18:00+08:00</updated><id>http://localhost:4000/redis/2018/06/23/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-RDB%E6%8C%81%E4%B9%85%E5%8C%96</id><content type="html" xml:base="http://localhost:4000/redis/2018/06/23/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-RDB%E6%8C%81%E4%B9%85%E5%8C%96.html">&lt;h2 id=&quot;rdb-文件的创建与载入&quot;&gt;RDB 文件的创建与载入&lt;/h2&gt;
+&lt;p&gt;一个概念：服务器中非空数据库以及数据库中的键值对 称为 &lt;strong&gt;数据库状态&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&quot;创建&quot;&gt;创建&lt;/h3&gt;
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SAVE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;# 创建RDB文件
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rdbSave&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+
+
+&lt;span class=&quot;n&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BGSAVE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+   
+	&lt;span class=&quot;cp&quot;&gt;# 创建子进程
+&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;pid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    			
+	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+			
+		&lt;span class=&quot;cp&quot;&gt;# 子进程负责创建RDB文件
+&lt;/span&gt;		&lt;span class=&quot;n&quot;&gt;rdbSave&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+		
+		&lt;span class=&quot;cp&quot;&gt;# 完成之后向父进程发送信号
+&lt;/span&gt;		&lt;span class=&quot;n&quot;&gt;signal_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+	
+		&lt;span class=&quot;cp&quot;&gt;# 父进程继续处理命令请求，并通过轮询等待子进程的信
+&lt;/span&gt;		&lt;span class=&quot;n&quot;&gt;handle_request_and_wait_signal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+		
+	&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+	
+		&lt;span class=&quot;cp&quot;&gt;# 处理出错情况
+&lt;/span&gt;		&lt;span class=&quot;n&quot;&gt;handle_fork_error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;SAVE命令会阻塞Redis服务器进程，直到RDB文件创建完毕为止，在服务器进程阻塞期间，服务器不能处理任何命令请求&lt;/li&gt;
+  &lt;li&gt;BGSAVE命令会派生出一个子进程，然后由子进程负责创建RDB文件，服务器进程（父进程）继续处理命令请求&lt;/li&gt;
+  &lt;li&gt;BGSAVE命令执行时的服务器状态
+    &lt;ol&gt;
+      &lt;li&gt;BGSAVE执行期间，客户端发送的SAVE、BGSAVE 会被服务器拒绝，避免rdbSave()重复调用&lt;/li&gt;
+      &lt;li&gt;BGSAVE正在执行，客户端发送的BGREWRITEAOF命令会被延迟到BGSAVE命令执行完毕之后执行；BGREWRITEAOF正在执行，客户端发送的BGSAVE命令会被服务器拒绝。原因是性能考虑，这两个操作并发出两个子线程，并且都进行了大量磁盘写入操作&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;载入&quot;&gt;载入&lt;/h3&gt;
+&lt;p&gt;服务器载入RDB文件会一直处于阻塞状态&lt;/p&gt;
+
+&lt;h2 id=&quot;自动间歇性保存&quot;&gt;自动间歇性保存&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;当服务器启动的时候，客户端可以设置服务器的save选项，每隔一段时间执行一次BGSAVE（serverCron()）;&lt;/p&gt;
+
+    &lt;p&gt;~~~c
+ /**&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;客户端没有配置-&amp;gt;默认的配置&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+  	  * 任意条件满足即合 
+  	  */
+  	save 900 1    //900秒内，对数据库至少一次修改
+  	save 300 10
+  	save 60 10000
+  	~~~
+&lt;ol&gt;
+  &lt;li&gt;设置保存条件
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;结构&lt;/p&gt;
+
+        &lt;p&gt;~~~c
+  struct redisServer {&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+
+  		// …
+
+ 		// 记录了保存条件的数组
+ 		struct saveparam *saveparams;
+
+ 		// 修改计数器
+ 		long long dirty;
+
+ 		// 上一次执行保存的时间
+  		time_t lastsave;
+
+  		// …
+  	};
+
+  	struct saveparam {
+  		// 秒数  &lt;br /&gt;
+  		time_t seconds;
+  		// 修改数
+  		int changes;
+  	};
+
+  	~~~&lt;br /&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;根据配置来设置redisServer中的saveparams&lt;/li&gt;
+      &lt;li&gt;dirty计数器：记录上一次SAVE或BGSAVE后，数据库状态进行了多少次修改&lt;sup id=&quot;fnref:1&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+      &lt;li&gt;lastsave是UNIX时间戳，上一次SAVE或BGSAVE时间&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;检查保存条件是否满足
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;伪代码&lt;/p&gt;
+
+        &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;n&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;serverCron&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;    
+      &lt;span class=&quot;cp&quot;&gt;# ...
+&lt;/span&gt;			  
+      &lt;span class=&quot;cp&quot;&gt;# 遍历所有保存条件    
+&lt;/span&gt;      &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;saveparam&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;saveparams&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+			
+          &lt;span class=&quot;cp&quot;&gt;# 计算距离上次执行保存操作有多少秒        
+&lt;/span&gt;          &lt;span class=&quot;n&quot;&gt;save_interval&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unixtime_now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lastsave&lt;/span&gt;
+		        
+          &lt;span class=&quot;cp&quot;&gt;# 如果数据库状态的修改次数超过条件所设置的次数        
+&lt;/span&gt;          &lt;span class=&quot;cp&quot;&gt;# 并且距离上次保存的时间超过条件所设置的时间        
+&lt;/span&gt;          &lt;span class=&quot;cp&quot;&gt;# 那么执行保存操作
+&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirty&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;saveparam&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;changes&lt;/span&gt; 
+          	&lt;span class=&quot;n&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;save_interval&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;saveparam&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;seconds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+		        	
+              &lt;span class=&quot;n&quot;&gt;BGSAVE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+		            
+      &lt;span class=&quot;cp&quot;&gt;# ...
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;服务器周期性函数serverCorn默认每100mm执行一次，其中一项工作就是检查BGSAVE命令的条件是否满足&lt;/li&gt;
+      &lt;li&gt;任意saveparam满足，就执行BGSAVE&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;rdb文件结构&quot;&gt;RDB文件结构&lt;/h2&gt;
+&lt;p&gt;| REDIS | db_version | databases | EOF |check_sum&lt;/p&gt;
+&lt;h2 id=&quot;分析rdb文件&quot;&gt;分析RDB文件&lt;/h2&gt;
+
+&lt;div class=&quot;footnotes&quot; role=&quot;doc-endnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot; role=&quot;doc-endnote&quot;&gt;
+      &lt;p&gt;如果向一个集合键增加三个新元素,dirty会加3 &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;</content><author><name>Jelinet</name></author><category term="redis" /><summary type="html">RDB 文件的创建与载入 一个概念：服务器中非空数据库以及数据库中的键值对 称为 数据库状态 创建 ~~~c def SAVE():</summary></entry><entry><title type="html">redis笔记-单机数据库实现-数据库</title><link href="http://localhost:4000/redis/2018/06/22/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-%E6%95%B0%E6%8D%AE%E5%BA%93.html" rel="alternate" type="text/html" title="redis笔记-单机数据库实现-数据库" /><published>2018-06-22T15:18:00+08:00</published><updated>2018-06-22T15:18:00+08:00</updated><id>http://localhost:4000/redis/2018/06/22/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-%E6%95%B0%E6%8D%AE%E5%BA%93</id><content type="html" xml:base="http://localhost:4000/redis/2018/06/22/redis%E7%AC%94%E8%AE%B0-%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0-%E6%95%B0%E6%8D%AE%E5%BA%93.html">&lt;h2 id=&quot;结构&quot;&gt;结构&lt;/h2&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redisServer&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+	
+  	&lt;span class=&quot;c1&quot;&gt;// 数据库数组&lt;/span&gt;
+  	&lt;span class=&quot;n&quot;&gt;redisDb&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  	&lt;span class=&quot;c1&quot;&gt;// 服务器的数据库数量&lt;/span&gt;
+  	&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dbnum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  	
+  	&lt;span class=&quot;c1&quot;&gt;// ...   &lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;-----------------------------&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redisDb&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 数据库键空间，保存着数据库中的所有键值对&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* The keyspace for this DB */&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 键的过期时间，字典的键为键，字典的值为过期事件 UNIX 时间戳&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expires&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              &lt;span class=&quot;cm&quot;&gt;/* Timeout of keys with a timeout set */&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+    
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redisDb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;dbnum 默认是16,select 命令切换数据库，默认使用db[0];&lt;/li&gt;
+  &lt;li&gt;redisDb中dict，保存了所有的键值对;&lt;/li&gt;
+  &lt;li&gt;EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
+&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/redisDb1.jpg&quot; alt=&quot;redisDb&quot; /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;过期时间&quot;&gt;过期时间&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;EXPIRE &amp;lt;key&amp;gt; &amp;lt;ttl&amp;gt; 命令用于将键key的生存时间设置为ttl秒。&lt;/li&gt;
+  &lt;li&gt;PEXPIRE &amp;lt;key&amp;gt; &amp;lt;ttl&amp;gt; 命令用于将键key的生存时间设置为ttl毫秒。&lt;/li&gt;
+  &lt;li&gt;EXPIREAT &amp;lt;key&amp;gt; &amp;lt;timestamp&amp;gt; 命令用于将键key的过期时间设置为timestamp所指定的秒数时间戳。&lt;/li&gt;
+  &lt;li&gt;PEXPIREAT &amp;lt;key&amp;gt; &amp;lt;timestamp&amp;gt; 命令用于将键key的过期时间设置为timestamp所指定的毫秒数时间戳。&lt;/li&gt;
+  &lt;li&gt;EXPIRE、PEXPIRE、EXPIREAT三个命令都是使用PEXPIREAT命令来实现的。&lt;br /&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/db_expier1.jpg&quot; alt=&quot;db_expier&quot; /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;redis服务器实际使用的是惰性删除和定期删除两种策略&quot;&gt;Redis服务器实际使用的是惰性删除和定期删除两种策略&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;h4 id=&quot;概念过期键的三种删除策略&quot;&gt;概念：过期键的三种删除策略:&lt;/h4&gt;
+
+  &lt;ol&gt;
+    &lt;li&gt;定时删除：设置过期时间时，创建timer来控制；对内存友好，对cpu不友好；创建一个定时器需要用到时间事件，当前是用无序链表实现的，查找一个事件的时间复杂度为O(N)，并不能高效地处理大量时间事件;&lt;/li&gt;
+    &lt;li&gt;惰性删除：每次取键值对时，检查是否过期；cpu友好，内存不友好;&lt;/li&gt;
+    &lt;li&gt;定期删除：每隔一段时间对数据库进行一次检查;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1. **惰性删除**:过期键的惰性删除策略由db.c/expireIfNeeded函数实现;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/expireIfNeeded.jpg&quot; alt=&quot;expireIfNeeded&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2. **定期删除**:过期键的定期删除策略由redis.c/activeExpireCycle函数实现 伪代码:
+
+~~~c
+# 默认每次检查的数据库数量
+
+DEFAULT_DB_NUMBERS = 16
+
+# 默认每个数据库检查的键数量
+DEFAULT_KEY_NUMBERS = 20
+
+# 全局变量，记录检查进度
+current_db = 0
+
+def activeExpireCycle():
+
+# 初始化要检查的数据库数量
+# 如果服务器的数据库数量比 DEFAULT_DB_NUMBERS 要小
+# 那么以服务器的数据库数量为准
+if servesr.dbnum &amp;lt; DEFAULT_DB_NUMBERS:
+	db_numbers = server.dbnum
+else:
+	db_numbers = DEFAULT_DB_NUMBERS
+
+# 遍历各个数据库
+for i in range(db_numbers):
+
+    # 如果current_db的值等于服务器的数据库数量
+    # 这表示检查程序已经遍历了服务器的所有数据库一次
+    # 将current_db重置为0，开始新的一轮遍历
+    if current_db == server.dbnum:
+        current_db = 0
+
+    # 获取当前要处理的数据库
+    redisDb = server.db[current_db]
+
+    # 将数据库索引增1，指向下一个要处理的数据库
+    current_db += 1
+
+    # 检查数据库键
+    for j in range(DEFAULT_KEY_NUMBERS):
+
+        # 如果数据库中没有一个键带有过期时间，那么跳过这个数据库
+        if redisDb.expires.size() == 0: break
+
+        # 随机获取一个带有过期时间的键
+        key_with_ttl = redisDb.expires.get_random_key()
+
+        # 检查键是否过期，如果过期就删除它
+        if is_expired(key_with_ttl):
+            delete_key(key_with_ttl)
+
+        # 已达到时间上限，停止处理
+        if reach_time_limit(): return
+~~~ 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;aofrdb和复制功能对过期键的处理&quot;&gt;AOF、RDB和复制功能对过期键的处理&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;RDB持久化&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;生成RDB，已过期的键不会被保存到新创建的RDB文件中&lt;/li&gt;
+      &lt;li&gt;载入RDB文件，以主服务器模式运行，对键检查，过期键忽略；从服务模式运行，全部载入；&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;AOF持久化&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;AOF写入：当过期键被惰性删除或者定期删除之后，程序会向AOF文件追加（append）一条DEL命令，来显式地记录该键已被删除&lt;/li&gt;
+      &lt;li&gt;AOF重写：已过期的键不会被保存到重写后的AOF文件&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;复制&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;从服务器只有在接到主服务器发来的DEL命令之后，才会删除过期键&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;数据库通知&quot;&gt;数据库通知&lt;/h2&gt;
+
+&lt;p&gt;客户端通过订阅给定的频道或者模式，来获知数据库中键的变化，以及数据库中命令的执行情况；&lt;a href=&quot;http://redisdoc.com/topic/notification.html&quot;&gt;详细文档&lt;/a&gt;&lt;br /&gt;
+伪代码&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;notifyKeyspaceEvent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dbid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+
+   &lt;span class=&quot;cp&quot;&gt;# 如果给定的通知不是服务器允许发送的通知，那么直接返回    
+&lt;/span&gt;   &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;not&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notify_keyspace_events&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;    
+   &lt;span class=&quot;cp&quot;&gt;# 发送键空间通知 
+&lt;/span&gt;   &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notify_keyspace_events&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;REDIS_NOTIFY_KEYSPACE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+   
+           &lt;span class=&quot;cp&quot;&gt;#将通知发送给频道__keyspace@&amp;lt;dbid&amp;gt;__:&amp;lt;key&amp;gt;
+&lt;/span&gt;           &lt;span class=&quot;cp&quot;&gt;#内容为键所发生的事件 &amp;lt;event&amp;gt;        
+&lt;/span&gt;           
+           &lt;span class=&quot;cp&quot;&gt;# 构建频道名字        
+&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;chan&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;__keyspace@{dbid}__:{key}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dbid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dbid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+           
+           &lt;span class=&quot;cp&quot;&gt;# 发送通知        
+&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;pubsubPublishMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;    
+   &lt;span class=&quot;cp&quot;&gt;# 发送键事件通知    
+&lt;/span&gt;   &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notify_keyspace_events&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;REDIS_NOTIFY_KEYEVENT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;        
+   			&lt;span class=&quot;cp&quot;&gt;#将通知发送给频道__keyevent@&amp;lt;dbid&amp;gt;__:&amp;lt;event&amp;gt;        
+&lt;/span&gt;   			&lt;span class=&quot;cp&quot;&gt;#内容为发生事件的键 &amp;lt;key&amp;gt;        
+&lt;/span&gt;   			
+   			&lt;span class=&quot;cp&quot;&gt;# 构建频道名字        
+&lt;/span&gt;   			&lt;span class=&quot;n&quot;&gt;chan&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;__keyevent@{dbid}__:{event}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dbid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dbid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;        
+   			
+   			&lt;span class=&quot;cp&quot;&gt;# 发送通知        
+&lt;/span&gt;   			&lt;span class=&quot;n&quot;&gt;pubsubPublishMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;​&lt;/p&gt;</content><author><name>Jelinet</name></author><category term="redis" /><summary type="html">结构</summary></entry><entry><title type="html">redis笔记-数据结构</title><link href="http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html" rel="alternate" type="text/html" title="redis笔记-数据结构" /><published>2018-03-26T18:54:00+08:00</published><updated>2018-03-26T18:54:00+08:00</updated><id>http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84</id><content type="html" xml:base="http://localhost:4000/redis/2018/03/26/redis%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html">&lt;h2 id=&quot;跳跃表&quot;&gt;跳跃表&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;两个地方用到：有序集合键；集群节点中，内部数据结构&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;实现：
+&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/skipLIst1.jpg&quot; alt=&quot;一个跳跃表&quot; /&gt;&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplist&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 表头节点和表尾节点&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;structz&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skiplistNode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;header&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 表中节点的数量&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 表中层数最大的节点的层数&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 层&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplistLevel&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;// 前进指针&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;forward&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;// 跨度&lt;/span&gt;
+      &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;span&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 后退指针&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;backward&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 分值&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 成员对象&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;robj&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zskiplistNode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length；&lt;/li&gt;
+      &lt;li&gt;zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj;&lt;/li&gt;
+      &lt;li&gt;跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加；&lt;/li&gt;
+      &lt;li&gt;成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS；&lt;/li&gt;
+      &lt;li&gt;obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头；&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;整数集合&quot;&gt;整数集合&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;一个集合包含整数元素，个数不多；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;实现&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;intset&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 编码方式&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;encoding&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 集合包含的元素数量&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 保存元素的数组&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;int8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;contents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;intset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;int16,int32,int64的整数值；有序,无重复元素；&lt;/li&gt;
+      &lt;li&gt;contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值;&lt;/li&gt;
+      &lt;li&gt;添加新元素的时间复杂度为O(N)&lt;/li&gt;
+      &lt;li&gt;仅支持升级，不支持降级；&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;压缩列表&quot;&gt;压缩列表&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;结构&lt;/p&gt;
+
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;属性&lt;/th&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;类型&lt;/th&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;长度&lt;/th&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;用途&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zlbytes&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;uint32_t&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;4&lt;/code&gt; 字节&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zlend&lt;/code&gt; 的位置时使用。&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zltail&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;uint32_t&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;4&lt;/code&gt; 字节&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zllen&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;uint16_t&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2&lt;/code&gt; 字节&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;记录了压缩列表包含的节点数量： 当这个属性的值小于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UINT16_MAX&lt;/code&gt; （&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;65535&lt;/code&gt;）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UINT16_MAX&lt;/code&gt; 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;entryX&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;列表节点&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;不定&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;压缩列表包含的各个节点，节点的长度由节点保存的内容决定。&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zlend&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;uint8_t&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;1&lt;/code&gt; 字节&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;特殊值 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0xFF&lt;/code&gt; （十进制 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;255&lt;/code&gt; ），用于标记压缩列表的末端。&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;对象&quot;&gt;对象&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;字符串对象、列表对象、哈希对象、集合对象和有序集合对象；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;引用计数法实现的内存回收和对象共享机制；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象；&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;结构&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redisObject&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 编码&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;encoding&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// 指向底层实现数据结构的指针&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;robj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;编码常量&lt;/th&gt;
+          &lt;th style=&quot;text-align: left&quot;&gt;编码所对应的底层数据结构&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_INT&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;long&lt;/code&gt; 类型的整数&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_EMBSTR&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;embstr&lt;/code&gt; 编码的简单动态字符串&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_RAW&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;简单动态字符串&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_HT&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;字典&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_LINKEDLIST&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;双端链表&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_ZIPLIST&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;压缩列表&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_INTSET&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;整数集合&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REDIS_ENCODING_SKIPLIST&lt;/code&gt;&lt;/td&gt;
+          &lt;td style=&quot;text-align: left&quot;&gt;跳跃表和字典&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;对象会在不同场景使用不同的编码；&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；&lt;/li&gt;
+      &lt;li&gt;列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&amp;lt;=64，元素数量&amp;lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；&lt;/li&gt;
+      &lt;li&gt;哈希对象编码：ziplist,hashtable;
+&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/objecthash1.jpg&quot; alt=&quot;hash的ziplist编码&quot; /&gt;
+  ziplist条件：键和值长度都&amp;lt;=64，键值对&amp;lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；&lt;/li&gt;
+      &lt;li&gt;集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；&lt;/li&gt;
+      &lt;li&gt;有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
+&lt;img src=&quot;https://raw.githubusercontent.com/jelinet/jelinet.github.io/main/_posts/image/redis/zsetziplist1.jpg&quot; alt=&quot;hash的ziplist编码&quot; /&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Jelinet</name></author><category term="redis" /><summary type="html">跳跃表 两个地方用到：有序集合键；集群节点中，内部数据结构 实现： typedef struct zskiplist { // 表头节点和表尾节点 structz skiplistNode *header, *tail; // 表中节点的数量 unsigned long length; // 表中层数最大的节点的层数 int level; } zskiplist; typedef struct zskiplistNode { // 层 struct zskiplistLevel { // 前进指针 struct zskiplistNode *forward; // 跨度 unsigned int span; } level[]; // 后退指针 struct zskiplistNode *backward; // 分值 double score; // 成员对象 robj *obj; } zskiplistNode; zskiplist包含以下属性：head,tail,level(层数最大的节点的层数),length； zskiplistNode包含以下属性：level(包含前进指针，跨度；1-32随机数，符合幂次定律),backward(后退指针，BW),score,obj; 跨度：计算排位（rank），查找某个节点的过程中，访问过的节点跨度累加； 成员对象obj是一个指针，指向字符串对象，字符串依旧是一个SDS； obj是唯一的，score相同的，按照obj在字典顺序中大小，小的靠近表头； 整数集合 一个集合包含整数元素，个数不多； 实现 typedef struct intset { // 编码方式 uint32_t encoding; // 集合包含的元素数量 uint32_t length; // 保存元素的数组 int8_t contents[]; } intset; int16,int32,int64的整数值；有序,无重复元素； contents底层是有序的数据；contents并不保存任何int8_t类型的值，真正类型取决于encoding属性的值; 添加新元素的时间复杂度为O(N) 仅支持升级，不支持降级； 压缩列表 列表键和哈希键的底层实现之一，保存比较小的整数、长度比较短的字符串； 结构 属性 类型 长度 用途 zlbytes uint32_t 4 字节 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。 zltail uint32_t 4 字节 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 zllen uint16_t 2 字节 记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 entryX 列表节点 不定 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。 zlend uint8_t 1 字节 特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。 对象 字符串对象、列表对象、哈希对象、集合对象和有序集合对象； 引用计数法实现的内存回收和对象共享机制； 创建一个键值对的时候，至少会创造两个对象，键总是一个字符串对象； 结构 typedef struct redisObject { // 类型 常量：REDIS_STRING,REDIS_LIST,REDIS_HASH,REDIS_SET,REDIS_ZSET unsigned type:4; // 编码 unsigned encoding:4; // 指向底层实现数据结构的指针 void *ptr; // ... } robj; 编码常量 编码所对应的底层数据结构 REDIS_ENCODING_INT long 类型的整数 REDIS_ENCODING_EMBSTR embstr 编码的简单动态字符串 REDIS_ENCODING_RAW 简单动态字符串 REDIS_ENCODING_HT 字典 REDIS_ENCODING_LINKEDLIST 双端链表 REDIS_ENCODING_ZIPLIST 压缩列表 REDIS_ENCODING_INTSET 整数集合 REDIS_ENCODING_SKIPLIST 跳跃表和字典 对象会在不同场景使用不同的编码； 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的； 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度&amp;lt;=64，元素数量&amp;lt;=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries； 哈希对象编码：ziplist,hashtable; ziplist条件：键和值长度都&amp;lt;=64，键值对&amp;lt;=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries； 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries； 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；</summary></entry></feed>

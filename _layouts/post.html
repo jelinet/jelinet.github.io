@@ -11,7 +11,7 @@ layout: default
     {%- if page.categories.size > 0 -%}
     <ul class="post-categories">
       {%- for tag in page.categories -%}
-      <li><strong><a href="/{{ tag }}/">{{ tag }}</a></strong></li>
+      <li><strong><a href="/category/{{ tag }}.html">{{ tag }}</a></strong></li>
       {%- endfor -%}
     </ul>
     {%- endif -%}
