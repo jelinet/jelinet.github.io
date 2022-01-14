@@ -2,13 +2,9 @@
 layout: post
 title:  "Spring-boot运行调试"
 date:   2022-01-05 18:54 +0800
-categories: spring-boot
+categories: spring
 
 ---
-
-
-
-
 
 ## springboot核心原理
 

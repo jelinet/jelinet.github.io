@@ -1,0 +1,24 @@
+---
+layout: default
+---
+
+<div class="post-container">
+    <ul class="posts">
+      <li class="posts-labelgroup" id="posts-labelgroup">
+      <h1 id="posts-label">
+        <strong>ALL CATEGORIES</strong>
+      </h1>
+    </li>
+    {% for category in site.categories %}
+      <li>
+        
+         <a class="post-link" href="/category/{{ category|first }}.html">
+          <h2 class="post-title">{{category|first}}</h4>
+        </a>
+      </li>    
+    {% endfor %}
+  </ul>
+</div>
+
+
+

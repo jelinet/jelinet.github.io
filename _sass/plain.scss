@@ -291,6 +291,14 @@ main {
   margin: 0;
   overflow: hidden;
   transition: width 0.1s;
+
+  .terms-count {
+    display: inline-block;
+    position: relative;
+    top: -8px;
+    color: #0a59b0;
+    font-size: 12px;
+  }
 }
 table {
   th, td {
