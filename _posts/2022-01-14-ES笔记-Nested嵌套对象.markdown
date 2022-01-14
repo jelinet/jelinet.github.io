@@ -1,0 +1,101 @@
+---
+layout: post
+title:  "ElasticSearch-Nested嵌套对象"
+date:   2020-05-19 12:31 +0800
+categories:es
+---
+
+### Nested类型
+
+Nested嵌套数据类型是对象数据类型的特殊版本，它允许对象数组中的各个对象被索引，数组中的各个对象之间保持独立，能够对每一个文档进行单独查询，这就意味着，嵌套数据类型保留文档的内部之间的关联，ElasticSearch引擎内部使用不同的方式处理嵌套数据类型和对象数组的方式，对于嵌套数据类型，ElasticSearch把数组中的每一个嵌套文档（Nested Document）索引为单个文档，这些文档是隐藏（Hidden）的，文档之间是相互独立的，但是，保留文档的内部字段之间的关联，使用嵌套查询（Nested Query）能够独立于其他文档而去查询单个文档。
+
+### Nested字段java api
+
+根据nested字段说明可判断直接操作nested内容不会有性能问题。java api中使用脚本，painless语法接近java。用list举个例子
+
+```json
+mapping:
+"list": {
+                "type": "nested",
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "value": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            }
+```
+
+```java
+	
+private RestHighLevelClient restHighLevelClient;
+
+
+public void testAddList() throws IOException {
+        UpdateRequest updateRequest = new UpdateRequest(index, type, "999999");
+        Map<String, Object> map = Maps.newHashMap();
+        Map<String,Object> addData = Maps.newHashMap();
+        addData.put("id",1);
+        addData.put("value","test");
+        map.put("addData", addData);
+        Script script = new Script(ScriptType.INLINE,
+                "painless",
+                "ctx._source.list.add(params.addData)",
+                map);
+        updateRequest.script(script);
+        updateRequest.scriptedUpsert(true);
+  			updateRequest.upsert("{}", XContentType.JSON);
+        UpdateResponse updateResponse = restHighLevelClient.update(updateRequest);
+    }
+
+
+    public void testUpdateList() throws IOException {
+        UpdateRequest updateRequest = new UpdateRequest(index, type, "999999");
+        Map<String, Object> map = Maps.newHashMap();
+        Map<String,Object> updateData = Maps.newHashMap();
+        updateData.put("id",1);
+        updateData.put("value","update test");
+        map.put("updateData", updateData);
+        Script script = new Script(ScriptType.INLINE,
+                "painless",
+                "for (Map object : ctx._source.list){" +
+                        "            if(object.id == params.updateData.id){" +
+                        "               object.value = params.updateData.value" +
+                        "            }" +
+                        "        }" +
+                        "",
+                map);
+        updateRequest.script(script);
+        updateRequest.scriptedUpsert(true);
+      	updateRequest.upsert("{}", XContentType.JSON);
+        UpdateResponse updateResponse = restHighLevelClient.update(updateRequest);
+    }
+
+    public void testRemoveList() throws IOException {
+        UpdateRequest updateRequest = new UpdateRequest(index, type, "999999");
+        Map<String, Object> map = Maps.newHashMap();
+        Map<String,Object> removeData = Maps.newHashMap();
+        removeData.put("id",1);
+        removeData.put("value","update test");
+        map.put("removeDate", removeData);
+        Script script = new Script(ScriptType.INLINE,
+                "painless",
+                "ctx._source.list.removeIf(object -> object.id.equals(params.removeDate.id))",
+                map);
+        updateRequest.script(script);
+        updateRequest.scriptedUpsert(true);
+        updateRequest.upsert("{}", XContentType.JSON);
+        UpdateResponse updateResponse = restHighLevelClient.update(updateRequest);
+    }
+```
+
+> code  updateRequest.upsert("{}", XContentType.JSON);
+>
+> 
