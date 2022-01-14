@@ -6,10 +6,6 @@ categories: redis
 ---
 
 
-
-
-
-
 ## RDB 文件的创建与载入
 一个概念：服务器中非空数据库以及数据库中的键值对 称为 **数据库状态**
 ### 创建
@@ -58,41 +54,37 @@ def BGSAVE():
 	~~~c
 	/**
 	  * 客户端没有配置->默认的配置
+	  * 任意条件满足即合 
+	  */
+		save 900 1    //900秒内，对数据库至少一次修改
+		save 300 10
+		save 60 10000
 
-  	  * 任意条件满足即合 
-  	  */
-  	save 900 1    //900秒内，对数据库至少一次修改
-  	save 300 10
-  	save 60 10000
-  	~~~
 2. 设置保存条件
 	- 结构  
 	
 		~~~c
-		struct redisServer {
-   
-	 		// ...
-    	
-    		// 记录了保存条件的数组
-    		struct saveparam *saveparams;
-    	
-    		// 修改计数器
-    		long long dirty;
-    	
-    		// 上一次执行保存的时间
-	 		time_t lastsave;
-    	
-	 		// ...
-	 	};
-	 	
-	 	struct saveparam {
-	 		// 秒数    
-	 		time_t seconds;
-	 		// 修改数
-	 		int changes;
-	 	};
-	 	
-	 	~~~  
+		struct redisServer {	
+   	  // ...
+		
+   		// 记录了保存条件的数组
+   		struct saveparam *saveparams;
+   	
+   		// 修改计数器
+   		long long dirty;
+   	
+   		// 上一次执行保存的时间
+   		time_t lastsave;
+		
+   		// ...
+		};
+		
+		struct saveparam {
+			// 秒数    
+			time_t seconds;
+			// 修改数
+			int changes;
+		};
 	
 	- 根据配置来设置redisServer中的saveparams  
 	- dirty计数器：记录上一次SAVE或BGSAVE后，数据库状态进行了多少次修改[^1]  
