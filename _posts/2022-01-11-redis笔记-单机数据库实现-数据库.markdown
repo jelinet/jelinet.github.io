@@ -7,8 +7,6 @@ typora-root-url: ./image
 ---
 
 
-
-
 ## 结构
 
 ~~~c

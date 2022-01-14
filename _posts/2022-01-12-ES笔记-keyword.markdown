@@ -3,7 +3,6 @@ layout: post
 title:  "ElasticSearch笔记-keyword、text、numeric"
 date:   2020-05-06 17:28 +0800
 categories: es
-
 ---
 
 ### 分词、倒排

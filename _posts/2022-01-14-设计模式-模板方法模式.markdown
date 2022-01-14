@@ -2,11 +2,11 @@
 layout: post
 title:  "设计模式-模板方法模式"
 date:   2017-06-22 16:30 +0800
-categories:设计模式
+categories: 设计模式
 typora-root-url: ./image
 ---
 
-# 模板模式
+# 模板方法模式
 
 在模板模式（Template Pattern）中，一个抽象类公开定义了执行它的方法的方式/模板。它的子类可以按需要重写方法实现，但调用将以抽象类中定义的方式进行。这种类型的设计模式属于行为型模式。
 
