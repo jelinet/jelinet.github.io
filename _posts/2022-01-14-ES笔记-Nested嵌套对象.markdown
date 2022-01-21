@@ -15,22 +15,22 @@ Nested嵌套数据类型是对象数据类型的特殊版本，它允许对象�
 
 ```json
 mapping:
-"list": {
-                "type": "nested",
-                "properties": {
-                    "id": {
-                        "type": "keyword"
-                    },
-                    "value": {
-                        "type": "text",
-                        "fields": {
-                            "keyword": {
-                                "type": "keyword"
-                            }
-                        }
+"list":{
+        "type":"nested",
+        "properties":{
+            "id":{
+                "type":"keyword"
+            },
+            "value":{
+                "type":"text",
+                "fields":{
+                    "keyword":{
+                        "type":"keyword"
                     }
                 }
             }
+        }
+    }
 ```
 
 ```java
@@ -98,4 +98,3 @@ public void testAddList() throws IOException {
 
 > code  updateRequest.upsert("{}", XContentType.JSON);
 >
-> 

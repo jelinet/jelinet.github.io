@@ -7,7 +7,7 @@ categories: es
 
 ### 分词、倒排
 
-ES 中有**精确值**（Exact Values）与**全文本**（Full Text）之分：
+ES 中有**精确值(Exact Values)**与**全文本(Full Text)**之分：
 
 - 精确值：包括数字，日期，一个具体字符串（例如"Hello World”）。
   - 在 ES 中用 **[keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html){:target="_blank"}**、numeric数据类型表示。
@@ -16,7 +16,7 @@ ES 中有**精确值**（Exact Values）与**全文本**（Full Text）之分：
   - 在 ES 中用 **[text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html){:target="_blank"}**数据类型表示。
   - 全文本**需要**做分词处理。
 
-**分词**主要用于建立**单词**（Term / Token）与**倒排索引**对应关系，比如将 `hello world` 拆分为 `hello` 和 `world`
+分词主要用于建立单词（Term / Token）与倒排索引对应关系，比如将 `hello world` 拆分为 `hello` 和 `world`
 
 当用户向ES发送一个搜索请求的时候，搜索引擎经过了以下步骤：
 
@@ -41,7 +41,6 @@ numeric类型为了能有效的支持范围查询，它的存储结构并不是�
 | float     | DoublePoint  |
 | byte[]    | BinaryPoint  |
 
-
 而这些PointValues是基于kd-tree存储的，根据官方文档的介绍，lucene把叶子节点在磁盘是顺序存储的，这样搜索的效率就会非常高。
 
 #### 为啥numeric对于term精确匹配的查询性能没有keyword好
@@ -57,7 +56,6 @@ Query newRangeQuery(String field, int lowerValue, int upperValue)
 //构造多维查询
 Query newRangeQuery(String field, int[] lowerValue, int[] upperValue)
 ```
-
 
 比如有这样一个索引：
 
@@ -88,8 +86,4 @@ PUT blogs
 }
 ```
 
-
 在lucene内部其实还是进行了一个2~2的范围查询。即便kd-tree的性能也很高，但是对于这种精确查询还是要到树上走一遭，而倒排索引相当于是直接在内存里就定位到了结果集的文档id。如果是bool组合查询的话，term还可以利用跳表，这点numeric字段也是做不到的。
-
-
-
