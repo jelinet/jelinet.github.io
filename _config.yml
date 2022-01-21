@@ -26,6 +26,9 @@ plainwhite:
     #- home
     - page
     - post
+  navigation:
+    - title: category
+      url: "/category"  
   disqus_shortname: jelinet #Comments on posts can be enabled by specifying your disqus_shortname under plainwhite  
   # generate social links in footer
   social_links:
