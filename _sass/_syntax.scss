@@ -11,7 +11,10 @@ pre.highlight, code {
 	font-family: 'Consolas', Menlo, monospace;
 	line-height: 1.4em;
 	tab-size: 4;
-    padding: .1em .3em;
+}
+
+code.highlighter-rouge{
+	padding: .1em .3em;
     background: #f4f4f4;
     border-radius: 6px;
 }
