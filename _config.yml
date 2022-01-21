@@ -26,6 +26,7 @@ plainwhite:
     #- home
     - page
     - post
+  disqus_shortname: jelinet #Comments on posts can be enabled by specifying your disqus_shortname under plainwhite  
   # generate social links in footer
   social_links:
     twitter: j3l1n37
