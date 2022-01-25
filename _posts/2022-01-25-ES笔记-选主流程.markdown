@@ -7,6 +7,12 @@ typora-root-url: ./image
 ---
 
 Discovery模块负责发现集群中的节点，以及选择主节点。ES支持多种不同Discovery类型选择，内置的实现称为`Zen Discovery`，封装了节点发现(Ping)、选主等实现过程。
+ES目前主要推荐的自动发现机制，有如下几种：
+
+1. [Azure classic discovery](https://www.elastic.co/guide/en/elasticsearch/plugins/7.16/discovery-azure-classic.html){:target="_blank"} 插件方式，多播
+2. [EC2 discovery](https://www.elastic.co/guide/en/elasticsearch/plugins/7.16/discovery-ec2.html){:target="_blank"} 插件方式，多播
+3. [Google Compute Engine (GCE) discovery](https://www.elastic.co/guide/en/elasticsearch/plugins/7.16/discovery-gce.html){:target="_blank"} 插件方式，多播
+4. `Zen discovery`默认实现，多播/单播
 
 ## 为什么使用主从模式
 
