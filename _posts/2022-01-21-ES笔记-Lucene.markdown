@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "ElasticSearch笔记-Lucene概念介绍"
+title:  "ElasticSearch-Lucene概念介绍"
 date:   2019-10-23 11:30 +0800
 categories: es
 typora-root-url: ./image
