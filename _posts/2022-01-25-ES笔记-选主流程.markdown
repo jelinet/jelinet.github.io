@@ -13,7 +13,6 @@ Discovery模块负责发现集群中的节点，以及选择主节点。ES支持
 除主从(Leader/Follower)模式外，另一种选择是分布式哈希表 (DHT)，可以支持每小时数千个节点的离开和加入，其可以在不了解底层网络拓扑的异构网络中工作，查询响应时间大约为4到10跳(中转次数)，例如Cassandra就使用这种方案。但是在相对稳定的对等网络中，主从模式会更好。
 
 为什么主从模式更适合ES：
-
 1. ES集群中没有那么多节点；
 2. 节点的数量远远小于单个节点连接数；
 3. 网络环境不必经常处理节点的加入和离开；
@@ -23,15 +22,12 @@ Discovery模块负责发现集群中的节点，以及选择主节点。ES支持
 ### Bully算法
 
 Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID， 使用该ID对节点进行排序。任何时候的当前Leader都是参与集群的最高ID节点。
-
 优点：易于实现。
-
 缺点：当拥有最大ID的节点处于不稳定状态的场景下会有问题。例如，Master负载过重而假死，集群拥有第二大ID的节点被选为新主，这时原来的Master恢复，再次被选为新主，然后又假死......ES通过推迟选举，直到当前的 Master 失效来解决上述问题，只要当前主节点不挂掉，就不重新选主。但是容易产生脑裂(双主)，为此，再通过『法定得票人数过半』解决脑裂问题。
 
 ### Paxos算法
 
 优点：在什么时机，以及如何进行选举方面的灵活性比简单的Bully算法有很大的优势，因为现实中存在比网络连接异常更多的故障模式。
-
 缺点：实现起来非常复杂。
 
 ## 相关配置
@@ -39,15 +35,12 @@ Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID
 与选主过程相关的重要配置有下列几个，并非全部配置。
 
 1. `discovery.zen.minimum_master_nodes`：最小主节点数，这是防止脑裂、防止数据丢失的极其重要的参数。这个参数的实际作用早已超越了其表面的含义。除了在选主时用于决定『多数』，还用于多处重要的判断，至少包含以下时机:
-
+   
    - 触发选主：进入选主的流程之前，参选的节点数需要达到法定人数。
-
    - 决定**Master**：选出临时的Master之后，这个临时Master需要判断加入它的节点达到法定人数，才确认选主成功。
-
    - **gateway**选举元信息：向有Master资格的节点发起请求，获取元数据，获取的响应数量必须达到法定人数，也就是参与元信息选举的节点数。
-
    - **Master**发布集群状态：发布成功数量为多数。 为了避免脑裂，它的值应该是半数以上(quorum): (master_eligible_nodes / 2) + 1。例如，如果有3个具备Master资格的节点，则这个值至少应该设置为(3/2)+ 1 = 2。 该参数可以动态设置:
-
+   
       ```json
       - PUT /_cluster/settings 
       {
@@ -56,8 +49,7 @@ Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID
       	} 
       }
       ```
-
-
+   
 2. `discovery.zen.ping.unicast.hosts`：集群的种子节点列表，构建集群时 本节点会尝试连接这个节点列表，那么列表中的主机会看到整个集群中 都有哪些主机。可以配置为部分或全部集群节点。可以像下面这样指定，默认使用9300端口，如果需要更改端口号，则可以在IP后手工指定 端口。也可以设置一个域名，让该域名解析到多个IP地址，ES会尝试连 接这个IP列表中的全部地址。
 
 	```json
@@ -66,19 +58,12 @@ Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID
 	- 192.168.1.11
 	- seeds.mydomain.com
 	```
-
 3. `discovery.zen.ping.unicast.hosts.resolve_timeout`：DNS 解析超时时间， 默认为5秒。
-
 4. `discovery.zen.join_timeout`：节点加入现有集群时的超时时间，默认 为 ping_timeout的20倍。
-
 5. `discovery.zen.join_retry_attempts join_timeout`：超时之后的重试次 数，默认为3次。
-
 6. `discovery.zen.join_retry_delay join_timeout`：超时之后，重试前的延 迟时间，默认为100毫秒。
-
 7. `discovery.zen.master_election.ignore_non_master_pings`：设置为true 时，选主阶段将忽略来自不具备Master资格节点(node.master: false)的 ping请求，默认为false。
-
 8. `discovery.zen.fd.ping_interval`：故障检测间隔周期，默认为1秒。
-
 9. `discovery.zen.fd.ping_timeout`：故障检测请求超时时间，默认为30 秒。
 10. `discovery.zen.fd.ping_retries`：故障检测超时后的重试次数，默认为3 次。
 
@@ -100,9 +85,7 @@ Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID
 实现位于`ZenDiscovery#findMaster`。选举过程：
 
 1. 『ping』所有节点，获取节点列表fullPingResponses，ping结果不包含本节点，把本节点单独添加到fullPingResponses中。 
-
 2. 构建两个列表。 
-
    - activeMasters列表：存储集群当前活跃Master列表。遍历第一步获取的所有节点，将每个节点所认为的当前Master节点加入activeMasters 列表中(不包括本节点)。在遍历过程中，如果配置了 discovery.zen.master_election.ignore_non_master_pings 为 true(默认为 false)，而节点又不具备Master资格，则跳过该节点。整体流程如下图所示：这个过程是将集群当前已存在的Master加入activeMasters列表，正常情况下只有一个。如果集群已存在Master，则每个节点都记录了当前Master是哪个，考虑到异常情况下，可能各个节点看到的当前Master不同。在构建activeMasters列表过程中，如果节点不具备Master资格，则可以通过`ignore_non_master_pings`选项忽略它认为的那个Master。
 
      ![es-activeMaster构建](/../../image/es/es-activeMaster构建.png)
@@ -116,7 +99,6 @@ Leader选举的基本算法之一。它假定所有节点都有一个唯一的ID
 ### 投票与得票
 
 发送投票就是发送加入集群(JoinRequest)请求。得票就是申请加入该节点的请求的数量。
-
 收集投票，进行统计的实现在`ZenDiscovery#handleJoinReques`方法中，收到的连接被存储到`ElectionContext#joinRequestAccumulator`中。当节点检查收到的投票是否足够时，就是检查加入它的连接数是否足够， 其中会去掉没有Master资格节点的投票。
 
 ```java
