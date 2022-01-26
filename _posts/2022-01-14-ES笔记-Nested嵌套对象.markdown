@@ -9,9 +9,11 @@ categories: es
 
 Nested嵌套数据类型是对象数据类型的特殊版本，它允许对象数组中的各个对象被索引，数组中的各个对象之间保持独立，能够对每一个文档进行单独查询，这就意味着，嵌套数据类型保留文档的内部之间的关联，ElasticSearch引擎内部使用不同的方式处理嵌套数据类型和对象数组的方式，对于嵌套数据类型，ElasticSearch把数组中的每一个嵌套文档（Nested Document）索引为单个文档，这些文档是隐藏（Hidden）的，文档之间是相互独立的，但是，保留文档的内部字段之间的关联，使用嵌套查询（Nested Query）能够独立于其他文档而去查询单个文档。
 
+嵌套文档是隐藏存储的,我们不能直接获取。如果要增删改一个嵌套对象,我们必须把整个文档重新索引才可以。值得注意的是,查询的时候返回的是整个文档,而不是嵌套文档本身。
+
 ### Nested字段java api
 
-根据nested字段说明可判断直接操作nested内容不会有性能问题。java api中使用脚本，painless语法接近java。用list举个例子
+java api中使用脚本，painless语法接近java。用list举个例子
 
 ```json
 mapping:
@@ -97,4 +99,3 @@ public void testAddList() throws IOException {
 ```
 
 > code  updateRequest.upsert("{}", XContentType.JSON);
->
