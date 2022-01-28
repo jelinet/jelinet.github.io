@@ -78,13 +78,13 @@ typora-root-url: ./image
 
 - 结构  
 
-  | 属性      | 类型       | 长度     | 用途                                                         |
-  | :-------- | :--------- | :-------- | :----------------------------------------------------------- |
-  | `zlbytes` | `uint32_t` | `4` 字节 | 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 `zlend` 的位置时使用。 |
-  | `zltail`  | `uint32_t` | `4` 字节 | 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 |
-  | `zllen`   | `uint16_t` | `2` 字节 | 记录了压缩列表包含的节点数量： 当这个属性的值小于 `UINT16_MAX` （`65535`）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 `UINT16_MAX` 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 |
-  | `entryX`  | 列表节点   | 不定     | 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。     |
-  | `zlend`   | `uint8_t`  | `1` 字节 | 特殊值 `0xFF` （十进制 `255` ），用于标记压缩列表的末端。    |
+  | 属性      | 类型       | 长度     | 用途  |
+  | -------- | --------- | -------- | ----------------------------------------------------------- |
+  | zlbytes | uint32_t | 4 字节 | 记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。 |
+  | zltail  | uint32_t | 4 字节 | 记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。 |
+  | zllen   | uint16_ | 2 字节 | 记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。 |
+  | entryX  | 列表节点   | 不定     | 压缩列表包含的各个节点，节点的长度由节点保存的内容决定。     |
+  | zlend   | uint8_t  | 1 字节 | 特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。    |
 
 ## 对象
 
@@ -109,23 +109,25 @@ typora-root-url: ./image
   ~~~
 
   | 编码常量                    | 编码所对应的底层数据结构      |
-  | :-------------------------- | :---------------------------- |
-  | `REDIS_ENCODING_INT`        | `long` 类型的整数             |
-  | `REDIS_ENCODING_EMBSTR`     | `embstr` 编码的简单动态字符串 |
-  | `REDIS_ENCODING_RAW`        | 简单动态字符串                |
-  | `REDIS_ENCODING_HT`         | 字典                          |
-  | `REDIS_ENCODING_LINKEDLIST` | 双端链表                      |
-  | `REDIS_ENCODING_ZIPLIST`    | 压缩列表                      |
-  | `REDIS_ENCODING_INTSET`     | 整数集合                      |
-  | `REDIS_ENCODING_SKIPLIST`   | 跳跃表和字典                  |
+  | -------------------------  | --------------------------|
+  | REDIS_ENCODING_INT        | long 类型的整数             |
+  | REDIS_ENCODING_EMBSTR     | embstr 编码的简单动态字符串 |
+  | REDIS_ENCODING_RAW        | 简单动态字符串                |
+  | REDIS_ENCODING_HT         | 字典                          |
+  | REDIS_ENCODING_LINKEDLIST | 双端链表                      |
+  | REDIS_ENCODING_ZIPLIST    | 压缩列表                      |
+  | REDIS_ENCODING_INTSET     | 整数集合                      |
+  | REDIS_ENCODING_SKIPLIST   | 跳跃表和字典                  |
 
 - 对象会在不同场景使用不同的编码；  
 
   1. 字符串对象编码：int,raw,embstr;embstr 是字符串长度小于32时使用的；
   2. 列表对象编码：ziplist,linkedlist;ziplist条件：元素长度<=64，元素数量<=512；上限可在配置文件中修改list-max-ziplist-value、list-max-ziplist-entries；
-  3. 哈希对象编码：ziplist,hashtable;
+  3. 哈希对象编码：ziplist,hashtable; 
+     
      ![hash的ziplist编码](/../../image/redis/objecthash1.jpg))
        ziplist条件：键和值长度都<=64，键值对<=512；上限可在配置文件中修改hash-max-ziplist-value、hash-max-ziplist-entries；
   4. 集合对象编码：intset,hashtable;hashtable 保存在键中，值都为null；intset条件：所有元素都是整数型，元素数量不超过512个，数量上线可set-max-intset-entries；
   5. 有序集合编码：ziplist,skiplist;ziplist中按照score值顺序保存，先成员，后score；
+
      ![hash的ziplist编码](/../../image/redis/zsetziplist1.jpg)
