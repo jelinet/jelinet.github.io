@@ -126,11 +126,11 @@ def BGSAVE():
 
 带有两个数据库的RDB文件：
 
-<img src="/Users/lixuemei08/private/jelinet.github.io/image/redis/es_database2_RDB.png" alt="es_database2_RDB" style="zoom:67%;" />
+<img src="/../../image/redis/es_database2_RDB.png" alt="es_database2_RDB" style="zoom:67%;" />
 
 databases结构：
 
-![redis_databases结构](/Users/lixuemei08/private/jelinet.github.io/image/redis/redis_databases结构.png)
+![redis_databases结构](/../../image/redis/redis_databases结构.png)
 
 
 - SELECTDB 常量，标志即将要读入的数据库号db_number
