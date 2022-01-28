@@ -11,6 +11,14 @@ Nested嵌套数据类型是对象数据类型的特殊版本，它允许对象�
 
 嵌套文档是隐藏存储的,我们不能直接获取。如果要增删改一个嵌套对象,我们必须把整个文档重新索引才可以。值得注意的是,查询的时候返回的是整个文档,而不是嵌套文档本身。
 
+**优点**：nested文档可以将父子关系的两部分数据（举例：博客+评论）关联起来，可以基于nested类型做任何的查询。
+**缺点**：查询相对较慢，更新子文档需要更新整篇文档。
+
+```json
+index.mapping.nested_fields.limit //默认值50。即：一个索引中最大允许拥有50个nested类型的数据。
+index.mapping.nested_objects.limit //默认值10000。即：1个文档中所有nested类型json对象数据的总量是10000。
+```
+
 ### Nested字段java api
 
 java api中使用脚本，painless语法接近java。用list举个例子

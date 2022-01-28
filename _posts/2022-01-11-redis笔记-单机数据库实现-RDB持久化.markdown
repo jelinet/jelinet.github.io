@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "redis笔记-单机数据库实现-RDB持久化"
+title:  "redis-单机数据库实现-RDB持久化"
 date:   2018-06-23 15:18 +0800
 categories: redis
 ---
@@ -15,27 +15,19 @@ def SAVE():
 # 创建RDB文件
 rdbSave()
 
-
-
 def BGSAVE():
    
 	# 创建子进程
-   pid = fork()
-    			
+   pid = fork()	
 	if pid == 0:
-			
 		# 子进程负责创建RDB文件
 		rdbSave()
-		
 		# 完成之后向父进程发送信号
 		signal_parent()
 	else if pid > 0:
-	
 		# 父进程继续处理命令请求，并通过轮询等待子进程的信
 		handle_request_and_wait_signal()
-		
 	else:
-	
 		# 处理出错情况
 		handle_fork_error()
 ~~~
@@ -59,6 +51,7 @@ def BGSAVE():
 		save 900 1    //900秒内，对数据库至少一次修改
 		save 300 10
 		save 60 10000
+	~~~
 
 2. 设置保存条件
 	- 结构  
@@ -85,6 +78,7 @@ def BGSAVE():
 			// 修改数
 			int changes;
 		};
+		~~~
 	
 	- 根据配置来设置redisServer中的saveparams  
 	- dirty计数器：记录上一次SAVE或BGSAVE后，数据库状态进行了多少次修改[^1]  
@@ -116,8 +110,36 @@ def BGSAVE():
 	- 任意saveparam满足，就执行BGSAVE
 		
 ## RDB文件结构
-| REDIS | db\_version \| databases \| EOF |check_sum
-## 分析RDB文件
+
+| REDIS | db\_version | databases | EOF  | check_sum |
+| ----- | ----------- | --------- | ---- | --------- |
+
+- REDIS长度5字节，保存REDIS五个字符。快速检查载入文件是否是RDB文件；
+- db_version 长度为4，0002代表第二个版本；
+- databases，0或多个数据库，以及数据库中的键值对；数据库状态为空，这部分为空0字节。
+- EOF常量长度1字节。标志RDB文件正文结束，所有数据库键值对加载完毕；
+- chack_sum是8字节长无符号整数，记录前四项的校验和。
+
+databases为空的RDB文件：
+
+| "REDIS" | "0006" | EOF  | 6265312314761917404 |
+| ------- | ------ | ---- | ------------------- |
+
+### databases部分
+
+带有两个数据库的RDB文件：
+
+| REDIS | db\_version | databases0 | databases3 | EOF  | check_sum |
+| ----- | ----------- | ---------  | ---------  | ---- | --------- |
+
+databases结构：
+
+| SELECTDB | db_number | key_value_pairs |
+| -------- | --------- | --------------- |
+
+- SELECTDB 常量，标志即将要读入的数据库号db_number
+- db_number 数据库号，长度1、2、5字节；读取数据库号后，后面的键值对就能正确写入到不同的库中；
+- key_value_pairs 数据库键值对数据，带过期时间；
 
 
 
