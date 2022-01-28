@@ -14,7 +14,7 @@ show_excerpts: false # set to true to show excerpts on the homepage
 sass:
   sass_dir: _sass
 plainwhite:
-  name: jelinet
+  name: Jelinet
   tagline: baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.
   date_format: "%b %-d, %Y"
   sitemap: true # set to true to generate sitemap.xml content
