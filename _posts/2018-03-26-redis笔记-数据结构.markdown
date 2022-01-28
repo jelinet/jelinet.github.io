@@ -342,7 +342,7 @@ typedef struct {
 <tot-bytes> <num-elements> <element-1> ... <element-N> <listpack-end-byte>
 ```
 
-<img src="/../../image/redis/redis_listpack.png" alt="图片" style="zoom: 150%;" />
+<img src="/../../image/redis/redis_listpack.png" alt="图片"  />
 
 listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。
 
