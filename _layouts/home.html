@@ -9,7 +9,7 @@ layout: default
 {{ content }}
 
 {%- if site.posts.size > 0 -%}
-  <ul class="posts">
+<!--   <ul class="posts">
     <li class="posts-labelgroup" id="posts-labelgroup">
       <h1 id="posts-label">posts</h1>
       {% if site.plainwhite.search %}
@@ -47,6 +47,21 @@ layout: default
             {{ post.excerpt }}
           {%- endif -%}
         </div>
+      </li>
+    {%- endfor -%}
+  </ul> -->
+
+    <ul class="posts">
+    <li class="posts-labelgroup" id="posts-labelgroup">
+      <h1 id="posts-label">ALL CATEGORIES</h1>
+    </li>
+
+    {% for category in site.categories %}
+      <li>
+        {%- assign date_format = site.plainwhite.date_format | default: "%b %-d, %Y" -%}
+        <a class="post-link" href="/category/{{ category|first }}.html">
+          <h2 class="post-title">{{category|first}}</h2>
+        </a>
       </li>
     {%- endfor -%}
   </ul>
