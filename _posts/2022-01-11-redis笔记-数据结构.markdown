@@ -1,12 +1,145 @@
 ---
 layout: post
-title:  "redis-数据结构"
+title:  "Redis-数据结构"
 date:   2018-03-26 18:54 +0800
 categories: redis
 typora-root-url: ./image
 ---
 
+# Redis数据结构与底层实现
 
+![redis数据结构底层对应](/../../image/redis/redis数据结构底层对应.webp)
+
+## SDS
+
+不直接使用C字符串(以"\0"结尾)，统一用简单动态字符串(simple dynamic string，SDS)标识字符串。
+
+![redis_SDS数据结构](/../../image/redis/redis_SDS数据结构.webp)
+
+| C 字符串                                             | SDS                                                  |
+| --------------------------------------------------- | --------------------------------------------------- |
+| 获取字符串长度的复杂度为 O(N) 。                     | 获取字符串长度的复杂度为 O(1) 。                     |
+| API 是不安全的，可能会造成缓冲区溢出。               | API 是安全的，不会造成缓冲区溢出。                   |
+| 修改字符串长度 `N` 次必然需要执行 `N` 次内存重分配。 | 修改字符串长度 `N` 次最多需要执行 `N` 次内存重分配。 |
+| 只能保存文本数据。                                   | 可以保存文本或者二进制数据。                         |
+| 可以使用所有 `<string.h>` 库中的函数。               | 可以使用一部分 `<string.h>` 库中的函数。             |
+
+## 链表
+
+```c
+typedef struct list {
+    // 表头节点
+    listNode *head;
+    // 表尾节点
+    listNode *tail;
+    // 链表所包含的节点数量
+    unsigned long len;
+    // 节点值复制函数
+    void *(*dup)(void *ptr);
+    // 节点值释放函数
+    void (*free)(void *ptr);
+    // 节点值对比函数
+    int (*match)(void *ptr, void *key);
+} list;
+
+/** 
+	* 双向链表,无环
+	*/
+typedef struct listNode {
+    // 前置节点
+    struct listNode *prev;
+    // 后置节点
+    struct listNode *next;
+    // 节点的值
+    void *value;
+} listNode;
+```
+
+![redis_list结构](/../../image/redis/redis_list结构.png)
+
+- 链表被广泛用于实现 Redis 的各种功能， 比如列表键， 发布与订阅， 慢查询， 监视器， 等等。
+- 双向链表，无环；
+- 通过为链表设置不同的类型特定函数， Redis 的链表可以用于保存各种不同类型的值。
+
+## 哈希表
+
+```c
+/*
+ * 哈希表
+ */
+typedef struct dictht {
+    // 哈希表数组
+    dictEntry **table;
+    // 哈希表大小
+    unsigned long size;
+    // 哈希表大小掩码，用于计算索引值
+    // 总是等于 size - 1
+    unsigned long sizemask;
+    // 该哈希表已有节点的数量
+    unsigned long used;
+} dictht;
+
+typedef struct dictEntry {
+    // 键
+    void *key;
+    // 值
+    union {
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+    } v;
+    // 指向下个哈希表节点，形成链表
+    struct dictEntry *next;
+} dictEntry;
+
+/**
+ * 字典
+ */
+typedef struct dict {
+    // 类型特定函数
+    dictType *type;
+    // 私有数据
+    void *privdata;
+    // 哈希表
+    dictht ht[2];
+    // rehash 索引
+    // 当 rehash 不在进行时，值为 -1
+    int rehashidx; /* rehashing not in progress if rehashidx == -1 */
+} dict;
+
+typedef struct dictType {
+    // 计算哈希值的函数
+    unsigned int (*hashFunction)(const void *key);
+    // 复制键的函数
+    void *(*keyDup)(void *privdata, const void *key);
+    // 复制值的函数
+    void *(*valDup)(void *privdata, const void *obj);
+    // 对比键的函数
+    int (*keyCompare)(void *privdata, const void *key1, const void *key2);
+    // 销毁键的函数
+    void (*keyDestructor)(void *privdata, void *key);
+    // 销毁值的函数
+    void (*valDestructor)(void *privdata, void *obj);
+} dictType;
+```
+
+<img src="/../../image/redis/redis_字典结构.png" alt="redis_字典结构" style="zoom:50%;" />
+
+**Redis 采用了「链式哈希」来解决哈希冲突**
+
+rehash：
+
+- 为字典的` ht[1]` 哈希表分配空间，这个哈希表的空间大小取决于要执行的操作，以及 `ht[0]`当前包含的键值对数量 （也即`ht[0].used`属性的值）：
+  - 如果执行的是扩展操作， 那么 `ht[1]` 的大小为第一个大于等于 `ht[0].used * 2` 的 $2^n$ （`2` 的 `n` 次方幂)；
+  - 如果执行的是收缩操作， 那么 `ht[1]` 的大小为第一个大于等于 `ht[0].used` 的 $2^n$。
+- 将保存在 `ht[0]` 中的所有键值对 rehash 到 `ht[1]` 上面： rehash 指的是重新计算键的哈希值和索引值， 然后将键值对放置到 `ht[1]` 哈希表的指定位置上。
+- 当 `ht[0]` 包含的所有键值对都迁移到了 `ht[1]` 之后 （`ht[0]` 变为空表）， 释放 `ht[0]` ， 将 `ht[1]` 设置为 `ht[0]` ， 并在 `ht[1]` 新创建一个空白哈希表， 为下一次 rehash 做准备。
+
+举个例子， 假设程序要对图 4-8 所示字典的 `ht[0]` 进行扩展操作， 那么程序将执行以下步骤：
+
+1. `ht[0].used` 当前的值为 `4` ， `4 * 2 = 8` ， 而 `8` $2^3$恰好是第一个大于等于 `4` 的 `2` 的 `n` 次方， 所以程序会将 `ht[1]` 哈希表的大小设置为 `8` 。
+2. 将 `ht[0]` 包含的四个键值对都 rehash 到 `ht[1]`。
+3. 释放 `ht[0]` ，并将 `ht[1]` 设置为 `ht[0]` ，然后为 `ht[1]` 分配一个空白哈希表。
 
 ## 跳跃表
 

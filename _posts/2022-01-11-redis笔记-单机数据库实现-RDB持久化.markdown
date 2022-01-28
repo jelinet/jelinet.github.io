@@ -1,8 +1,9 @@
 ---
 layout: post
-title:  "redis-单机数据库实现-RDB持久化"
+title:  "Redis-RDB持久化"
 date:   2018-06-23 15:18 +0800
 categories: redis
+typora-root-url: ./image
 ---
 
 
