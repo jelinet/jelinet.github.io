@@ -9,7 +9,7 @@ layout: default
 {{ content }}
 
 {%- if site.posts.size > 0 -%}
-<!--   <ul class="posts">
+  <ul class="posts">
     <li class="posts-labelgroup" id="posts-labelgroup">
       <h1 id="posts-label">posts</h1>
       {% if site.plainwhite.search %}
@@ -49,13 +49,19 @@ layout: default
         </div>
       </li>
     {%- endfor -%}
-  </ul> -->
+  </ul>
 
-    <ul class="posts">
-    <li class="posts-labelgroup" id="posts-labelgroup">
-      <h1 id="posts-label">ALL CATEGORIES</h1>
-    </li>
+<!--   <div class="home_top">
+    <div class="home_top_item" id="">
+      posts
+    </div>
+    <div class="home_top_item" id="">
+      ALL CATEGORIES
+    </div>
+  </div> -->
 
+<!--   <div class="posts">
+  <ul class="posts">
     {% for category in site.categories %}
       <li>
         {%- assign date_format = site.plainwhite.date_format | default: "%b %-d, %Y" -%}
@@ -65,6 +71,7 @@ layout: default
       </li>
     {%- endfor -%}
   </ul>
+</div> -->
 
   <!-- <p class="feed-subscribe"><svg class="svg-icon orange">
 		<use xlink:href="{{ '/assets/minima-social-icons.svg#rss' | relative_url }}"></use>

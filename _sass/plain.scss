@@ -280,7 +280,6 @@ main {
   align-items: baseline;
   border-bottom: 1px solid #eee;
 }
-
 #posts-label {
   font-size: 15px;
   color: #555;
@@ -300,6 +299,28 @@ main {
     font-size: 12px;
   }
 }
+.home_top{
+    display: block;
+    list-style-type: disc;
+    
+    padding-inline-start: 40px;
+    border-bottom: 1px solid #eee;
+}
+.home_top_item{
+    align-items: baseline;
+    font-size: 15px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 10px;
+    font-weight: normal;
+    margin: 0;
+    overflow: hidden;
+    transition: width 0.1s;
+    display: flex;
+    float: left;
+}
+
 table {
   th, td {
     padding: 8px 13px;
