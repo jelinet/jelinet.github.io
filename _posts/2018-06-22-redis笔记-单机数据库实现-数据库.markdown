@@ -37,6 +37,14 @@ typedef struct redisDb {
 - EXISTS、RENAME、KEYS等，这些命令都是通过对键空间进行操作来实现的。
   ![redisDb](/../../image/redis/redisDb1.jpg)
 
+## Redis的数据持久化
+
+Redis数据是存储在内存中的，为了保证Redis数据不丢失，那就要把数据从内存存储到磁盘上，以便在服务器重启后还能够从磁盘中恢复原有数据，Redis数据持久化有三种方式。
+
+- AOF 日志（Append Only File，文件追加方式）：记录所有的操作命令，并以文本的形式追加到文件中。
+- RDB 快照（Redis DataBase）：将某一个时刻的内存数据，以二进制的方式写入磁盘。
+- 混合持久化方式：Redis 4.0 新增了混合持久化的方式，集成了 RDB 和 AOF 的优点。
+
 ## 过期时间
 
 - EXPIRE \<key> \<ttl> 命令用于将键key的生存时间设置为ttl秒。
@@ -46,7 +54,7 @@ typedef struct redisDb {
 - EXPIRE、PEXPIRE、EXPIREAT三个命令都是使用PEXPIREAT命令来实现的。  
   ![db_expier](/../../image/redis/db_expier1.jpg)
 
-## Redis服务器实际使用的是惰性删除和定期删除两种策略
+**Redis服务器实际使用的是惰性删除和定期删除两种策略**
 
 > #### 概念：过期键的三种删除策略:  
 >
@@ -113,14 +121,14 @@ for i in range(db_numbers):
         if reach_time_limit(): return
 ```
 
-## AOF、RDB和复制功能对过期键的处理
+### AOF、RDB和复制功能对过期键的处理
 
-- **RDB持久化** 
-  1. 生成RDB，已过期的键不会被保存到新创建的RDB文件中
-  2. 载入RDB文件，以主服务器模式运行，对键检查，过期键忽略；从服务模式运行，全部载入；
 - **AOF持久化**
-  1. AOF写入：当过期键被惰性删除或者定期删除之后，程序会向AOF文件追加（append）一条DEL命令，来显式地记录该键已被删除
-  2. AOF重写：已过期的键不会被保存到重写后的AOF文件
+  1. AOF写入：当过期键被惰性删除或者定期删除之后，程序会向AOF文件追加（append）一条DEL命令，来显式地记录该键已被删除；
+  2. AOF重写：已过期的键不会被保存到重写后的AOF文件；
+- **RDB持久化** 
+  1. 生成RDB，已过期的键不会被保存到新创建的RDB文件中；
+  2. 载入RDB文件，以主服务器模式运行，对键检查，过期键忽略；从服务模式运行，全部载入；
 - **复制** 
   1. 从服务器只有在接到主服务器发来的DEL命令之后，才会删除过期键
 
