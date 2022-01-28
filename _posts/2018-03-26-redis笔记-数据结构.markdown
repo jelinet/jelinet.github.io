@@ -6,9 +6,7 @@ categories: redis
 typora-root-url: ./image
 ---
 
-[TOC]
-
-
+<div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n1447"><a class="md-toc-inner" href="#redis数据结构与底层实现">Redis数据结构与底层实现</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1449"><a class="md-toc-inner" href="#sds">SDS</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1471"><a class="md-toc-inner" href="#链表">链表</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1481"><a class="md-toc-inner" href="#哈希表">哈希表</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1521"><a class="md-toc-inner" href="#跳跃表">跳跃表</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1540"><a class="md-toc-inner" href="#整数集合">整数集合</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1556"><a class="md-toc-inner" href="#压缩列表">压缩列表  </a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1593"><a class="md-toc-inner" href="#对象">对象</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1648"><a class="md-toc-inner" href="#quicklist">quicklist</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n1653"><a class="md-toc-inner" href="#listpack">listpack</a></span></p></div>
 
 # Redis数据结构与底层实现
 
@@ -333,7 +331,7 @@ quicklist 虽然通过控制 quicklistNode 结构里的压缩列表的大小或�
 
 *Redis 的 Github，在最新  6.2 发行版本中，Redis Hash 对象、Set 对象的底层数据结构的压缩列表还未被替换成 listpack，而 Redis 的最新代码（还未发布版本）已经将所有用到压缩列表底层数据结构的 Redis 对象替换成 listpack 数据结构来实现，估计不久将来，Redis 就会发布一个将压缩列表为 listpack 的发行版本*。
 
-#### listpack 结构设计
+**listpack 结构设计**
 
 listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。
 
@@ -351,4 +349,4 @@ listpack 头包含两个属性，分别记录了 listpack 总字节数和元素�
 - data，实际存放的数据；
 - len，encoding+data的总长度；
 
-可以看到，**listpack 没有压缩列表中记录前一个节点长度的字段了，listpack 只记录当前节点的长度，当我们向 listpack 加入一个新元素的**
+**listpack 没有压缩列表中记录前一个节点长度的字段了，listpack 只记录当前节点的长度，当我们向 listpack 加入一个新元素的时候，不会影响其他节点的长度字段的变化，从而避免了压缩列表的连锁更新问题**。
