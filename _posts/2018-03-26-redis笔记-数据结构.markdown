@@ -333,15 +333,13 @@ quicklist 虽然通过控制 quicklistNode 结构里的压缩列表的大小或�
 
 listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZc0xXMUofrwAVS3mR0DxcWCJia6ksS7s0vHkdOEqZDe6mfJV0hM5smqgnRtgJ80hiczQ4jdU6GZx05A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+<img src="/../../image/redis/redis_listpack.png" alt="图片" style="zoom:67%;" />
 
 listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。
 
 每个 listpack 节点结构如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZc0xXMUofrwAVS3mR0DxcWCmuXHXl0sZuRyd28U5J89Nd0Z1G9LymamHCJRaVtwRI6Rj7CsDInDHw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-主要包含三个方面内容：
+<img src="/../../image/redis/redis_listpack节点.png" alt="图片" style="zoom:67%;" />
 
 - encoding，定义该元素的编码类型，会对不同长度的整数和字符串进行编码；
 - data，实际存放的数据；
