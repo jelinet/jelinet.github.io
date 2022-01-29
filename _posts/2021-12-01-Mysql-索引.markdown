@@ -6,8 +6,6 @@ categories: mysql
 typora-root-url: ./image
 ---
 
-# **索引原理**
-
 ## 1 数据页(B-tree Node)
 
 Mysql数据库中的表实际在磁盘当中是通过一页页的数据页进行存储的。**数据页**是磁盘与内存交互的基本单位，Mysql的Innodb存储引擎通过buffer pool与磁盘中的数据页进行交互，每次读取一整页，buffer pool中的数据页是在内存中的动态存储方式，磁盘中的数据页是静态的。严格来讲，InnoDB的页有很多种，数据页(又称索引页)、Undo页、Inode页、系统、BloB页等，一共有10多种。数据页的默认大小为16kb，结构如下：
