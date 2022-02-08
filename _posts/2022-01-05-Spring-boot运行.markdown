@@ -1,5 +1,5 @@
 ---
-layout: post
+http://jelinet.com/mysql/2021/12/01/Mysql-%E7%B4%A2%E5%BC%95.htmllayout: post
 title:  "Spring-boot运行调试"
 date:   2022-01-05 18:54 +0800
 categories: spring
