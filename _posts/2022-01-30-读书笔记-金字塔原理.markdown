@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Spring-boot运行调试"
+title:  "金字塔原理"
 date:   2022-01-20 10:00 +0800
 categories: 读书笔记
 typora-root-url: ./image
