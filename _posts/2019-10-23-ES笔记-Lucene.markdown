@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "ElasticSearch-Lucene概念介绍"
+title:  "ElasticSearch-Lucene"
 date:   2019-10-23 11:30 +0800
 categories: es
 typora-root-url: ./image
@@ -58,6 +58,58 @@ Lucene中的分词器把文本分割成多个标记，基本就是词加上一�
 
 索引应该和查询词匹配。如果它们不匹配，Lucene 不会返回所需文档。比如，你在建立索引时使用了词干提取和小写，那你应该保证查询中的词也必须是词干和小写，否则你的查询不会返回任何结果。重要的是在索引和查询分析时，对所用标记过滤器保持相同的顺序，这样被分析出来的词是一样的。
 
-> 有一个概念经常混淆
-> 
-> 一个Lucene索引在Elasticsearch称作**分片** 。一个Elasticsearch*索引*是分片的集合。 当Elasticsearch在索引中搜索的时候，他发送查询到每一个属于索引的分片(Lucene 索引)，合并每个分片的结果到一个全局的结果集。
+## 分片
+
+有一个概念经常混淆：
+一个Lucene索引在Elasticsearch称作**分片** 。一个Elasticsearch*索引*是分片的集合。 当Elasticsearch在索引中搜索的时候，他发送查询到每一个属于索引的分片(Lucene 索引)，合并每个分片的结果到一个全局的结果集。
+
+### 分片组成
+
+![分片组成](/../../image/es/分片组成.png)
+
+**以一个40G索引为例子，如下：**
+
+|      | 文件类型   | 文件意义                                                     | 磁盘占比     |
+| :--- | :--------- | :----------------------------------------------------------- | :----------- |
+| 1    | .tim       | 倒排索引的数据文件，索引具体内容，包含词项词典，存储术语信息 | 较大3G       |
+| 2    | .tip       | 倒排索引的索引文件                                           | 8M           |
+| 3    | .fdx       | 正排存储文件的元数据信息                                     | 1.2M         |
+| 4    | .fdt       | 存储了正排索引的数据，写入的原文件在这里                     | 较大，1.5G   |
+| 5    | .pos       | 全文索引的字段，会有该文件，保存了term在doc中的位置          | 800M         |
+| 6    | .dvd，.dvm | lucene的docvalues文件，即数据的列式存储，用作聚合和排序      | 42M          |
+| 7    | .doc       | 保存了每个term的doc id列表和term在doc中的词频                | 占比较大300M |
+| 8    | .nvd，.nvm | 文件保存索引字段加权数据                                     | 特别小8M     |
+| 9    | segments_N | 保存了索引包含的多少段，每个段包含多少文档                   |              |
+| 10   | .cfs       | 在segment小的时候，segment的所有文件内容都保存在cfs文件中，cfe文件保存了lucene各文件在cfs文件的位置信息 |              |
+
+最核心的文件
+
+- fdx,fdt存储正排索引数据，即FiledData
+
+  | Doc  | Terms（Address） |
+  | :--- | :--------------- |
+  | Doc1 | USA              |
+  | Doc1 | CA               |
+  | Doc1 | WestStreet       |
+  | Doc2 | USA              |
+  | Doc2 | LA               |
+  | Doc3 | China            |
+  | Doc3 | Jiangsu          |
+  | Doc3 | Suzhou           |
+  | Doc4 | China            |
+  | Doc4 | Jiangsu          |
+  | Doc4 | Nanjing          |
+
+- .dvd,.dvm存储列文件，即docValue，如下为一个列式存储结构
+
+  | Doc  | Terms（Age） |
+  | :--- | :----------- |
+  | Doc1 | 33           |
+  | Doc2 | 13           |
+  | Doc3 | 19           |
+  | Doc4 | 15           |
+  | Doc5 | 11           |
+
+- tim,tip存储倒排索引数据根据，结构如下：
+
+![tim-tip](/../../image/es/tim-tip.png)
