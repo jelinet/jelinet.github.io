@@ -65,6 +65,8 @@ Lucene中的分词器把文本分割成多个标记，基本就是词加上一�
 
 ### 分片组成
 
+[官方Bolg：lucene-index-files](https://www.elastic.co/cn/blog/found-dive-into-elasticsearch-storage#lucene-index-files ){:target="_blank"} 
+
 ![分片组成](/../../image/es/分片组成.png)
 
 **以一个40G索引为例子，如下：**
