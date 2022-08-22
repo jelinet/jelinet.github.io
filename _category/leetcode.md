@@ -1,5 +1,6 @@
 ---
-dynamic programminglayout: category
+layout: category
 tag: leetcode
 permalink: "/category/leetcode"
 ---
+
