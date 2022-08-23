@@ -16,8 +16,10 @@ typora-root-url: ./image
 **入门题目：**  
 Leetcode 148. Sort List  
 Leetcode 56. Merge Intervals  
-Leetcode 27. Remove elements  
-**进阶题目： ** 
+Leetcode 27. Remove elements
+
+**进阶题目：**
+
 Leetcode 179. Largest Number  
 Leetcode 75. Sort Colors  
 Leetcode 215. Kth Largest Element （可以用堆的解法替代）  
@@ -30,9 +32,10 @@ Leetcode 4. Median of Two Sorted Arrays
 **基础题目：**  
 Leetcode 206. Reverse Linked List  
 Leetcode 876. Middle of the Linked List  
-注意：快慢指针和链表反转几乎是所有链表类问题的基础，尤其是反转链表，代码很短，建议直接背熟。       
+注意：快慢指针和链表反转几乎是所有链表类问题的基础，尤其是反转链表，代码很短，建议直接背熟。
 
-**进阶题目: ** 
+**进阶题目：**
+
 Leetcode 160. Intersection of Two Linked Lists  
 Leetcode 141. Linked List Cycle (Linked List Cycle II)  
 Leetcode 92. Reverse Linked List II  
