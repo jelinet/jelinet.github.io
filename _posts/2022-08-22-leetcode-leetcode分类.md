@@ -277,11 +277,15 @@ Leetcode 329 Longest Increasing Path in a Matrix
 前缀和本质上是在一个list当中，用O（N）的时间提前算好从第0个数字到第i个数字之和，在后续使用中可以在O（1）时间内计算出第i到第j个数字之和，一般很少单独作为一道题出现，而是很多题目中的用到的一个小技巧
 
 **常见题目：**  
-Leetcode 53 Maximum Subarray  
-Leetcode 1423 Maximum Points You Can Obtain from Cards  
-Leetcode 1031 Maximum Sum of Two Non-Overlapping Subarrays  
-Leetcode 523 Continuous Subarray Sum  
-Leetcode 304 Range Sum Query 2D - Immutable  
+
+| leetcode                                                   | 状态               |
+| ---------------------------------------------------------- | ------------------ |
+| Leetcode 53 Maximum Subarray                               | :heavy_check_mark: |
+| Leetcode 1423 Maximum Points You Can Obtain from Cards     |                    |
+| Leetcode 1031 Maximum Sum of Two Non-Overlapping Subarrays |                    |
+|Leetcode 523 Continuous Subarray Sum												 |                    |
+|Leetcode 304 Range Sum Query 2D - Immutable                 |                    |
+
 以上内容皆为面试中高频的知识点，以下知识点和题目在面试中属于中等频率（大概面10道题会遇到一次），时间不足的情况下，请以准备上面的知识点为主。
 
 ### 并查集（Union Find）：把两个或者多个集合合并为一个集合
@@ -351,7 +355,7 @@ Leetcode 318 Count of Smaller Numbers After Self (这个题线段树、二分索
 
 | Leetcode | 状态 |
 | ---- | :--- |
-|Leetcode 674 Longest Continuous Increasing Subsequence (接龙型dp)  |- [ ] |
+|Leetcode 674 Longest Continuous Increasing Subsequence (接龙型dp)  |:heavy_check_mark:|
 |Leetcode 62 Unique Paths II  ||
 |Leetcode 70 Climbing Stairs  |              |
 |Leetcode 64 Minimum Path Sum  ||
@@ -360,8 +364,8 @@ Leetcode 318 Count of Smaller Numbers After Self (这个题线段树、二分索
 |Leetcode 354 Russian Doll Envelopes (接龙型dp， 300的2D版)  ||
 |Leetcode 256 Paint House  ||
 |Leetcode 121 Best Time to Buy and Sell Stock  ||
-|Leetcode 55 Jump Game  ||
-|Leetcode 45 Jump Game II  ||
+|Leetcode 55 Jump Game  |:heavy_check_mark:|
+|Leetcode 45 Jump Game II  |:heavy_check_mark:|
 |Leetcode 132 Palindrome Partitioning II  ||
 |Leetcode 312 Burst Balloons (区间型dp)  ||
 |Leetcode 1143 Longest Common Subseque nce (前缀型dp)  ||
