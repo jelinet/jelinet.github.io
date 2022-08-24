@@ -14,6 +14,7 @@ group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jemoji"
   gem "jekyll-include-cache"
+  gem 'jemoji'
 end
 gem "plainwhite", "~> 0.13"
 

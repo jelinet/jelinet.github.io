@@ -70,9 +70,12 @@ defaults:
     values:
       layout: "category"    
 
+gems:
+  - jemoji
 
 # Build settings
 # theme: plainwhite
 remote_theme: samarsault/plainwhite-jekyll
 plugins:
   - jekyll-seo-tag
+  - jemoji
