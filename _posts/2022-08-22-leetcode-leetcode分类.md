@@ -2,6 +2,7 @@
 layout: post
 title:  "Leetcode-分类"
 date:   2022-08-22 20:00 +0800
+categories: leetcode
 typora-root-url: ./image
 ---
 

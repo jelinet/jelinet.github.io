@@ -2,6 +2,7 @@
 layout: post
 title:  "DP(动态规划)算法"
 date:   2022-08-23 11:25 +0800
+categories: leetcode
 typora-root-url: ./image
 ---
 
