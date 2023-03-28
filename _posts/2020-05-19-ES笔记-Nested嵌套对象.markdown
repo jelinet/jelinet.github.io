@@ -14,6 +14,14 @@ Nested嵌套数据类型是对象数据类型的特殊版本，它允许对象�
 **优点**：nested文档可以将父子关系的两部分数据（举例：博客+评论）关联起来，可以基于nested类型做任何的查询。
 **缺点**：查询相对较慢，更新子文档需要更新整篇文档。
 
+| 对比 | Nested                           | Parent/Child                                           |
+| :--- | :------------------------------- | :----------------------------------------------------- |
+| 缺点 | 更新父或者子文档都会更新全部文档 | 为了维护Join关系，需要占用部分内存存储，且读取性能较差 |
+| 优点 | 文档存储在一起，读取性能高       | 负责文档独立更新、互不影响                             |
+| 场景 | 子文档偶尔更新、查询频繁         | 子文档频繁更新                                         |
+
+ 
+
 ```json
 index.mapping.nested_fields.limit //默认值50。即：一个索引中最大允许拥有50个nested类型的数据。
 index.mapping.nested_objects.limit //默认值10000。即：1个文档中所有nested类型json对象数据的总量是10000。
@@ -107,3 +115,63 @@ public void testAddList() throws IOException {
 ```
 
 > code  updateRequest.upsert("{}", XContentType.JSON);
+
+### FAQ
+
+#### 1 Nested 新增或更新子文档操作，为什么需要更新整个文档？
+
+嵌套 Nested 文档在物理上位于根文档旁边的 Lucene 段中。这是为什么当只想更改单个嵌套文档时必须重新索引根文档和所有嵌套 Nested 文档的原因。
+
+#### 2 Nested 文档和父子文档（join 类型）本质区别？
+
+6.X 之前的版本：父子文档是独立不同 type 实现，6.X 之后版本父、子文档要必须位于同一个分片上。
+
+Nested 的存储不同之处如前所述：嵌套文档和父文档（根文档）必须在段中依次相邻。
+
+这样对比下来，仅就更新操作：Join 父子文档是独立的，可以独立更新；而 Nested 嵌套文档需要全文档进行重建（类似：reindex 操作）。
+
+#### 3 为什么 Nested 写入和更新操作会很慢？
+
+当需要：新增数据、修改数据的时候，看似更新子文档，实际整个document 都需要重建（类似：reindex 操作），这是更新慢的根源。
+
+因为频繁的更新会产生很多的嵌套文档，则创建的 Lucene 文档量会很大。
+
+### 7、Nesed 选型注意事项
+
+第一：如果需要索引对象数组而不是单个对象，请先考虑使用嵌套数据类型Nested。
+
+第二：Object、Nested 选型注意：如果不需要对 Nested 子文档精确搜索的就选型 object，需要的选型 Nested。
+
+第三 ：对于子文档相对更新不频繁的场景，推荐使用：Nested 类型。注意：Nested 需要 Nested 专属 query，Nested 专属聚合实现检索和聚合操作。
+
+第四：对于子文档频繁更新的场景，推荐使用 Join 父子文档，其特点是：父、子文档分离，但在同一分片上，写入性能能相对快，但检索性能较 Nested 更慢。
+
+Join 类型检索的结果不能同时返回父子文档，一次 join 查询只能返回一种类型的文档（除非：inner_hits）。
+
+第五：早期版本 Github issue 有提及：inner_hits 检索的性能问题，新版本已有改善，但使用也要注意，使用前做一下：不加 inner_hits 和加 inner_hits 的响应时间比较。
+
+https://github.com/elastic/elasticsearch/issues/14229
+
+第六：为避免 Nested 造成的索引膨胀，需要灵活结合如下两个参数，合理设置索引或者模板。
+
+更新 Mapping 操作如下：
+
+PUT products/_settings{ "index.mapping.nested_fields.limit": 10, "index.mapping.nested_objects.limit": 500}
+
+index.mapping.nested_fields.limit 含义：一个索引中不同的 Nested 字段类型个数。
+
+如果超出，会报错如下：
+
+"reason" : "Limit of nested fields [1] has been exceeded"
+
+index.mapping.nested_objects.limit 含义：一个 Nested 字段中对象数目,多了可能导致内存泄露。
+
+这个字段，在我验证的时候，没有达到预期，后面我再通过留言补充完善。
+
+第七：选型 Nested 类型或者 Join 类型，就势必提前考虑性能问题，建议多做一些压力测试、性能测试。
+
+### 8、总结
+
+多表关联是很多业务场景的刚需。但，选型一定要慎重，了解一下各种多表关联类型：Nested、Join 的底层存储和逻辑，能有助于更好的选型。
+
+Nested 本质：将 Nested 对象作为隐藏的多个子文档存储，一次更新或写入子文档操作会需要全部文档的更新操作。
