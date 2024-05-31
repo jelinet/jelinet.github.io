@@ -1,2 +1,2 @@
-> jelinet.com
+> github blog
 > 
