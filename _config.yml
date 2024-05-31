@@ -87,18 +87,6 @@ mermaid:
   src: 'path/to/mermaid.js'  
   
 
-## => Markdown Enhancements
-##############################
-## Mathjax
-mathjax: true
-mathjax_autoNumber: true
-
-## Mermaid
-mermaid: true
-
-## Chart
-chart: true
-
 
 jekyll-spaceship:
   # default enabled processors
