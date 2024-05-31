@@ -72,6 +72,7 @@ defaults:
 
 gems:
   - jemoji
+  - jekyll-mermaid
 
 # Build settings
 # theme: plainwhite
@@ -80,6 +81,23 @@ plugins:
   - jekyll-seo-tag
   - jemoji
   - kramdown-plantuml
+
+
+mermaid:
+  src: 'path/to/mermaid.js'  
+  
+
+## => Markdown Enhancements
+##############################
+## Mathjax
+mathjax: true
+mathjax_autoNumber: true
+
+## Mermaid
+mermaid: true
+
+## Chart
+chart: true
 
 
 jekyll-spaceship:
