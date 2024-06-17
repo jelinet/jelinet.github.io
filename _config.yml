@@ -2,9 +2,7 @@ title: Jelinet's Blog
 email: jelinet7@gmail.com
 author: Jelinet
 description: > # this means to ignore newlines until "show_exerpts:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  java es mysql redis 架构设计
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com  
 show_excerpts: false # set to true to show excerpts on the homepage
