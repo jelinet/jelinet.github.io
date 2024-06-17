@@ -2,7 +2,7 @@ title: Jelinet's Blog
 email: jelinet7@gmail.com
 author: Jelinet
 description: > # this means to ignore newlines until "show_exerpts:"
-  java es mysql redis 架构设计
+  java es mysql redis 架构设计 ElasticSearch jvm 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com  
 show_excerpts: false # set to true to show excerpts on the homepage
