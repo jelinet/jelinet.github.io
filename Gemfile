@@ -16,6 +16,7 @@ group :jekyll_plugins do
   gem "jekyll-include-cache"
   gem 'jemoji'
   gem "jekyll-feed", "~> 0.12"
+  gem "jekyll-gfm-admonitions"
 end
 gem "plainwhite", "~> 0.13"
 gem "webrick", "~> 1.7"
