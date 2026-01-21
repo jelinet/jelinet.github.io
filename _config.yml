@@ -79,6 +79,7 @@ plugins:
   - jekyll-seo-tag
   - jemoji
   - kramdown-plantuml
+  - jekyll-gfm-admonitions
 
 
 mermaid:
