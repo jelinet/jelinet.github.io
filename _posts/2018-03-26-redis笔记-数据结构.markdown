@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Redis-数据结构"
-date:   2021-11-30 18:54 +0800
+date:   2018-03-26 18:54 +0800
 categories: redis
 typora-root-url: ./image
 ---
@@ -354,4 +354,5 @@ listpack 头包含两个属性，分别记录了 listpack 总字节数和元素�
 +--------------------------------------------+
             (This is an element)
 ```
+
 
