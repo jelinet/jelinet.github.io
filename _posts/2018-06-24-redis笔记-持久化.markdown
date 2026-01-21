@@ -8,7 +8,7 @@ typora-root-url: ./image
 # Redis-持久化
 ## 1.RDB & AOF 简介
 
-Redis 提供了两种持久化策略
+Redis 提供了两种持久化策略 
 
 - RDB 持久化机制，会在一段时间内生成指定时间点的数据集 ***快照(snapshot)***
 - AOF 持久化机制，记录 server 端收到的每一条写命令，当 server 重启时会进行重放以此来重建之前的数据集。AOF 文件中的命令全部以 Redis 协议的格式来保存，新命令会被 ***追加(append)*** 到文件的末尾。 Redis 还可以在后台对 AOF 文件进行 ***重写(rewrite)*** ，使得 AOF 文件的体积不会超出保存数据集状态所需的实际大小。
