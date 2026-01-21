@@ -92,7 +92,7 @@ void bgsaveCommand(client *c) {
 
 ### 2.2 RDB 相关配置
 
-**SAVE POINT** save <seconds> <changes>
+**SAVE POINT** save \<seconds\> \<changes\>
 
 当服务器启动的时候，客户端可以可以配置 ***保存点(save point)*** ，Redis 如果每 ***N*** 秒数据发生了 ***M*** 次改变就保存快照文件，例如下面：每隔一段时间执行一次***BGSAVE***（serverCron()）;
 
