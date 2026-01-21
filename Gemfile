@@ -21,4 +21,3 @@ end
 gem "plainwhite", "~> 0.13"
 gem "webrick", "~> 1.7"
 gem 'kramdown-plantuml'
-gem "jekyll-gfm-admonitions"
