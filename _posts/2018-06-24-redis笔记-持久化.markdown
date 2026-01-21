@@ -135,7 +135,7 @@ save 60 10000 #60秒后至少10000个key有变动
 
 带有两个数据库的RDB文件：
 
-<img src="/../../image/redis/es_database2_RDB.png" alt="es_database2_RDB" style="zoom:67%;" />
+![redis_databases结构](/../../image/redis/es_database2_RDB.png)
 
 databases结构：
 
