@@ -1,11 +1,10 @@
 ---
 layout: post
 title:  "Redis-持久化"
-date:   2018-06-24 13:05 +0800
+date:   2018-06-24 10:00 +0800
 categories: redis
 typora-root-url: ./image
 ---
-
 # Redis-持久化
 ## 1.RDB & AOF 简介
 
@@ -92,11 +91,11 @@ void bgsaveCommand(client *c) {
 
 ### 2.2 RDB 相关配置
 
-**SAVE POINT** save \<seconds\> \<changes\>
+**SAVE POINT** save <seconds> <changes>
 
 当服务器启动的时候，客户端可以可以配置 ***保存点(save point)*** ，Redis 如果每 ***N*** 秒数据发生了 ***M*** 次改变就保存快照文件，例如下面：每隔一段时间执行一次***BGSAVE***（serverCron()）;
 
-```cmd
+```c
 # Save Point 配置
 # 这个保存点配置表示每60秒，如果数据发生了1000次以上的变动，Redis就会自动保存快照文件
 save 60 1000
@@ -107,15 +106,16 @@ save 900 1 #900秒后至少1个key有变动
 save 300 10 #300秒后至少10个key有变动
 save 60 10000 #60秒后至少10000个key有变动
 ```
-**stop-writes-on-bgsave-error** *yes | no*
+
+**stop-writes-on-bgsave-error** *yes \| no*
 
 如果 Redis 执行 RDB 持久化失败（常见于操作系统内存不足），那么 Redis 将不再接受 client 写入数据的请求。当然在实践中，我们通常会将 ***stop-writes-on-bgsave-error*** 设置为 ***false***，同时让监控系统在 Redis 执行 RDB 持久化失败时发送告警，以便介入解决，而不是粗暴地拒绝 client 的写入请求。
 
-**rdbcompression** *yes | no*
+**rdbcompression** *yes \| no*
 
 当生成 RDB 文件时，Redis 会判断字符串长度 >=20字节则压缩，否则不压缩存储，默认 Redis 会采用 [LZF](https://github.com/ning/compress) 算法进行数据压缩。
 
-**rdbchecksum** *yes | no*
+**rdbchecksum** *yes \| no*
 
 从版本5的 RDB 的开始，一个 **CRC64** 的校验码会放在文件的末尾。这样更能保证文件的完整性，但是在保存或者加载文件时会损失一定的性能（大概10%）。如果想追求更高的性能，可以把它禁用掉，这样文件在写入校验码时会用 **0** 替代，加载的时候看到 **0** 就会直接跳过校验。
 
@@ -141,7 +141,6 @@ databases结构：
 
 ![redis_databases结构](/../../image/redis/redis_databases结构.png)
 
-
 - SELECTDB 常量，标志即将要读入的数据库号db_number
 - db_number 数据库号，长度1、2、5字节；读取数据库号后，后面的键值对就能正确写入到不同的库中；
 - key_value_pairs 数据库键值对数据，带过期时间；
@@ -151,7 +150,6 @@ key_value_pairs：
 | EXPIRSTIME_MS | Ms            | TYPE                  | key  | value |
 | ------------- | ------------- | --------------------- | ---- | ----- |
 | EXPIRSTIME_MS | 1515513600000 | REDIS_RDB_TYPE_STRING | Key  | value |
-
 
 ### 2.4 RDB 的优点
 
@@ -188,14 +186,14 @@ struct redisServer {
 
 举个例子， 如果客户端向服务器发送以下命令：
 
-```cmd
+```c
 redis> SET KEY VALUE
 OK
 ```
 
 那么服务器在执行这个 SET 命令之后， 会将以下协议内容追加到 `aof_buf` 缓冲区的末尾：
 
-```
+```c
 *3\r\n$3\r\nSET\r\n$3\r\nKEY\r\n$5\r\nVALUE\r\n
 ```
 
@@ -235,7 +233,7 @@ AOF的重写会执行大量的写入操作，Redis是单线程的，所以如果
 
 ### 3.3 AOF 相关配置
 
-```shell
+```c
 # 在 redis.conf 中通过以下配置开启 AOF 功能
 appendonly yes
 
