@@ -113,7 +113,7 @@ typedef struct clusterNode {
 
 我们通过 ***redis-cli*** 可以发起对集群的读写请求，节点会计算我们请求的 Key 所属的 ***slot***，一旦发现该 ***slot*** 并非由自己负责的话，会向客户端返回一个 ***MOVED*** 错误（需要注意的是集群模式下 ***redis-cli*** 不会打印 ***MOVED*** 错误而是会直接显示 ***Redirected***，使用单机版 ***redis-cli*** 连接则可以看到 ***MOVED*** 错误），指引客户端重定向到正确的节点，并再次发送先前的命令，得到正确的结果。
 
-```cmd
+```c
 //cluster 模式
 10.72.227.3:6380> set gfdsdf sdf
 -> Redirected to slot [6901] located at 10.72.227.2:6381
@@ -208,7 +208,7 @@ CLUSTER FAILOVER 命令支持两个选项：***FORCE*** 和 ***TAKEOVER***。使
 
 ***PING、PONG、MEET*** 属于一类，是 clusterMsgDataGossip 类型的数组，可以存放多个节点的信息，该结构如下：
 
-```C
+```c
 /* Initially we don't know our "name", but we'll find it once we connect
  * to the first node, using the getsockname() function. Then we'll use this
  * address for all the next messages. */
