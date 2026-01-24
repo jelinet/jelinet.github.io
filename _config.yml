@@ -68,9 +68,9 @@ defaults:
     values:
       layout: "category"    
 
-gems:
-  - jemoji
-  - jekyll-mermaid
+# gems:
+#   - jemoji
+#   - jekyll-mermaid
 
 markdown: GFM
 # Build settings
