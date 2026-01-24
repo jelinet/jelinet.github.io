@@ -11,12 +11,12 @@ gem "github-pages", group: :jekyll_plugins
 group :jekyll_plugins do
   gem "jekyll-paginate"
   gem "jekyll-sitemap"
-  gem "jekyll-feed"
+  # gem "jekyll-feed"
   gem "jemoji"
   gem "jekyll-include-cache"
-  gem 'jemoji'
+  gem "jemoji"
   gem "jekyll-feed", "~> 0.12"
-  gem 'jekyll-gfm-admonitions', '~> 1.2'
+  gem "jekyll-gfm-admonitions", '~> 1.2'
 end
 gem "plainwhite", "~> 0.13"
 gem "webrick", "~> 1.7"
