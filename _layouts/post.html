@@ -58,16 +58,10 @@ layout: default
 {%- if site.plainwhite.disqus_shortname -%}
 <script>
   var disqus_config = function () {
-    this.page.url = '{{ page.url | absolute_url }}';
-    this.page.identifier = '{{ page.url | absolute_url }}';
+    this.page.url = '{{ site.url }}{{ site.baseurl }}{{ page.url}}';
+    this.page.identifier = '{{ site.url }}{{ site.baseurl }}{{ page.url}}';
     this.page.title = '{{ page.title }}'; 
   };
-  (function () {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://{{ site.plainwhite.disqus_shortname }}.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
   (function() {
     var d = document, s = d.createElement('script');
     s.src = 'https://{{ site.plainwhite.disqus_shortname }}.disqus.com/embed.js';
