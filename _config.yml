@@ -72,6 +72,7 @@ gems:
   - jemoji
   - jekyll-mermaid
 
+markdown: GFM
 # Build settings
 # theme: plainwhite
 remote_theme: samarsault/plainwhite-jekyll
