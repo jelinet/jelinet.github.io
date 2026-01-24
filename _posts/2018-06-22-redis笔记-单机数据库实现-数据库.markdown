@@ -5,7 +5,7 @@ date:   2018-06-22 15:18 +0800
 categories: redis
 typora-root-url: ./image
 comments: true
-toc: true
+toc: false
 ---
 
 

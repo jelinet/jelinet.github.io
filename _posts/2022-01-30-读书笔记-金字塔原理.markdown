@@ -5,7 +5,7 @@ date:   2022-01-20 10:00 +0800
 categories: 读书笔记
 typora-root-url: ./image
 comments: true
-toc: true
+toc: false
 ---
 
 ## 金字塔组成结构

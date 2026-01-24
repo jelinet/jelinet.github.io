@@ -4,7 +4,7 @@ title:  "Spring-boot运行调试"
 date:   2022-01-05 18:54 +0800
 categories: spring
 comments: true
-toc: true
+toc: false
 ---
 
 ## springboot核心原理
