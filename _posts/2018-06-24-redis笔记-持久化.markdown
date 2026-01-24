@@ -282,9 +282,9 @@ Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通
 
 > [!NOTE]
 >
-> **为什么持久化机制是 Redis 最令人困惑的特性之一？ —— antirez，Redis 作者**
+> **为什么持久化机制是 Redis 最令人困惑的特性之一？ —— antirez，Redis 作者** </br>
 >
-> **Redis 的作者认为 Redis 的持久化机制是最令使用者误解和困惑的概念，困惑的来源是 Redis 的使用者对持久化机制的理解往往太想当然了。**
+> **Redis 的作者认为 Redis 的持久化机制是最令使用者误解和困惑的概念，困惑的来源是 Redis 的使用者对持久化机制的理解往往太想当然了。** </br>
 >
 > 原文地址：http://oldblog.antirez.com/post/redis-persistence-demystified.html
 
