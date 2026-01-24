@@ -14,7 +14,6 @@ group :jekyll_plugins do
   # gem "jekyll-feed"
   gem "jemoji"
   gem "jekyll-include-cache"
-  gem "jemoji"
 
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-gfm-admonitions", "~> 1.2.0"
