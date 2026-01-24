@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>设计模式-装饰器模式（包装器模式）</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>设计模式-装饰器模式（包装器模式） | Jelinet&#39;s Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="设计模式-装饰器模式（包装器模式）" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="装饰器模式（包装器模式）" />
+<meta property="og:description" content="装饰器模式（包装器模式）" />
+<link rel="canonical" href="http://localhost:4000/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2017/06/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F.html" />
+<meta property="og:url" content="http://localhost:4000/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2017/06/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F.html" />
+<meta property="og:site_name" content="Jelinet&#39;s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-06-22T16:30:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="设计模式-装饰器模式（包装器模式）" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jelinet"},"dateModified":"2017-06-22T16:30:00+08:00","datePublished":"2017-06-22T16:30:00+08:00","description":"装饰器模式（包装器模式）","headline":"设计模式-装饰器模式（包装器模式）","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2017/06/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F.html"},"url":"http://localhost:4000/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2017/06/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="Jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">Jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </section>
+    <section class="content">
+      <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><div class="post-container">
+  <a class="post-link" href="/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2017/06/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F.html">
+    <h2 class="post-title">设计模式-装饰器模式（包装器模式）</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Jun 22, 2017</div><ul class="post-categories"><li><strong><a href="/category/设计模式.html">设计模式</a></strong></li></ul></div>
+  <div class="post">
+    <h1 id="section">装饰器模式（包装器模式）</h1>
+<p>装饰器模式（Decorator Pattern）允许向一个现有的对象添加新的功能，同时又不改变其结构。这种类型的设计模式属于结构型模式，它是作为现有的类的一个包装。</p>
+<p>这种模式创建了一个装饰类，用来包装原有的类，并在保持类方法签名完整性的前提下，提供了额外的功能。</p>
+<p>我们通过下面的实例来演示装饰器模式的用法。其中，我们将把一个形状装饰上不同的颜色，同时又不改变形状类。</p>
+<h2 id="section-1">介绍</h2>
+<p>**意图：**动态地给一个对象添加一些额外的职责。就增加功能来说，装饰器模式相比生成子类更为灵活。</p>
+<p>**主要解决：**一般的，我们为了扩展一个类经常使用继承方式实现，由于继承为类引入静态特征，并且随着扩展功能的增多，子类会很膨胀。</p>
+<p>**何时使用：**在不想增加很多子类的情况下扩展类。</p>
+<p>**如何解决：**将具体功能职责划分，同时继承装饰者模式。</p>
+<p><strong>关键代码：</strong> 1、Component 类充当抽象角色，不应该具体实现。 2、修饰类引用和继承 Component 类，具体扩展类重写父类方法。</p>
+<p><strong>应用实例：</strong> 1、孙悟空有 72 变，当他变成&quot;庙宇&quot;后，他的根本还是一只猴子，但是他又有了庙宇的功能。 2、不论一幅画有没有画框都可以挂在墙上，但是通常都是有画框的，并且实际上是画框被挂在墙上。在挂在墙上之前，画可以被蒙上玻璃，装到框子里；这时画、玻璃和画框形成了一个物体。</p>
+<p>**优点：**装饰类和被装饰类可以独立发展，不会相互耦合，装饰模式是继承的一个替代模式，装饰模式可以动态扩展一个实现类的功能。</p>
+<p>**缺点：**多层装饰比较复杂。</p>
+<p><strong>使用场景：</strong> 1、扩展一个类的功能。 2、动态增加功能，动态撤销。</p>
+<p>**注意事项：**可代替继承。</p>
+<h2 id="section-2">实现</h2>
+<p>我们将创建一个 <em>Shape</em> 接口和实现了 <em>Shape</em> 接口的实体类。然后我们创建一个实现了 <em>Shape</em> 接口的抽象装饰类 <em>ShapeDecorator</em>，并把 <em>Shape</em> 对象作为它的实例变量。</p>
+<p><em>RedShapeDecorator</em> 是实现了 <em>ShapeDecorator</em> 的实体类。</p>
+<p><em>DecoratorPatternDemo</em> 类使用 <em>RedShapeDecorator</em> 来装饰 <em>Shape</em> 对象。</p>
+<p><img src="/../../image/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/20210420-decorator-1-decorator-decorator.svg" alt="装饰器模式的 UML 图" /></p>
+<h3 id="section-3">步骤 1</h3>
+<p>创建一个接口:<em>Shape.java</em></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Shape</span> <span class="o">{</span>   
+  <span class="kt">void</span> <span class="nf">draw</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="section-4">步骤 2</h3>
+<p>创建实现接口的实体类:<em>Rectangle.java、Circle.java</em></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Rectangle</span> <span class="kd">implements</span> <span class="nc">Shape</span> <span class="o">{</span>
+  <span class="nd">@Override</span>   
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">draw</span><span class="o">()</span> <span class="o">{</span>      
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Shape: Rectangle"</span><span class="o">);</span>   
+  <span class="o">}</span> 
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Circle</span> <span class="kd">implements</span> <span class="nc">Shape</span> <span class="o">{</span>
+  <span class="nd">@Override</span>   
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">draw</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Shape: Circle"</span><span class="o">);</span>   
+  <span class="o">}</span> 
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="section-5">步骤 3</h3>
+<p>创建实现了 <em>Shape</em> 接口的抽象装饰类:<em>ShapeDecorator.java</em></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">ShapeDecorator</span> <span class="kd">implements</span> <span class="nc">Shape</span> <span class="o">{</span>
+  <span class="kd">protected</span> <span class="nc">Shape</span> <span class="n">decoratedShape</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="nf">ShapeDecorator</span><span class="o">(</span><span class="nc">Shape</span> <span class="n">decoratedShape</span><span class="o">){</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">decoratedShape</span> <span class="o">=</span> <span class="n">decoratedShape</span><span class="o">;</span>   
+  <span class="o">}</span>    
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">draw</span><span class="o">(){</span>
+    <span class="n">decoratedShape</span><span class="o">.</span><span class="na">draw</span><span class="o">();</span>   
+  <span class="o">}</span>   
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="section-6">步骤 4</h3>
+<p>创建扩展了 <em>ShapeDecorator</em> 类的实体装饰类:<em>RedShapeDecorator.java</em></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedShapeDecorator</span> <span class="kd">extends</span> <span class="nc">ShapeDecorator</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="nf">RedShapeDecorator</span><span class="o">(</span><span class="nc">Shape</span> <span class="n">decoratedShape</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">decoratedShape</span><span class="o">);</span>        
+  <span class="o">}</span>    
+  <span class="nd">@Override</span>   
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">draw</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">decoratedShape</span><span class="o">.</span><span class="na">draw</span><span class="o">();</span>
+    <span class="n">setRedBorder</span><span class="o">(</span><span class="n">decoratedShape</span><span class="o">);</span>   
+  <span class="o">}</span>    
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">setRedBorder</span><span class="o">(</span><span class="nc">Shape</span> <span class="n">decoratedShape</span><span class="o">){</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Border Color: Red"</span><span class="o">);</span>   
+  <span class="o">}</span> 
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="section-7">步骤 5</h3>
+<p>使用 <em>RedShapeDecorator</em> 来装饰 <em>Shape</em> 对象:<em>DecoratorPatternDemo.java</em></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DecoratorPatternDemo</span> <span class="o">{</span>
+  
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+		<span class="nc">Shape</span> <span class="n">circle</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Circle</span><span class="o">();</span>      
+  	<span class="nc">ShapeDecorator</span> <span class="n">redCircle</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RedShapeDecorator</span><span class="o">(</span><span class="k">new</span> <span class="nc">Circle</span><span class="o">());</span>      
+  	<span class="nc">ShapeDecorator</span> <span class="n">redRectangle</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RedShapeDecorator</span><span class="o">(</span><span class="k">new</span> <span class="nc">Rectangle</span><span class="o">());</span>      
+  	<span class="c1">//Shape redCircle = new RedShapeDecorator(new Circle());      </span>
+  	<span class="c1">//Shape redRectangle = new RedShapeDecorator(new Rectangle());      </span>
+  	<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Circle with normal border"</span><span class="o">);</span>      
+  	<span class="n">circle</span><span class="o">.</span><span class="na">draw</span><span class="o">();</span>       
+  	<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\nCircle of red border"</span><span class="o">);</span>      
+  	<span class="n">redCircle</span><span class="o">.</span><span class="na">draw</span><span class="o">();</span>       
+  	<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\nRectangle of red border"</span><span class="o">);</span>      
+  	<span class="n">redRectangle</span><span class="o">.</span><span class="na">draw</span><span class="o">();</span>   
+  	<span class="o">}</span> 
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="section-8">步骤 6</h3>
+<p>执行程序，输出结果：</p>
+<pre><code>Circle with normal border
+Shape: Circle
+
+Circle of red border
+Shape: Circle
+Border Color: Red
+
+Rectangle of red border
+Shape: Rectangle
+Border Color: Red
+</code></pre>
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>

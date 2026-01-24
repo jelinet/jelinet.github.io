@@ -81,6 +81,7 @@ plugins:
   - jemoji
   - kramdown-plantuml
   - jekyll-mermaid
+  - jekyll-remote-theme
   - jekyll-gfm-admonitions
 
 

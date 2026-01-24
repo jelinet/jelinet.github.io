@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>18道经典Spring面试题</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>18道经典Spring面试题 | Jelinet&#39;s Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="18道经典Spring面试题" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="1. Spring 中都用到了哪些设计模式?" />
+<meta property="og:description" content="1. Spring 中都用到了哪些设计模式?" />
+<link rel="canonical" href="http://localhost:4000/spring/2020/11/18/18%E9%81%93%E7%BB%8F%E5%85%B8Spring%E9%9D%A2%E8%AF%95%E9%A2%98.html" />
+<meta property="og:url" content="http://localhost:4000/spring/2020/11/18/18%E9%81%93%E7%BB%8F%E5%85%B8Spring%E9%9D%A2%E8%AF%95%E9%A2%98.html" />
+<meta property="og:site_name" content="Jelinet&#39;s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-18T12:56:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="18道经典Spring面试题" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jelinet"},"dateModified":"2020-11-18T12:56:00+08:00","datePublished":"2020-11-18T12:56:00+08:00","description":"1. Spring 中都用到了哪些设计模式?","headline":"18道经典Spring面试题","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/spring/2020/11/18/18%E9%81%93%E7%BB%8F%E5%85%B8Spring%E9%9D%A2%E8%AF%95%E9%A2%98.html"},"url":"http://localhost:4000/spring/2020/11/18/18%E9%81%93%E7%BB%8F%E5%85%B8Spring%E9%9D%A2%E8%AF%95%E9%A2%98.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="Jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">Jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </section>
+    <section class="content">
+      <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><div class="post-container">
+  <a class="post-link" href="/spring/2020/11/18/18%E9%81%93%E7%BB%8F%E5%85%B8Spring%E9%9D%A2%E8%AF%95%E9%A2%98.html">
+    <h2 class="post-title">18道经典Spring面试题</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Nov 18, 2020</div><ul class="post-categories"><li><strong><a href="/category/spring.html">spring</a></strong></li></ul></div>
+  <div class="post">
+    <h2 id="strong1-spring-strong"><strong>1. Spring 中都用到了哪些设计模式?</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/Spring%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F.png" alt="图片" /></p>
+<ul>
+<li><strong>工厂设计模式</strong>：比如通过 BeanFactory 和 ApplicationContext 来生产 Bean 对象；</li>
+<li><strong>代理设计模式</strong>：AOP 的实现方式就是通过代理来实现，Spring 主要是使用 JDK 动态代理和 CGLIB 代理；</li>
+<li><strong>单例设计模式</strong>：Spring 中的 Bean 默认都是单例的；</li>
+<li><strong>模板方法模式</strong>：Spring 中 jdbcTemplate 等以 Template 结尾的对数据库操作的类，都会使用到模板方法设计模式，一些通用的功能；</li>
+<li><strong>包装器设计模式</strong>：我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源；</li>
+<li><strong>观察者模式</strong>：Spring 事件驱动模型观察者模式的；</li>
+<li><strong>适配器模式</strong>：Spring AOP 的增强或通知（Advice）使用到了适配器模式。</li>
+</ul>
+<h2 id="strong2-spring-strong"><strong>2. Spring 中有哪些核心模块?</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/spring%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97.png" alt="图片" /></p>
+<ul>
+<li><strong>Spring Core</strong>：Spring 核心，它是框架最基础的部分，提供 IOC 和依赖注入 DI 特性；</li>
+<li><strong>Spring Context</strong>：Spring 上下文容器，它是 BeanFactory 功能加强的一个子接口；</li>
+<li><strong>Spring Web</strong>：它提供 Web 应用开发的支持；</li>
+<li><strong>Spring MVC</strong>：它针对 Web 应用中 MVC 思想的实现；</li>
+<li><strong>Spring DAO</strong>：提供对 JDBC 抽象层，简化了 JDBC 编码。同时，编码更具有健壮性；</li>
+<li><strong>Spring ORM</strong>：它支持用于流行的 ORM 框架的整合，比如 Spring + Hibernate、Spring + iBatis、Spring + JDO 的整合等；</li>
+<li><strong>Spring AOP</strong>：即面向切面编程，它提供了与 AOP 联盟兼容的编程实现。</li>
+</ul>
+<h2 id="strong3--ioc-strong"><strong>3. 说一下你理解的 IOC 是什么？</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/ioc.png" alt="图片" /></p>
+<p>首先 IOC 是一个容器，是用来装载对象的，它的核心思想就是控制反转。</p>
+<p><strong>那么究竟什么是控制反转?</strong></p>
+<p>控制反转就是说，「把对象的控制权交给了 Spring，由 Spring 容器进行管理」，我们不进行任何操作。</p>
+<p><strong>那么为「什么需要控制反转」?</strong></p>
+<p>我们想象一下，没有控制反转的时候，我们需要自己去创建对象、配置对象，还要人工去处理对象与对象之间的各种复杂的依赖关系。</p>
+<p>当一个工程的量起来之后，这种关系的维护是非常令人头痛的，所以就有了控制反转这个概念，将对象的创建、配置等一系列操作交给 Spring 去管理，我们在使用的时候只要去取就好了。</p>
+<h2 id="strong4-spring--ioc-strong"><strong>4. Spring 中的 IOC 容器有哪些？有什么区别？</strong></h2>
+<p>Spring 主要提供了「两种 IOC 容器」，一种是 BeanFactory，还有一种是 「ApplicationContext」。</p>
+<p>它们的区别就在于，BeanFactory 只提供了最基本的实例化对象和获取对象的功能，而 ApplicationContext 是继承了 BeanFactory 所派生出来的产物，是其子类，它的作用更加的强大，比如支持注解注入、国际化等功能。</p>
+<h2 id="strong5--beanfactory--factorybean-strong"><strong>5. 那 BeanFactory 和 FactoryBean 又有什么区别？</strong></h2>
+<p>这两个是不同的产物</p>
+<ul>
+<li>BeanFactory 是 IOC 容器，是用来承载对象的；</li>
+<li>FactoryBean 是一个接口，为 Bean 提供了更加灵活的方式，通过代理一个Bean对象，对方法前后做一些操作。</li>
+</ul>
+<h2 id="strong6-repositoryservicecompentcontroller-strong"><strong>6. @Repository、@Service、@Compent、@Controller 它们有什么区别？</strong></h2>
+<p>这四个注解的本质都是一样的，都是将被该注解标识的对象放入 Spring 容器当中，只是为了在使用上区分不同的应用分层。</p>
+<ul>
+<li>@Repository - dao 层</li>
+<li>@Service - service 层</li>
+<li>@Controller - controller 层</li>
+<li>@Compent - 其他不属于以上三层的统一使用该注解</li>
+</ul>
+<h2 id="strong7--di-strong"><strong>7. 那么 DI 又是什么？</strong></h2>
+<p>DI 就是依赖注入，其实和 IOC 大致相同，只不过是同一个概念使用了不同的角度去阐述。</p>
+<p>DI 所描述的重点是在于依赖。我们说了 IOC 的核心功能就是在于在程序运行时动态的向某个对象提供其他的依赖对象，而这个功能就是依靠 DI 去完成的，比如我们需要注入一个对象 A，而这个对象 A 依赖一个对象 B，那么我们就需要把这个对象 B 注入到对象 A 中，这就是依赖注入。</p>
+<p>Spring 有三种注入方式</p>
+<ul>
+<li>接口注入</li>
+<li>构造器注入</li>
+<li>set 注入</li>
+</ul>
+<h2 id="strong8--aop-strong"><strong>8. 说说 AOP 是什么？</strong></h2>
+<p>AOP 意为：面向切面编程，通过预编译方式和运行期间动态代理实现程序功能的统一维护的一种技术。</p>
+<p>AOP 是 「OOP(面向对象编程) 的延续」，是 Spring 框架中的一个重要内容，是函数式编程的一种衍生范型。利用 AOP 可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。</p>
+<p>AOP 实现主要分为两类：</p>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/aop.png" alt="图片" /></p>
+<ul>
+<li><strong>静态 AOP 实现</strong>：AOP 框架在编译阶段对程序源代码进行修改，生成了静态的 AOP 代理类（生成的 *.class 文件已经被改掉了，需要使用特定的编译器），比如 AspectJ；</li>
+<li><strong>动态 AOP 实现</strong>：AOP 框架在运行阶段对动态生成代理对象。在内存中以 JDK 动态代理或 CGlib 动态地生成 AOP 代理类，如 Spring AOP。</li>
+</ul>
+<p>Spring 的 AOP 实现是通过动态代理实现的。如果实现了接口就会使用 JDK 动态代理，否则就使用 CGLIB 代理。</p>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/aop%E6%B3%A8%E8%A7%A3.png" alt="图片" /></p>
+<p>有 5 种通知类型</p>
+<ul>
+<li>@Before - 在目标方法调用前去通知；</li>
+<li>@AfterReturning - 在目标方法返回或异常后调用；</li>
+<li>@AfterThrowing - 在目标方法返回后调用；</li>
+<li>@After - 在目标方法异常后调用；</li>
+<li>@Around - 将目标方法封装起来，自己确定调用时机。</li>
+</ul>
+<h2 id="strong9-strong"><strong>9. 动态代理和静态代理有什么区别？</strong></h2>
+<p><strong>静态代理</strong></p>
+<ul>
+<li>由程序员创建或由特定工具自动生成源代码，再对其编译。在程序运行前，代理类的 .class 文件就已经存在了；</li>
+<li>静态代理通常只代理一个类；</li>
+<li>静态代理事先知道要代理的是什么。</li>
+</ul>
+<p><strong>动态代理</strong></p>
+<ul>
+<li>在程序运行时，运用反射机制动态创建而成；</li>
+<li>动态代理是代理一个接口下的多个实现类；</li>
+<li>动态代理不知道要代理什么东西，只有在运行时才知道。</li>
+</ul>
+<h2 id="strong10-jdk--cglib-strong"><strong>10. JDK 动态代理和 CGLIB 代理有什么区别？</strong></h2>
+<p>JDK 动态代理时业务类必须要实现某个接口，它是基于反射的机制实现的。生成一个实现同样接口的一个代理类，然后通过重写方法的方式，实现对代码的增强。</p>
+<p>CGLIB 动态代理是使用字节码处理框架 ASM，其原理是通过字节码技术为一个类创建子类，然后重写父类的方法，实现对代码的增强。</p>
+<h2 id="strong11-spring-aop--aspectj-aop-strong"><strong>11. Spring AOP 和 AspectJ AOP 有什么区别？</strong></h2>
+<p>Spring AOP 属于运行时增强，是通过动态代理实现的。</p>
+<p>AspectJ AOP 是编译时增强，需要特殊的编译器才可以完成，是通过修改代码来实现的，支持三种织入方式。</p>
+<ul>
+<li><strong>编译时织入</strong>：就是在编译字节码的时候织入相关代理类；</li>
+<li><strong>编译后织入</strong>：编译完初始类后发现需要 AOP 增强，然后织入相关代码；</li>
+<li><strong>类加载时织入</strong>：指在加载器加载类的时候织入。</li>
+</ul>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/aop%E5%8C%BA%E5%88%AB.png" alt="图片" /></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/eZzl4LXykQxK2icI0t2QO7OwZ70f48zx71lrjZK5XXhalic2YKjFibmZ6RYWcIH1oaQLbRcQDSgFP8QnOrZLx2JTA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="图片" /></p>
+<h2 id="strong12-spring--bean-strong"><strong>12. Spring 中 Bean 的生命周期是怎样的？</strong></h2>
+<p>Spring Bean 生命周期大致分为 4 个阶段：</p>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%98%B6%E6%AE%B5.png" alt="图片" /></p>
+<ol>
+<li>
+<p><strong>实例化</strong>：实例化该 Bean 对象；</p>
+</li>
+<li>
+<p><strong>填充属性</strong>：给该 Bean 赋值；</p>
+</li>
+<li>
+<p><strong>初始化</strong></p>
+</li>
+<li>
+<ol>
+<li>如果实现了 Aware 接口，会通过其接口获取容器资源；</li>
+<li>如果实现了 BeanPostProcessor 接口，则会回调该接口的前置和后置处理增强；</li>
+<li>如果配置了 init-method 方法，会执行该方法。</li>
+</ol>
+</li>
+<li>
+<p><strong>销毁</strong></p>
+</li>
+<li>
+<ol>
+<li>如果实现了 DisposableBean 接口，则会回调该接口的 destroy 方法；</li>
+<li>如果配置了 destroy-method 方法，则会执行 destroy-method 配置的方法。</li>
+</ol>
+</li>
+</ol>
+<h2 id="strong13-spring-strong"><strong>13. Spring 是怎么解决循环依赖的？</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96.png" alt="图片" /></p>
+<p>循环依赖就是说两个对象相互依赖，形成了一个环形的调用链路。</p>
+<p>Spring 使用三级缓存去解决循环依赖的，其核心逻辑就是把实例化和初始化的步骤分开，然后放入缓存中，供另一个对象调用：</p>
+<ul>
+<li>第一级缓存用来保存实例化、初始化都完成的对象；</li>
+<li>第二级缓存用来保存实例化完成，但是未初始化完成的对象；</li>
+<li>第三级缓存用来保存一个对象工厂，提供一个匿名内部类，用于创建二级缓存中的对象。</li>
+</ul>
+<p>当 A、B 两个类发生循环引用时的大致流程：</p>
+<ol>
+<li>
+<p>A 完成实例化后，去创建一个对象工厂，并放入三级缓存当中：</p>
+<ol>
+<li>如果 A 被 AOP 代理，那么通过这个工厂获取到的就是 A 代理后的对象；</li>
+<li>如果 A 没有被 AOP 代理，那么这个工厂获取到的就是 A 实例化的对象。</li>
+</ol>
+</li>
+<li>
+<p>A 进行属性注入时，去创建 B；</p>
+</li>
+<li>
+<p>B 进行属性注入，需要 A ，则从三级缓存中去取 A 工厂代理对象并注入，然后删除三级缓存中的 A 工厂，将 A 对象放入二级缓存；</p>
+</li>
+<li>
+<p>B 完成后续属性注入，直到初始化结束，将 B 放入一级缓存；</p>
+</li>
+<li>
+<p>A 从一级缓存中取到 B 并且注入 B, 直到完成后续操作，将 A 从二级缓存删除并且放入一级缓存，循环依赖结束。</p>
+</li>
+</ol>
+<p>Spring 解决循环依赖有两个前提条件：</p>
+<ul>
+<li><strong>不全是构造器方式</strong>的循环依赖，否则无法分离初始化和实例化的操作；</li>
+<li><strong>必须是单例</strong>，否则无法保证是同一对象。</li>
+</ul>
+<h2 id="strong14-strong"><strong>14. 为什么要使用三级缓存，二级缓存不能解决吗？</strong></h2>
+<p>可以。三级缓存的功能是只有真正发生循环依赖的时候，才去提前生成代理对象，否则只会创建一个工厂并将其放入到三级缓存中，但是不会去通过这个工厂去真正创建对象。</p>
+<p>如果使用二级缓存解决循环依赖，意味着所有 Bean 在实例化后就要完成 AOP 代理，这样违背了 Spring 设计的原则。Spring 在设计之初就是在 Bean 生命周期的最后一步来完成 AOP 代理，而不是在实例化后就立马进行 AOP 代理。</p>
+<h2 id="strong15-autowired--resource-strong"><strong>15. @Autowired 和 @Resource 有什么区别？</strong></h2>
+<p>@Resource 是 Java 自己的注解。@Resource 有两个属性是比较重要的，分是 name 和 type。Spring 将 @Resource 注解的 name 属性解析为 bean 的名字，而 type 属性则解析为 bean 的类型。</p>
+<ul>
+<li>所以，如果使用 name 属性，则使用 byName 的自动注入策略，而使用 type 属性时则使用 byType 自动注入策略。</li>
+<li>如果既不指定 name 也不指定 type 属性，这时将通过反射机制使用 byName 自动注入策略。</li>
+</ul>
+<p>@Autowired 是 Spring 的注解，是 Spring2.5 版本引入的。</p>
+<ul>
+<li>Autowired 只根据 type 进行注入，不会去匹配 name；</li>
+<li>如果涉及到 type 无法辨别注入对象时，那需要依赖 @Qualifier 或 @Primary 注解一起来修饰。</li>
+</ul>
+<h2 id="strong16-spring-strong"><strong>16. Spring 事务隔离级别有哪些？</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/%E4%BA%8B%E7%89%A9%E9%9A%94%E7%A6%BB.png" alt="图片" /></p>
+<ul>
+<li><strong>DEFAULT</strong>：采用 DB 默认的事务隔离级别；</li>
+<li><strong>READ_UNCOMMITTED</strong>：读未提交；</li>
+<li><strong>READ_COMMITTED</strong>：读已提交；</li>
+<li><strong>REPEATABLE_READ</strong>：可重复读；</li>
+<li><strong>SERIALIZABLE</strong>：串行化。</li>
+</ul>
+<h2 id="strong17-spring-strong"><strong>17. Spring 事务的传播机制有哪些？</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/%E4%BA%8B%E7%89%A9%E4%BC%A0%E6%92%AD.png" alt="图片" /></p>
+<ul>
+<li><strong>propagation_required</strong>：当前方法必须在一个具有事务的上下文中运行，如有客户端有事务在进行，那么被调用端将在该事务中运行，否则的话重新开启一个事务。如果被调用端发生异常，那么调用端和被调用端事务都将回滚；</li>
+<li><strong>propagation_supports</strong>：当前方法不必需要具有一个事务上下文，但是如果有一个事务的话，它也可以在这个事务中运行；</li>
+<li><strong>propagation_mandatory</strong>：表示当前方法必须在一个事务中运行，如果没有事务，将抛出异常；</li>
+<li><strong>propagation_nested</strong>：如果当前方法正有一个事务在运行中，则该方法应该运行在一个嵌套事务中，被嵌套的事务可以独立于被封装的事务中进行提交或者回滚。如果封装事务存在，并且外层事务抛出异常回滚，那么内层事务必须回滚，反之，内层事务并不影响外层事务。如果封装事务不存在，则同 propagation_required 的一样；</li>
+<li><strong>propagation_never</strong>：当前方法不应该在一个事务中运行，如果存在一个事务，则抛出异常；</li>
+<li><strong>propagation_requires_new</strong>：当前方法必须运行在它自己的事务中。一个新的事务将启动，而且如果有一个现有的事务在运行的话，则这个方法将在运行期被挂起，直到新的事务提交或者回滚才恢复执行。</li>
+<li><strong>propagation_not_supported</strong>：方法不应该在一个事务中运行。如果有一个事务正在运行，他将在运行期被挂起，直到这个事务提交或者回滚才恢复执行。</li>
+</ul>
+<h2 id="strong18-spring-boot-strong"><strong>18. Spring Boot 自动装配原理？</strong></h2>
+<p><img src="/../../image/spring/%E9%9D%A2%E8%AF%9518%E9%97%AE/springboot%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D.png" alt="图片" /></p>
+<ul>
+<li>容器在启动的时候会调用 EnableAutoConfigurationImportSelector.class 的 selectImports方法获取一个全面的常用 BeanConfiguration 列表；</li>
+<li>之后会读取 spring-boot-autoconfigure.jar 下面的 spring.factories，获取到所有的 Spring 相关的 Bean 的全限定名 ClassName；</li>
+<li>之后继续调用 filter 来一一筛选，过滤掉一些我们不需要不符合条件的 Bean；</li>
+<li>最后把符合条件的 BeanConfiguration 注入默认的 EnableConfigurationPropertie 类里面的属性值，并且注入到 IOC 环境当中。</li>
+</ul>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>

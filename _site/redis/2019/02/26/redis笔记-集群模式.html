@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Redis-集群模式</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Redis-集群模式 | Jelinet&#39;s Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Redis-集群模式" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Redis集群模式介绍" />
+<meta property="og:description" content="Redis集群模式介绍" />
+<link rel="canonical" href="http://localhost:4000/redis/2019/02/26/redis%E7%AC%94%E8%AE%B0-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F.html" />
+<meta property="og:url" content="http://localhost:4000/redis/2019/02/26/redis%E7%AC%94%E8%AE%B0-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F.html" />
+<meta property="og:site_name" content="Jelinet&#39;s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-02-26T17:40:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Redis-集群模式" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jelinet"},"dateModified":"2019-02-26T17:40:00+08:00","datePublished":"2019-02-26T17:40:00+08:00","description":"Redis集群模式介绍","headline":"Redis-集群模式","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/redis/2019/02/26/redis%E7%AC%94%E8%AE%B0-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F.html"},"url":"http://localhost:4000/redis/2019/02/26/redis%E7%AC%94%E8%AE%B0-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<style>.markdown-alert{padding:.5rem 1rem;margin-bottom:1rem;color:inherit;border-left:.25em solid #30363d}.markdown-alert>:first-child{margin-top:0}.markdown-alert>:last-child{margin-bottom:0}.markdown-alert .markdown-alert-title{display:flex;font-weight:500;align-items:center;line-height:1}.markdown-alert svg{margin-right:.5rem!important}.markdown-alert svg path{fill:currentColor}.markdown-alert.markdown-alert-note{border-left-color:#4493f8}.markdown-alert.markdown-alert-note .markdown-alert-title{color:#4493f8}.markdown-alert.markdown-alert-important{border-left-color:#ab7df8}.markdown-alert.markdown-alert-important .markdown-alert-title{color:#ab7df8}.markdown-alert.markdown-alert-warning{border-left-color:#9e6a03}.markdown-alert.markdown-alert-warning .markdown-alert-title{color:#d29922}.markdown-alert.markdown-alert-tip{border-left-color:#238636}.markdown-alert.markdown-alert-tip .markdown-alert-title{color:#3fb950}.markdown-alert.markdown-alert-caution{border-left-color:#da3633}.markdown-alert.markdown-alert-caution .markdown-alert-title{color:#f85149}</style></head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="Jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">Jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </section>
+    <section class="content">
+      <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><div class="post-container">
+  <a class="post-link" href="/redis/2019/02/26/redis%E7%AC%94%E8%AE%B0-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F.html">
+    <h2 class="post-title">Redis-集群模式</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Feb 26, 2019</div><ul class="post-categories"><li><strong><a href="/category/redis.html">redis</a></strong></li></ul></div>
+  <div class="post">
+    <h1 id="redis">Redis集群模式介绍</h1>
+<h2 id="redis-cluster">1. Redis Cluster</h2>
+<h3 id="redis-1">1.1 Redis集群方案的演变</h3>
+<p>大规模数据存储系统都会面临的一个问题就是如何横向拓展。当你的数据集越来越大，一主多从的模式已经无法支撑这么大量的数据存储，于是你首先考虑将多个主从模式结合在一起对外提供服务，但是这里有两个问题就是如何实现数据分片的逻辑和在哪里实现这部分逻辑？业界常见的解决方案有两种，一是引入Proxy层来向应用端屏蔽身后的集群分布，客户端可以借助Proxy层来进行请求转发和Key值的散列从而进行进行数据分片，这种方案会损失部分性能但是迁移升级等运维操作都很方便，业界Proxy方案的代表有Twitter的<a href="https://github.com/twitter/twemproxy">Twemproxy</a>和豌豆荚的<a href="https://github.com/CodisLabs/codis">Codis</a>；二是smart client方案，即将Proxy的逻辑放在客户端做，客户端根据维护的映射规则和路由表直接访问特定的Redis实例，但是增减Redis实例都需要重新调整分片逻辑，如何使得客户端感知到集群的变化从而调整内存中维护的路由表呢，要么定时去感知，要么引入一个第三方协调服务，常见的就是Zookeeper。</p>
+<h3 id="redis-cluster-">1.2 Redis Cluster 简介</h3>
+<p>Redis 3.0 版本开始官方正式支持集群模式，Redis集群模式提供了一种能将数据在多个节点上进行分区存储的方法，采取了和上述两者不同的实现方案--去中心化的集群模式，集群通过分片进行数据共享，分片内采用一主多从的形式进行副本复制，并提供复制和故障恢复功能。在官方文档 Redis Cluster Specification中，作者详细介绍了官方集群模式的设计考量，主要有如下几点：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>性能</td>
+<td>Redis 集群模式采用去中心化的设计，即 P2P 而非之前业界衍生出的 Proxy 方式</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>master 与 slave 之间采用异步复制，存在数据不一致的时间窗口，保证高性能的同时牺牲了部分一致性</td>
+</tr>
+<tr>
+<td>水平扩展</td>
+<td>文中称可以线性扩展至 1000 个节点</td>
+</tr>
+<tr>
+<td>可用性</td>
+<td>在集群模式推出之前，主从模式的可用性要靠 Sentinel 保证，集群模式引入了新的故障检测机制，而在故障转移这块复用了 Sentinel 的代码逻辑，不需要单独启动一个 Sentinel 集群，Redis Cluster本身就能自动进行 master 选举和 failover</td>
+</tr>
+</tbody>
+</table>
+<p>下图是一个三主三从的 Redis Cluster，三机房部署（其中一主一从构成一个分片，之间通过异步复制同步数据，一旦某个机房掉线，则分片上位于另一个机房的 <em><strong>slave</strong></em> 会被提升为 <em><strong>master</strong></em> 从而可以继续提供服务） ；每个 <em><strong>master</strong></em> 负责一部分 <em><strong>slot</strong></em>，数目尽量均摊；客户端对于某个 <em><strong>Key</strong></em> 操作先通过公式计算（计算方法见下文）出所映射到的 <em><strong>slot</strong></em>，然后直连某个分片，写请求一律走 <em><strong>master</strong></em>，读请求根据路由规则选择连接的分片节点。</p>
+<p><img src="/../../image/redis/%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E7%9A%84RedisCluster.png" alt="三主三从的 Redis Cluster" /></p>
+<h3 id="section">1.3 三种集群方案的优缺点</h3>
+<table>
+<thead>
+<tr>
+<th>集群模式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>客户端分片</td>
+<td>不使用第三方中间件，实现方法和代码可以自己掌控并且可随时调整。这种分片性能比代理式更好(因为少了分发环节)，分发压力在客户端，无服务端压力增加</td>
+<td>不能平滑地水平扩容，扩容/缩容时，必须手动调整分片程序，出现故障不能自动转移，难以运维</td>
+</tr>
+<tr>
+<td>代理层分片</td>
+<td>运维成本低。业务方不用关心后端 Redis 实例，跟操作单点 Redis 实例一样。Proxy 的逻辑和存储的逻辑是隔离的</td>
+<td>代理层多了一次转发，性能有所损耗；进行扩容/缩容时候，部分数据可能会失效，需要手动进行迁移，对运维要求较高，而且难以做到平滑的扩缩容；出现故障，不能自动转移，运维性很差。Codis 做了诸多改进，相比于 <a href="https://github.com/twitter/twemproxy">Twemproxy</a> 可用性和性能都好得多</td>
+</tr>
+<tr>
+<td>Redis Cluster</td>
+<td>无中心节点，数据按照 slot 存储分布在多个 Redis 实例上，平滑的进行扩容/缩容节点，自动故障转移（节点之间通过 Gossip 协议交换状态信息,进行投票机制完成 slave 到 master角色的提升）降低运维成本，提高了系统的可扩展性和高可用性</td>
+<td>开源版本缺乏监控管理，原生客户端太过简陋，failover节点的检测过慢，维护 Membership的 Gossip消息协议开销大，无法根据统计区分冷热数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-1">2. 哈希槽</h2>
+<h3 id="section-2">2.1 什么是哈希槽</h3>
+<p>Redis Cluster 中，数据分片借助哈希槽 (下文均称 <em><strong>slot</strong></em>) 来实现，集群预先划分 16384 个 <em><strong>slot</strong></em>，对于每个请求集群的键值对，根据 <em><strong>Key</strong></em> 进行散列生成的值唯一匹配一个 <em><strong>slot</strong></em>。Redis Cluster 中每个分片的 <em><strong>master</strong></em> 负责 16384 个 <em><strong>slot</strong></em> 中的一部分，当且仅当每个 <em><strong>slot</strong></em> 都有对应负责的节点时，集群才进入可用状态。当动态添加或减少节点时，需要将 16384 个 <em><strong>slot</strong></em> 做个再分配，<em><strong>slot</strong></em> 中的键值也要迁移。</p>
+<h3 id="section-3">2.2 哈希槽计算方法</h3>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//计算公式</span>
+<span class="n">HASH_SLOT</span> <span class="o">=</span> <span class="n">CRC16</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="n">mod</span> <span class="mi">16384</span>
+</code></pre></div></div>
+<p>但是上述计算方法实际采用时，做了一些改变，改变的目的是为了支持哈希标签 <em><strong>(Hash Tag)</strong></em> 。哈希标签是确保两个键都在同一个 <em><strong>slot</strong></em> 里的一种方式。为了实现哈希标签，<em><strong>slot</strong></em> 是用另一种不同的方式计算的。简单来说，如果一个键包含一个 “{…}” 这样的模式，只有 { 和 } 之间的字符串会被用来做哈希以获取 <em><strong>slot</strong></em>。但是由于可能出现多个 { 或 }，计算的算法如下：</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#最终的计算方法
+</span><span class="k">def</span> <span class="nf">HASH_SLOT</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+	<span class="c1">#如果key中包含{...}这样的形式，则取第一次出现{...}之间的内容进行散列
+</span>	<span class="n">s</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="n">index</span> <span class="s">"{"</span>
+  <span class="k">if</span> <span class="n">s</span>
+		<span class="n">e</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="n">index</span> <span class="s">"}"</span><span class="p">,</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">e</span> <span class="o">&amp;&amp;</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span>
+    	<span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mf">1.</span><span class="p">.</span><span class="n">e</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">end</span>
+	<span class="n">end</span>
+  <span class="n">crc16</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="mi">16384</span>
+<span class="n">end</span>
+</code></pre></div></div>
+<div class='markdown-alert markdown-alert-warning'><p class='markdown-alert-title'><svg class="octicon octicon-alert" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg> Warning</p><p>在实际使用过程当中，请尽量避免使用到哈希标签 <em><strong>(Hash Tag)</strong></em> 。否则有可能会造成大量 <em><strong>key</strong></em> 集中于少量  <em><strong>slot</strong></em> 中，导致内存倾斜。</p>
+</div>
+<h3 id="section-4">2.3 哈希槽的内部实现</h3>
+<p>Redis 集群中每个节点都会维护集群中所有节点的 <em><strong>clusterNode</strong></em> 结构体，其中的 <em><strong>slots</strong></em> 属性是个二进制位数组，长度为 2048 bytes，共包含 16384 个 <em><strong>bit</strong></em> 位，节点可以根据某个 <em><strong>bit</strong></em> 的 0/1 值判断对应的 <em><strong>slot</strong></em> 是否由当前节点处理。每个节点通过 <em><strong>clusterStats</strong></em> 结构体来保存从自身视角看去的集群状态，其中 <em><strong>nodes</strong></em> 属性是一个保存节点名称和 <em><strong>clusterNode</strong></em> 指针的字典，而 <em><strong>slots</strong></em> 数组是一个记录哪个 <em><strong>slot</strong></em> 属于哪个 <em><strong>clusterNode</strong></em> 结构体的数组。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">clusterState</span> <span class="p">{</span>
+  <span class="p">...</span> <span class="p">...</span>
+    <span class="c1">// 保存集群节点的字典，键是节点名字，值是clusterNode结构的指针</span>
+    <span class="n">dict</span> <span class="o">*</span><span class="n">nodes</span><span class="p">;</span>          <span class="cm">/* Hash table of name -&gt; clusterNode structures */</span>
+  <span class="c1">// 槽和负责槽节点的映射</span>
+    <span class="n">clusterNode</span> <span class="o">*</span><span class="n">slots</span><span class="p">[</span><span class="n">CLUSTER_SLOTS</span><span class="p">];</span>
+  <span class="p">...</span> <span class="p">...</span>
+<span class="p">}</span> <span class="n">clusterState</span><span class="p">;</span>
+</code></pre></div></div>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">clusterNode</span> <span class="p">{</span>
+  <span class="p">...</span> <span class="p">...</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">slots</span><span class="p">[</span><span class="n">CLUSTER_SLOTS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span> <span class="cm">/* slots handled by this node */</span>
+    <span class="kt">int</span> <span class="n">numslots</span><span class="p">;</span>   <span class="cm">/* Number of slots handled by this node */</span>
+  <span class="p">...</span> <span class="p">...</span>
+<span class="p">}</span> <span class="n">clusterNode</span><span class="p">;</span>
+</code></pre></div></div>
+<p>完整的映射关系如图</p>
+<p><img src="/../../image/redis/clusterStats_clusterNode%E5%85%B3%E7%B3%BB%E6%98%A0%E5%B0%84.png" alt="clusterStats_clusterNode关系映射" /></p>
+<h3 id="section-5">2.4 哈希槽的迁移</h3>
+<p>线上集群因为扩容和缩容操作，经常需要迁移 <em><strong>slot</strong></em> 对数据进行重新分片，原生的 Redis Cluster 可以借助 <a href="http://download.redis.io/redis-stable/src/redis-trib.rb"><em><strong>redis-trib</strong></em></a> 工具进行迁移。</p>
+<p><em><strong>slot</strong></em> 在迁移过程有两个状态，在迁出节点会对该 <em><strong>slot</strong></em> 标记为 <em><strong>MIGRATING</strong></em>，在迁入节点会对该 <em><strong>slot</strong></em> 标记为 <em><strong>IMPORTING</strong></em> 。当该 <em><strong>slot</strong></em> 内的 <em><strong>Key</strong></em> 都迁移完毕之后，新的 <em><strong>slot</strong></em> 归属信息都进过消息协议进行传播，最终集群中所有节点都会知道该 <em><strong>slot</strong></em> 已经迁移到了目标节点，并更新自身保存的 slot 和节点间的映射关系。</p>
+<h2 id="moved-amp-ask">3. MOVED &amp; ASK</h2>
+<p><em><strong>redis-cli</strong></em> 是官方提供的客户端脚本，我们可以通过 <em><strong>redis-cli -c -p port</strong></em> 命令连接任意一个 <em><strong>master</strong></em>，开始使用集群。</p>
+<h3 id="moved">3.1 详解 MOVED</h3>
+<p>我们通过 <em><strong>redis-cli</strong></em> 可以发起对集群的读写请求，节点会计算我们请求的 Key 所属的 <em><strong>slot</strong></em>，一旦发现该 <em><strong>slot</strong></em> 并非由自己负责的话，会向客户端返回一个 <em><strong>MOVED</strong></em> 错误（需要注意的是集群模式下 <em><strong>redis-cli</strong></em> 不会打印 <em><strong>MOVED</strong></em> 错误而是会直接显示 <em><strong>Redirected</strong></em>，使用单机版 <em><strong>redis-cli</strong></em> 连接则可以看到 <em><strong>MOVED</strong></em> 错误），指引客户端重定向到正确的节点，并再次发送先前的命令，得到正确的结果。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//cluster 模式</span>
+<span class="mi">10</span><span class="p">.</span><span class="mi">72</span><span class="p">.</span><span class="mi">227</span><span class="p">.</span><span class="mi">3</span><span class="o">:</span><span class="mi">6380</span><span class="o">&gt;</span> <span class="n">set</span> <span class="n">gfdsdf</span> <span class="n">sdf</span>
+<span class="o">-&gt;</span> <span class="n">Redirected</span> <span class="n">to</span> <span class="n">slot</span> <span class="p">[</span><span class="mi">6901</span><span class="p">]</span> <span class="n">located</span> <span class="n">at</span> <span class="mi">10</span><span class="p">.</span><span class="mi">72</span><span class="p">.</span><span class="mi">227</span><span class="p">.</span><span class="mi">2</span><span class="o">:</span><span class="mi">6381</span>
+<span class="n">OK</span>
+<span class="c1">//stand alone 模式</span>
+<span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">16</span><span class="o">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">set</span> <span class="n">myKey</span> <span class="n">myValue</span>
+<span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="n">MOVED</span> <span class="mi">16281</span> <span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">14</span><span class="o">:</span><span class="mi">6379</span>
+<span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">16</span><span class="o">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">get</span> <span class="n">myKey</span>
+<span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="n">MOVED</span> <span class="mi">16281</span> <span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">14</span><span class="o">:</span><span class="mi">6379</span>
+</code></pre></div></div>
+<h3 id="ask">3.2 详解 ASK</h3>
+<p><em><strong>MOVED</strong></em> 意为这个 <em><strong>slot</strong></em> 的负责已经永久转交给另一个节点，因此可以直接把请求准发给现在负责该 <em><strong>slot</strong></em> 的节点。但是考虑在 <em><strong>slot</strong></em> 迁移过程中，会出现属于该 <em><strong>slot</strong></em> 的一部分 Key 已经迁移到目的地节点，而另一部分 Key 还在源节点，那如果这时收到了关于这个 <em><strong>slot</strong></em> 的请求，那么源节点会现在自己的数据库里查找是否有这个 Key，查到的话说明还未迁移那么直接返回结果，查询失败的话就说明 Key 已经迁移到目的地节点，那么就向客户端返回一个 <em><strong>ASK</strong></em> 错误，指引客户端转向目的地节点查询该 Key。同样该错误仅在单机版 redis-cli 连接时打印。</p>
+<h3 id="section-6">3.3 客户端处理</h3>
+<p>这两个错误在实际线上环境中出现频率很高，那么定制化的客户端如何处理这二者呢？如果客户端每次都随机连接一个节点然后利用 <em><strong>MOVED</strong></em> 或者 <em><strong>ASK</strong></em> 来重定向其实是很低效的，所以一般客户端会在启动时通过解析 <em><strong>CLUSTER NODES</strong></em> 或者 <em><strong>CLUSTER SLOTS</strong></em> 命令返回的结果得到 <em><strong>slot</strong></em> 和节点的映射关系缓存在本地，一旦遇到 <em><strong>MOVED</strong></em> 或者 <em><strong>ASK</strong></em> 错误时会再次调用命令刷新本地路由（因为线上集群一旦出现 <em><strong>MOVED</strong></em> 或者是 <em><strong>ASK</strong></em> 往往是因为扩容分片导致数据迁移，涉及到许多 <em><strong>slot</strong></em> 的重新分配而非单个，因此需要整体刷新一次），这样集群稳定时可以直接通过本地路由表迅速找到需要连接的节点。</p>
+<h2 id="section-7">4. 故障检测</h2>
+<p>跟大多数分布式系统一样，Redis Cluster 的节点间通过持续的 <em><strong>heart beat</strong></em> 来保持信息同步，不过 Redis Cluster 节点信息同步是内部实现的，并不依赖第三方组件如 <em><strong>Zookeeper</strong></em>。集群中的节点持续交换 <em><strong>PING</strong></em>、<em><strong>PONG</strong></em> 数据，消息协议使用 <a href="https://en.wikipedia.org/wiki/Gossip_protocol"><em><strong>Gossip</strong></em></a>，这两种数据包的数据结构一样，之间通过 <em><strong>type</strong></em> 字段进行区分。</p>
+<p>Redis 集群中的每个节点都会定期向集群中的其他节点发送 <em><strong>PING</strong></em> 消息，以此来检测对方是否存活，如果接收 <em><strong>PING</strong></em> 消息的节点在规定时间内（<em><strong>node_timeout</strong></em>）没有回复 <em><strong>PONG</strong></em> 消息，那么之前向其发送 <em><strong>PING</strong></em> 消息的节点就会将其标记为疑似下线状态（<em><strong>PFAIL</strong></em>）。每次当节点对其他节点发送 <em><strong>PING</strong></em> 命令的时候，它都会随机地广播三个它所知道的节点的信息，这些信息里面的其中一项就是说明节点是否已经被标记为 <em><strong>PFAIL</strong></em> 或者 <em><strong>FAIL</strong></em>。当节点接收到其他节点发来的信息时，它会记下那些被集群中其他节点标记为 <em><strong>PFAIL</strong></em> 的节点，这称为失效报告（<em><strong>failure report</strong></em>）。如果节点已经将某个节点标记为 <em><strong>PFAIL</strong></em> ，并且根据自身记录的失效报告显示，集群中的大部分 <em><strong>master</strong></em> 也认为该节点进入了 <em><strong>PFAIL</strong></em> 状态，那么它会进一步将那个失效的 <em><strong>master</strong></em> 的状态标记为 <em><strong>FAIL</strong></em> 。随后它会向集群广播 “该节点进一步被标记为 <em><strong>FAIL</strong></em> ” 的这条消息，所有收到这条消息的节点都会更新自身保存的关于该 <em><strong>master</strong></em> 节点的状态信息为 <em><strong>FAIL</strong></em>。</p>
+<h2 id="failover">5. 故障转移（Failover)</h2>
+<h3 id="epoch">5.1 纪元（epoch）</h3>
+<p>Redis Cluster 使用了类似于 <em><strong>Raft</strong></em> 算法 <em><strong>term</strong></em>（任期）的概念称为 <em><strong>epoch</strong></em>（纪元），用来给事件增加版本号。Redis 集群中的纪元主要是两种：<em><strong>currentEpoch</strong></em> 和 <em><strong>configEpoch</strong></em>。</p>
+<h4 id="currentepoch">5.1.1 currentEpoch</h4>
+<p>这是一个集群状态相关的概念，可以当做记录集群状态变更的递增版本号。每个集群节点，都会通过 server.cluster-&gt;currentEpoch 记录当前的 <em><strong>currentEpoch</strong></em>。</p>
+<p>集群节点创建时，不管是 <em><strong>master</strong></em> 还是 <em><strong>slave</strong></em>，都置 <em><strong>currentEpoch</strong></em> 为 0。当前节点接收到来自其他节点的包时，如果发送者的 <em><strong>currentEpoch</strong></em>（消息头部会包含发送者的 <em><strong>currentEpoch</strong></em>）大于当前节点的<em><strong>currentEpoch</strong></em>，那么当前节点会更新 <em><strong>currentEpoch</strong></em> 为发送者的 <em><strong>currentEpoch</strong></em>。因此，集群中所有节点的 <em><strong>currentEpoch</strong></em> 最终会达成一致，相当于对集群状态的认知达成了一致。</p>
+<h4 id="currentepoch-">5.1.2 currentEpoch 作用</h4>
+<p><em><strong>currentEpoch</strong></em> 作用在于，当集群的状态发生改变，某个节点为了执行一些动作需要寻求其他节点的同意时，就会增加 <em><strong>currentEpoch</strong></em> 的值。目前 <em><strong>currentEpoch</strong></em> 只用于 <em><strong>slave</strong></em> 的故障转移流程，这就跟哨兵中的sentinel.current_epoch 作用是一模一样的。当 <em><strong>slave A</strong></em> 发现其所属的 <em><strong>master</strong></em> 下线时，就会试图发起故障转移流程。首先就是增加 <em><strong>currentEpoch</strong></em> 的值，这个增加后的 <em><strong>currentEpoch</strong></em> 是所有集群节点中最大的。然后<em><strong>slave A</strong></em> 向所有节点发起拉票请求，请求其他 <em><strong>master</strong></em> 投票给自己，使自己能成为新的 <em><strong>master</strong></em>。其他节点收到包后，发现发送者的 <em><strong>currentEpoch</strong></em> 比自己的 <em><strong>currentEpoch</strong></em> 大，就会更新自己的 <em><strong>currentEpoch</strong></em>，并在尚未投票的情况下，投票给 <em><strong>slave A</strong></em>，表示同意使其成为新的 <em><strong>master</strong></em>。</p>
+<h4 id="configepoch">5.1.3 configEpoch</h4>
+<p>这是一个集群节点配置相关的概念，每个集群节点都有自己独一无二的 configepoch。所谓的节点配置，实际上是指节点所负责的槽位信息。</p>
+<p>每一个 <em><strong>master</strong></em> 在向其他节点发送包时，都会附带其 <em><strong>configEpoch</strong></em> 信息，以及一份表示它所负责的 <em><strong>slots</strong></em> 信息。而 <em><strong>slave</strong></em> 向其他节点发送包时，其包中的 <em><strong>configEpoch</strong></em> 和负责槽位信息，是其 <em><strong>master</strong></em> 的 <em><strong>configEpoch</strong></em> 和负责的 <em><strong>slot</strong></em> 信息。节点收到包之后，就会根据包中的 <em><strong>configEpoch</strong></em> 和负责的 <em><strong>slots</strong></em> 信息，记录到相应节点属性中。</p>
+<h4 id="configepoch-">5.1.4 configEpoch 作用</h4>
+<p><em><strong>configEpoch</strong></em> 主要用于解决不同的节点的配置发生冲突的情况。举个例子就明白了：节点A 宣称负责 <em><strong>slot 1</strong></em>，其向外发送的包中，包含了自己的 <em><strong>configEpoch</strong></em> 和负责的 <em><strong>slots</strong></em> 信息。节点 C 收到 A 发来的包后，发现自己当前没有记录 <em><strong>slot 1</strong></em> 的负责节点（也就是 server.cluster-&gt;slots[1] 为 NULL），就会将 A 置为 <em><strong>slot 1</strong></em> 的负责节点（server.cluster-&gt;slots[1] = A），并记录节点 A 的 <em><strong>configEpoch</strong></em>。后来，节点 C 又收到了 B 发来的包，它也宣称负责 <em><strong>slot 1</strong></em>，此时，如何判断 <em><strong>slot 1</strong></em> 到底由谁负责呢？</p>
+<p>这就是 <em><strong>configEpoch</strong></em> 起作用的时候了，C 在 B 发来的包中，发现它的 <em><strong>configEpoch</strong></em>，要比 A 的大，说明 B 是更新的配置。因此，就将 <em><strong>slot 1</strong></em> 的负责节点设置为 B（server.cluster-&gt;slots[1] = B）。在 <em><strong>slave</strong></em> 发起选举，获得足够多的选票之后，成功当选时，也就是 <em><strong>slave</strong></em> 试图替代其已经下线的旧 <em><strong>master</strong></em>，成为新的 <em><strong>master</strong></em> 时，会增加它自己的 <em><strong>configEpoch</strong></em>，使其成为当前所有集群节点的 <em><strong>configEpoch</strong></em> 中的最大值。这样，该 <em><strong>slave</strong></em> 成为 <em><strong>master</strong></em> 后，就会向所有节点发送广播包，强制其他节点更新相关 <em><strong>slots</strong></em> 的负责节点为自己。</p>
+<h3 id="failover-1">5.2 自动 Failover</h3>
+<p>当一个 <em><strong>slave</strong></em> 发现自己正在复制的 <em><strong>master</strong></em> 进入了已下线（<em><strong>FAIL</strong></em>）状态时，<em><strong>slave</strong></em> 将开始对已下线状态的 <em><strong>master</strong></em> 进行故障转移，以下是故障转移执行的步骤：</p>
+<ul>
+<li>该下线的 <em><strong>master</strong></em> 下所有 <em><strong>slave</strong></em> 中，会有一个 <em><strong>slave</strong></em> 被选中。具体的选举流程为：<em><strong>slave</strong></em> 自增它的 <em><strong>currentEpoch</strong></em> 值，然后向其他 <em><strong>masters</strong></em> 请求投票，每个 <em><strong>slave</strong></em> 都向集群其他节点广播一条 <span style="color:red;">CLUSTERMSG_TYPE_FAILOVER_AUTH_REQUEST</span> 消息用于拉票，集群中具有投票权的 <em><strong>master</strong></em> 收到消息后，如果在当前选举纪元中没有投过票，就会向第一个发送来消息的 <em><strong>slave</strong></em> 返回 <span style="color:red;">CLUSTERMSG_TYPE_FAILOVER_AUTH_ACK</span> 消息，表示投票给该 <em><strong>slave</strong></em>。某个 <em><strong>slave</strong></em> 如果在一段时间内收到了大部分 <em><strong>master</strong></em> 的投票，则表示选举成功。</li>
+<li>被选中的 <em><strong>slave</strong></em> 会执行 <span style="color:red;">SLAVEOF no one</span> 命令，成为新的 <em><strong>master</strong></em></li>
+<li>新的 <em><strong>master</strong></em> 会撤销所有对已下线 <em><strong>master</strong></em> 的 <em><strong>slot</strong></em> 指派，并将这些 <em><strong>slot</strong></em> 全部指派给自己</li>
+<li>新的 <em><strong>master</strong></em> 向集群广播一条 <em><strong>PONG</strong></em> 消息，这条 <em><strong>PONG</strong></em> 消息可以让集群中的其他节点立即知道自己已经由 <em><strong>slave</strong></em> 变成了 <em><strong>master</strong></em> ，并且这个 <em><strong>master</strong></em> 已经接管了原本由已下线节点负责处理的 <em><strong>slot</strong></em></li>
+<li>新的 <em><strong>master</strong></em> 开始接收和自己负责处理的 <em><strong>slot</strong></em> 有关的命令请求，故障转移完成</li>
+</ul>
+<h3 id="failover-2">5.3 手动 Failover</h3>
+<p>Redis 集群支持手动故障转移，也就是向 <em><strong>slave</strong></em> 发送 <span style="color:red;">CLUSTER FAILOVER</span> 命令，使其在 master 未下线的情况下，发起故障转移流程，升级为新的 <em><strong>master</strong></em> ，而原来的 <em><strong>master</strong></em> 降级为 <em><strong>slave</strong></em>。</p>
+<p>为了不丢失数据，向 <em><strong>slave</strong></em> 发送 <span style="color:red;">CLUSTER FAILOVER</span> 命令后，流程如下：</p>
+<ol>
+<li><em><strong>slave</strong></em> 收到命令后，向 <em><strong>master</strong></em> 发送 <span style="color:red;">CLUSTERMSG_TYPE_MFSTART</span> 命令</li>
+<li><em><strong>master</strong></em> 收到该命令后，会将其所有客户端置于阻塞状态，也就是在 10s 的时间内，不再处理客户端发来的命令，并且在其发送的心跳包中，会带有 <span style="color:red;">CLUSTERMSG_FLAG0_PAUSED</span> 标记</li>
+<li><em><strong>slave</strong></em> 收到 <em><strong>master</strong></em> 发来的，带 <span style="color:red;">CLUSTERMSG_FLAG0_PAUSED</span> 标记的心跳包后，从中获取 <em><strong>master</strong></em> 当前的复制偏移量，<em><strong>slave</strong></em> 等到自己的复制偏移量达到该值后，才会开始执行故障转移流程：发起选举、统计选票、赢得选举、升级为 <em><strong>master</strong></em> 并更新配置</li>
+</ol>
+<p>CLUSTER FAILOVER 命令支持两个选项：<em><strong>FORCE</strong></em> 和 <em><strong>TAKEOVER</strong></em>。使用这两个选项，可以改变上述的流程。</p>
+<p>如果有 <em><strong>FORCE</strong></em> 选项，则 <em><strong>slave</strong></em> 不会与 <em><strong>master</strong></em> 进行交互，<em><strong>master</strong></em> 也不会阻塞其客户端，而是 <em><strong>slave</strong></em> 立即开始故障转移流程：发起选举、统计选票、赢得选举、升级为 <em><strong>master</strong></em> 并更新配置。</p>
+<p>如果有 <em><strong>TAKEOVER</strong></em> 选项，则更加简单直接，<em><strong>slave</strong></em> 不再发起选举，而是直接将自己升级为 <em><strong>master</strong></em> ，接手原 <em><strong>master</strong></em> 的 <em><strong>slot</strong></em>，增加自己的 <em><strong>configEpoch</strong></em> 后更新配置。</p>
+<p>因此，使用 <em><strong>FORCE</strong></em> 和 <em><strong>TAKEOVER</strong></em> 选项，<em><strong>master</strong></em> 可以已经下线；而不使用任何选项，只发送 CLUSTER FAILOVER 命令的话，<em><strong>master</strong></em> 必须在线。</p>
+<h2 id="section-8">6. 写在最后</h2>
+<h3 id="redis-">6.1 详解 Redis 集群中的消息</h3>
+<p>搭建 Redis Cluster 时，首先通过 CLUSTER MEET 命令将所有的节点加入到一个集群中，但是并没有在所有节点两两之间都执行 CLUSTER MEET 命令，因为节点之间使用 <em><strong>Gossip</strong></em> 协议进行工作。<em><strong>Gossip</strong></em> 翻译过来就是流言，类似与病毒传播一样，只要一个人感染，如果时间足够，那么和被感染的人在一起的所有人都会被感染，因此随着时间推移，集群内的所有节点都会互相知道对方的存在。</p>
+<p>在 Redis 集群中，节点信息是如何传播的呢？答案是通过发送 PING 或 PONG 消息时，会包含节点信息，然后进行传播的。先介绍一下 Redis Cluster 中，消息是如何抽象的。一个消息对象可以是 <em><strong>PING、PONG、MEET</strong></em>，也可以是 <em><strong>PUBLISH、FAIL</strong></em> 等。他们都是 clusterMsg 类型的结构，该类型主要由消息包头部和消息数据组成。</p>
+<ul>
+<li>消息包头部包含签名、消息总大小、版本和发送消息节点的信息。</li>
+<li>消息数据则是一个联合体 union clusterMsgData，联合体中又有不同的结构体来构建不同的消息。</li>
+</ul>
+<p><em><strong>PING、PONG、MEET</strong></em> 属于一类，是 clusterMsgDataGossip 类型的数组，可以存放多个节点的信息，该结构如下：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* Initially we don't know our "name", but we'll find it once we connect
+ * to the first node, using the getsockname() function. Then we'll use this
+ * address for all the next messages. */</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="c1">// 节点名字</span>
+    <span class="kt">char</span> <span class="n">nodename</span><span class="p">[</span><span class="n">CLUSTER_NAMELEN</span><span class="p">];</span>
+    <span class="c1">// 最近一次发送PING的时间戳</span>
+    <span class="kt">uint32_t</span> <span class="n">ping_sent</span><span class="p">;</span>
+    <span class="c1">// 最近一次接收PONG的时间戳</span>
+    <span class="kt">uint32_t</span> <span class="n">pong_received</span><span class="p">;</span>
+    <span class="c1">// 节点的IP地址</span>
+    <span class="kt">char</span> <span class="n">ip</span><span class="p">[</span><span class="n">NET_IP_STR_LEN</span><span class="p">];</span>  <span class="cm">/* IP address last time it was seen */</span>
+    <span class="c1">// 节点的端口号</span>
+    <span class="kt">uint16_t</span> <span class="n">port</span><span class="p">;</span>              <span class="cm">/* port last time it was seen */</span>
+    <span class="c1">// 节点的标识</span>
+    <span class="kt">uint16_t</span> <span class="n">flags</span><span class="p">;</span>             <span class="cm">/* node-&gt;flags copy */</span>
+    <span class="c1">// 未使用</span>
+    <span class="kt">uint16_t</span> <span class="n">notused1</span><span class="p">;</span>          <span class="cm">/* Some room for future improvements. */</span>
+    <span class="kt">uint32_t</span> <span class="n">notused2</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">clusterMsgDataGossip</span><span class="p">;</span>
+</code></pre></div></div>
+<p>每次发送 <em><strong>MEET、PING、PONG</strong></em> 消息时，发送者都从自己的已知节点列表中随机选出两个节点（可以是主节点或者从节点），并将这两个被选中节点的信息分别保存到两个结构中。当接收者收到消息时，接收者会访问消息正文中的两个结构，并根据自己是否认识 clusterMsgDataGossip 结构中记录的被选中节点进行操作：</p>
+<ol>
+<li>如果被选中节点不存在于接收者的已知节点列表，那么说明接收者是第一次接触到被选中节点，接收者将根据结构中记录的IP地址和端口号等信息，与被选择节点进行握手。</li>
+<li>如果被选中节点已经存在于接收者的已知节点列表，那么说明接收者之前已经与被选中节点进行过接触，接收者将根据 clusterMsgDataGossip 结构记录的信息，对被选中节点对应的 clusterNode 结构进行更新。</li>
+</ol>
+<p>有了消息之后，如何选择发送消息的目标节点呢？虽然 <em><strong>PING PONG</strong></em> 发送的频率越高就可以越实时得到其它节点的状态数据，但 <em><strong>Gossip</strong></em> 消息体积较大，高频发送接收会加重网络带宽和消耗 CPU 的计算能力，因此每次 Redis 集群都会有目的性地选择一些节点；但节点选择过少又会影响故障判断的速度，Redis 集群的 <em><strong>Gossip</strong></em> 协议选择这样的解决方案：</p>
+<p>集群内每个节点维护定时任务默认为每秒执行10次，每秒会随机选取 5 个节点，找出最久没有通信的节点发送 <em><strong>PING</strong></em> 消息，用来保证信息交换的随机性。每 100 毫秒都会扫描本地节点列表，如果发现节点最近一次接受 <em><strong>PONG</strong></em> 消息的时间大于 cluster-node-timeout/2则立刻发送 <em><strong>PING</strong></em> 消息，这样做目的是防止该节点信息太长时间没更新，当我们宽带资源紧张时，可在 redis.conf 将 cluster-node-timeout 15000  改成 30 秒，但不能过度加大。</p>
+<h3 id="section-9">6.2 集群数据一致性</h3>
+<p>Redis 集群尽可能保证数据的一致性，但在特定条件下会丢失数据，原因有两点：异步复制机制以及可能出现的网络分区造成脑裂问题。</p>
+<h4 id="section-10">6.2.1 异步复制</h4>
+<p><em><strong>master</strong></em> 以及对应的 <em><strong>slaves</strong></em> 之间使用异步复制机制，考虑如下场景：</p>
+<blockquote>
+<p>写命令提交到 <em><strong>master</strong></em>，<em><strong>master</strong></em> 执行完毕后向客户端返回 <em><strong>OK</strong></em>，但由于复制的延迟此时数据还没传播给 <em><strong>slave</strong></em>；如果此时 <em><strong>master</strong></em> 不可达的时间超过阀值，此时集群将触发 <em><strong>failover</strong></em>，将对应的 <em><strong>slave</strong></em> 选举为新的<em><strong>master</strong></em>，此时由于该 <em><strong>slave</strong></em> 没有收到复制流，因此没有同步到 <em><strong>slave</strong></em> 的数据将丢失。</p>
+</blockquote>
+<h4 id="split-brain">6.2.2 脑裂(split-brain)</h4>
+<p>在发生网络分区时，有可能出现新旧 <em><strong>master</strong></em> 同时存在的情况，考虑如下场景：</p>
+<blockquote>
+<p>由于网络分区，此时 <em><strong>master</strong></em> 不可达，且客户端与 <em><strong>master</strong></em> 处于一个分区，并且由于网络不可达，此时客户端仍会向 <em><strong>master</strong></em> 写入。由于 <em><strong>failover</strong></em> 机制，将其中一个 <em><strong>slave</strong></em> 提升为新的 <em><strong>master</strong></em>，等待网络分区消除后，老的 <em><strong>master</strong></em> 再次可达，但此时该节点会被降为 <em><strong>slave</strong></em> 清空自身数据然后复制新的 <em><strong>master</strong></em> ，而在这段网络分区期间，客户端仍然将写命令提交到老的 <em><strong>master</strong></em>，但由于被降为 <em><strong>slave</strong></em> 角色这些数据将永远丢失。</p>
+</blockquote>
+<p><img src="/../../image/redis/redis-%E8%84%91%E8%A3%82(split-brain).png" alt="img" /></p>
+<h2 id="section-11">7. 参考资料</h2>
+<ol>
+<li><a href="https://redis-doc-test.readthedocs.io/en/latest/topics/cluster-spec/">Redis Cluster Specification</a></li>
+<li><a href="https://redis-doc-test.readthedocs.io/en/latest/topics/cluster-tutorial/">Redis cluster tutorial</a></li>
+<li><a href="https://cristian.regolo.cc/2015/09/05/life-in-a-redis-cluster.html">Life in a Redis Cluster: Meet and Gossip with your neighbors</a></li>
+<li><a href="https://www.cnblogs.com/leeSmall/p/8414687.html">Redis系列九：redis集群高可用</a></li>
+<li><a href="https://www.cnblogs.com/gqtcgq/p/7247042.html">Redis源码解析：27集群(三)主从复制、故障转移</a></li>
+<li>《Redis 设计与实现》黄建宏著</li>
+</ol>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>

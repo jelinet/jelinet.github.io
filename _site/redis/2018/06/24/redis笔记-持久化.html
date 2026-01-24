@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Redis-持久化</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Redis-持久化 | Jelinet&#39;s Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Redis-持久化" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Redis-持久化 1.RDB &amp; AOF 简介" />
+<meta property="og:description" content="Redis-持久化 1.RDB &amp; AOF 简介" />
+<link rel="canonical" href="http://localhost:4000/redis/2018/06/24/redis%E7%AC%94%E8%AE%B0-%E6%8C%81%E4%B9%85%E5%8C%96.html" />
+<meta property="og:url" content="http://localhost:4000/redis/2018/06/24/redis%E7%AC%94%E8%AE%B0-%E6%8C%81%E4%B9%85%E5%8C%96.html" />
+<meta property="og:site_name" content="Jelinet&#39;s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-06-24T10:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Redis-持久化" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jelinet"},"dateModified":"2018-06-24T10:00:00+08:00","datePublished":"2018-06-24T10:00:00+08:00","description":"Redis-持久化 1.RDB &amp; AOF 简介","headline":"Redis-持久化","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/redis/2018/06/24/redis%E7%AC%94%E8%AE%B0-%E6%8C%81%E4%B9%85%E5%8C%96.html"},"url":"http://localhost:4000/redis/2018/06/24/redis%E7%AC%94%E8%AE%B0-%E6%8C%81%E4%B9%85%E5%8C%96.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<style>.markdown-alert{padding:.5rem 1rem;margin-bottom:1rem;color:inherit;border-left:.25em solid #30363d}.markdown-alert>:first-child{margin-top:0}.markdown-alert>:last-child{margin-bottom:0}.markdown-alert .markdown-alert-title{display:flex;font-weight:500;align-items:center;line-height:1}.markdown-alert svg{margin-right:.5rem!important}.markdown-alert svg path{fill:currentColor}.markdown-alert.markdown-alert-note{border-left-color:#4493f8}.markdown-alert.markdown-alert-note .markdown-alert-title{color:#4493f8}.markdown-alert.markdown-alert-important{border-left-color:#ab7df8}.markdown-alert.markdown-alert-important .markdown-alert-title{color:#ab7df8}.markdown-alert.markdown-alert-warning{border-left-color:#9e6a03}.markdown-alert.markdown-alert-warning .markdown-alert-title{color:#d29922}.markdown-alert.markdown-alert-tip{border-left-color:#238636}.markdown-alert.markdown-alert-tip .markdown-alert-title{color:#3fb950}.markdown-alert.markdown-alert-caution{border-left-color:#da3633}.markdown-alert.markdown-alert-caution .markdown-alert-title{color:#f85149}</style></head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="Jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">Jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </section>
+    <section class="content">
+      <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><div class="post-container">
+  <a class="post-link" href="/redis/2018/06/24/redis%E7%AC%94%E8%AE%B0-%E6%8C%81%E4%B9%85%E5%8C%96.html">
+    <h2 class="post-title">Redis-持久化</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Jun 24, 2018</div><ul class="post-categories"><li><strong><a href="/category/redis.html">redis</a></strong></li></ul></div>
+  <div class="post">
+    <h1 id="redis-">Redis-持久化</h1>
+<h2 id="rdb-amp-aof-">1.RDB &amp; AOF 简介</h2>
+<p>Redis 提供了两种持久化策略</p>
+<ul>
+<li>RDB 持久化机制，会在一段时间内生成指定时间点的数据集 <em><strong>快照(snapshot)</strong></em></li>
+<li>AOF 持久化机制，记录 server 端收到的每一条写命令，当 server 重启时会进行重放以此来重建之前的数据集。AOF 文件中的命令全部以 Redis 协议的格式来保存，新命令会被 <em><strong>追加(append)</strong></em> 到文件的末尾。 Redis 还可以在后台对 AOF 文件进行 <em><strong>重写(rewrite)</strong></em> ，使得 AOF 文件的体积不会超出保存数据集状态所需的实际大小。</li>
+<li>如果你仅使用 Redis 作为缓存加速访问，你可以关闭这两个持久化设置</li>
+<li>你也可以同时开启这两个持久化设置，但是在这种情况下，Redis 重启时会使用 AOF 文件来重建数据集，因为 AOF 文件保存的数据往往更加完整</li>
+</ul>
+<div class='markdown-alert markdown-alert-note'><p class='markdown-alert-title'><svg class="octicon octicon-info" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg> Note</p><p>一个概念：服务器中非空数据库以及数据库中的键值对 称为 <em><strong>数据库状态</strong></em></p>
+</div>
+<h2 id="rdb">2. 详解 RDB</h2>
+<h3 id="rdb-">2.1 RDB 创建与载入</h3>
+<p>Redis 提供了 <em><strong>SAVE</strong></em> 和 <em><strong>BGSAVE</strong></em> 两个命令来生成 RDB 文件，区别是前者是阻塞的（阻塞期间，服务器不能处理任何命令请求），后者是后台 <em><strong>fork</strong></em> 子进程进行不会阻塞主进程处理命令请求。</p>
+<p>载入 RDB 文件不需要手工运行，而是 <em><strong>server</strong></em> 端自动进行，只要启动时检测到 RDB 文件存在 <em><strong>server</strong></em> 端便会载入 RDB 文件重建数据集。当然上面简介中已经提到，如果 同时存在 AOF 的话会优先使用 AOF 重建数据集因为其保存的数据更完整。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//SAVE 和 BGSAVE 命令实现</span>
+
+<span class="kt">void</span> <span class="nf">saveCommand</span><span class="p">(</span><span class="n">client</span> <span class="o">*</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// BGSAVE执行时不能执行SAVE</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_child_pid</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">addReplyError</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s">"Background save already in progress"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">rdbSaveInfo</span> <span class="n">rsi</span><span class="p">,</span> <span class="o">*</span><span class="n">rsiptr</span><span class="p">;</span>
+    <span class="n">rsiptr</span> <span class="o">=</span> <span class="n">rdbPopulateSaveInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rsi</span><span class="p">);</span>
+    <span class="c1">// 调用rdbSave函数执行备份（阻塞当前客户端）</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">rdbSave</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_filename</span><span class="p">,</span><span class="n">rsiptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">C_OK</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">addReply</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">shared</span><span class="p">.</span><span class="n">ok</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">addReply</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">shared</span><span class="p">.</span><span class="n">err</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+ 
+<span class="cm">/*
+ * BGSAVE 命令实现 [可选参数"schedule"]
+ */</span>
+<span class="kt">void</span> <span class="nf">bgsaveCommand</span><span class="p">(</span><span class="n">client</span> <span class="o">*</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">schedule</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  
+   	<span class="cm">/* 当AOF正在执行时，SCHEDULE参数修改BGSAVE的效果
+     * BGSAVE会在之后执行，而不是报错
+     * 可以理解为：BGSAVE被提上日程
+     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">c</span><span class="o">-&gt;</span><span class="n">argc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 参数只能是"schedule"</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">c</span><span class="o">-&gt;</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">strcasecmp</span><span class="p">(</span><span class="n">c</span><span class="o">-&gt;</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">ptr</span><span class="p">,</span><span class="s">"schedule"</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">addReply</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">shared</span><span class="p">.</span><span class="n">syntaxerr</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+ 
+    <span class="c1">// BGSAVE正在执行，不操作</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_child_pid</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">addReplyError</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s">"Background save already in progress"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">aof_child_pid</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// aof正在执行，如果schedule==1，BGSAVE被提上日程</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">schedule</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">server</span><span class="p">.</span><span class="n">rdb_bgsave_scheduled</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">addReplyStatus</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s">"Background saving scheduled"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">addReplyError</span><span class="p">(</span><span class="n">c</span><span class="p">,</span>
+            <span class="s">"An AOF log rewriting in progress: can't BGSAVE right now. "</span>
+            <span class="s">"Use BGSAVE SCHEDULE in order to schedule a BGSAVE whenever "</span>
+            <span class="s">"possible."</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">rdbSaveBackground</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_filename</span><span class="p">,</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">C_OK</span><span class="p">)</span> <span class="p">{</span><span class="c1">// 否则调用rdbSaveBackground执行备份操作</span>
+        <span class="n">addReplyStatus</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s">"Background saving started"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">addReply</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">shared</span><span class="p">.</span><span class="n">err</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="rdb--1">2.2 RDB 相关配置</h3>
+<p><strong>SAVE POINT</strong> save &lt;seconds&gt; &lt;changes&gt;</p>
+<p>当服务器启动的时候，客户端可以可以配置 <em><strong>保存点(save point)</strong></em> ，Redis 如果每 <em><strong>N</strong></em> 秒数据发生了 <em><strong>M</strong></em> 次改变就保存快照文件，例如下面：每隔一段时间执行一次<em><strong>BGSAVE</strong></em>（serverCron()）;</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># Save Point 配置
+# 这个保存点配置表示每60秒，如果数据发生了1000次以上的变动，Redis就会自动保存快照文件
+</span><span class="n">save</span> <span class="mi">60</span> <span class="mi">1000</span>
+<span class="cp"># 保存点可以设置多个，Redis的配置文件就默认设置了3个保存点
+# 格式为：save &lt;seconds&gt; &lt;changes&gt;
+# 可以设置多个。
+</span><span class="n">save</span> <span class="mi">900</span> <span class="mi">1</span> <span class="err">#</span><span class="mi">900</span><span class="err">秒后至少</span><span class="mi">1</span><span class="err">个</span><span class="n">key</span><span class="err">有变动</span>
+<span class="n">save</span> <span class="mi">300</span> <span class="mi">10</span> <span class="err">#</span><span class="mi">300</span><span class="err">秒后至少</span><span class="mi">10</span><span class="err">个</span><span class="n">key</span><span class="err">有变动</span>
+<span class="n">save</span> <span class="mi">60</span> <span class="mi">10000</span> <span class="err">#</span><span class="mi">60</span><span class="err">秒后至少</span><span class="mi">10000</span><span class="err">个</span><span class="n">key</span><span class="err">有变动</span>
+</code></pre></div></div>
+<p><strong>stop-writes-on-bgsave-error</strong> <em>yes | no</em></p>
+<p>如果 Redis 执行 RDB 持久化失败（常见于操作系统内存不足），那么 Redis 将不再接受 client 写入数据的请求。当然在实践中，我们通常会将 <em><strong>stop-writes-on-bgsave-error</strong></em> 设置为 <em><strong>false</strong></em>，同时让监控系统在 Redis 执行 RDB 持久化失败时发送告警，以便介入解决，而不是粗暴地拒绝 client 的写入请求。</p>
+<p><strong>rdbcompression</strong> <em>yes | no</em></p>
+<p>当生成 RDB 文件时，Redis 会判断字符串长度 &gt;=20字节则压缩，否则不压缩存储，默认 Redis 会采用 <a href="https://github.com/ning/compress">LZF</a> 算法进行数据压缩。</p>
+<p><strong>rdbchecksum</strong> <em>yes | no</em></p>
+<p>从版本5的 RDB 的开始，一个 <strong>CRC64</strong> 的校验码会放在文件的末尾。这样更能保证文件的完整性，但是在保存或者加载文件时会损失一定的性能（大概10%）。如果想追求更高的性能，可以把它禁用掉，这样文件在写入校验码时会用 <strong>0</strong> 替代，加载的时候看到 <strong>0</strong> 就会直接跳过校验。</p>
+<h3 id="rdb-1">2.3 RDB文件结构</h3>
+<table>
+<thead>
+<tr>
+<th>REDIS</th>
+<th>db_version</th>
+<th>databases</th>
+<th>EOF</th>
+<th>check_sum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;REDIS&quot;</td>
+<td>&quot;0006&quot;</td>
+<td></td>
+<td>EOF</td>
+<td>6265312314761917404</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>REDIS长度5字节，保存REDIS五个字符。快速检查载入文件是否是RDB文件；</li>
+<li>db_version 长度为4，0006代表第6个版本；</li>
+<li>databases，0或多个数据库，以及数据库中的键值对；数据库状态为空，这部分为空0字节。</li>
+<li>EOF常量长度1字节。读到这里标志RDB文件正文结束，所有数据库键值对加载完毕；</li>
+<li>chack_sum是8字节长无符号整数，记录前四项的校验和。</li>
+</ul>
+<p><strong>databases部分</strong></p>
+<p>带有两个数据库的RDB文件：</p>
+<p><img src="/../../image/redis/es_database2_RDB.png" alt="redis_databases结构" /></p>
+<p>databases结构：</p>
+<p><img src="/../../image/redis/redis_databases%E7%BB%93%E6%9E%84.png" alt="redis_databases结构" /></p>
+<ul>
+<li>SELECTDB 常量，标志即将要读入的数据库号db_number</li>
+<li>db_number 数据库号，长度1、2、5字节；读取数据库号后，后面的键值对就能正确写入到不同的库中；</li>
+<li>key_value_pairs 数据库键值对数据，带过期时间；</li>
+</ul>
+<p>key_value_pairs：</p>
+<table>
+<thead>
+<tr>
+<th>EXPIRSTIME_MS</th>
+<th>Ms</th>
+<th>TYPE</th>
+<th>key</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EXPIRSTIME_MS</td>
+<td>1515513600000</td>
+<td>REDIS_RDB_TYPE_STRING</td>
+<td>Key</td>
+<td>value</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rdb--2">2.4 RDB 的优点</h3>
+<ul>
+<li>RDB文件是一个很简洁的单文件，它保存了某个时间点的 Redis 数据集，很适合用于做备份。你可以设定一个时间点对 RDB 文件进行归档，这样就能在需要的时候很轻易的把数据恢复到不同的版本。</li>
+<li>基于上面所描述的特性，RDB 文件很适合用于灾备，因为单文件可以很方便地传输到另外的数据中心。</li>
+<li>RDB的性能很好，需要进行持久化时，主进程会 <em><strong>fork</strong></em> 一个子进程出来，然后把持久化的工作交给子进程，自己不会有相关的 I/O 操作。</li>
+<li>比起 AOF，在数据量比较大的情况下，RDB的启动速度更快。</li>
+</ul>
+<h3 id="rdb--3">2.5 RDB 的缺点</h3>
+<ul>
+<li>
+<p>RDB容易造成数据的丢失，当你希望在 Redis 停止工作时尽量减少数据丢失的话，那 RDB 不适用。假设每5分钟保存一次快照，如果Redis因为某些原因不能正常工作，那么从上次产生快照到 Redis 出现问题这段时间的数据就会丢失了。你可以通过配置不同的 <em><strong>save point</strong></em> 来减轻数据丢失的程度，但是越紧凑的 <em><strong>save point</strong></em> 会越频繁地触发 RDB 生成操作，从而对 Redis 性能产生影响</p>
+</li>
+<li>
+<p>RDB 使用 <em><strong>fork</strong></em> 子进程进行数据的持久化，如果数据比较大的话可能就会花费点时间，造成 Redis 停止服务几毫秒，如果数据量很大且 CPU 性能不是很好的时候，停止服务的时间甚至会到一秒。AOF 也需要 <em><strong>fork</strong></em> 但是你可以自己调整 rewrite 的频率，它不会造成数据丢失。在 Linux 系统中，<em><strong>fork</strong></em> 会拷贝进程的 <em><strong>page table</strong></em>。随着进程占用的内存越大，进程的 <em><strong>page table</strong></em> 也会越大，那么 <em><strong>fork</strong></em> 也会占用更多的时间。 如果 Redis 占用的内存很大 (例如 20 GB)，那么在 <em><strong>fork</strong></em> 子进程时，会出现明显的停顿现象（无法处理 client 的请求）。另外，在不同机器上，fork 的性能是不同的，可以参见 <a href="https://redis.io/topics/latency#fork-time-in-different-systems">Fork time in different systems</a></p>
+</li>
+<li>
+<p>Linux <em><strong>fork</strong></em> 子进程采用的是 <em><strong>copy-on-write</strong></em> 的方式。在 Redis 执行 RDB 持久化期间，如果 client 写入数据很频繁，那么将增加 Redis 占用的内存，最坏情况下，内存的占用将达到原先的两倍。</p>
+</li>
+</ul>
+<h2 id="aof">3. 详解 AOF</h2>
+<h3 id="aof-">3.1 AOF 实现</h3>
+<p>和 RDB 持久化数据库键值对来记录数据库状态不同，AOF 是通过保存对数据库的写命令集来记录数据库状态的。AOF 持久化实现可以分为<strong>命令追加(append)、文件写入(write)、文件同步(fsync)</strong> 三个步骤。<em><strong>Append</strong></em> 追加命令到 AOF 缓冲区，<em><strong>Write</strong></em> 将缓冲区的内容写入到程序缓冲区，<em><strong>Fsync</strong></em> 将程序缓冲区的内容写入到文件。</p>
+<p><strong>命令追加</strong></p>
+<p>当 AOF 持久化功能打开时，<em><strong>server</strong></em> 端每执行完一个写命令，会以协议格式将被执行的写命令追加到 <em><strong>server</strong></em> 端 <em><strong>redisServer</strong></em> 结构体中的 <em><strong>aof_buf</strong></em> 缓冲区末尾。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">redisServer</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="c1">// AOF 缓冲区</span>
+    <span class="n">sds</span> <span class="n">aof_buf</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>举个例子， 如果客户端向服务器发送以下命令：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">redis</span><span class="o">&gt;</span> <span class="n">SET</span> <span class="n">KEY</span> <span class="n">VALUE</span>
+<span class="n">OK</span>
+</code></pre></div></div>
+<p>那么服务器在执行这个 SET 命令之后， 会将以下协议内容追加到 <code>aof_buf</code> 缓冲区的末尾：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">*</span><span class="mi">3</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">$</span><span class="mi">3</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">nSET</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">$</span><span class="mi">3</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">nKEY</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span><span class="err">$</span><span class="mi">5</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">nVALUE</span><span class="err">\</span><span class="n">r</span><span class="err">\</span><span class="n">n</span>
+</code></pre></div></div>
+<p><strong>文件写入与同步</strong></p>
+<p>Redis server 进程是一个<strong>事件循环(event loop)</strong>，<em><strong>server</strong></em> 每结束一个事件循环之前都会调用 <em><strong>flushAppendOnlyFile</strong></em> 函数，考虑是否将 <em><strong>aof_buf</strong></em> 缓冲区中的内容吸入和保存到 AOF 文件，而 <em><strong>flushAppendOnlyFile</strong></em> 函数的行为由 <em><strong>appendfsync</strong></em> 选项来控制</p>
+<table>
+<thead>
+<tr>
+<th align="left">appendfsync 值</th>
+<th align="left">flushAppendOnlyFile 行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">always</td>
+<td align="left">每个事件循环都将 aof_buf 缓冲区中的内容写入 AOF 文件，并且调用 fsync() 将其同步到磁盘。这可以保证最好的数据持久性，但却会给系统带来极大的开销，其效率是三者中最慢的，但同时安全性也是最高的，即使宕机也只丢失一个事件循环中的数据。</td>
+</tr>
+<tr>
+<td align="left">no</td>
+<td align="left">每个事件循环都将 aof_buf 缓冲区中的内容写入 AOF 文件，但不对其进行同步，何时同步至磁盘会让操作系统决定。这种模式下 AOF 的写入速度最快，不过因其会在系统缓存中积累一段时间的数据，所以同步时间为三者最长。一旦宕机将会丢失自上一次同步 AOF 文件起所有的数据。</td>
+</tr>
+<tr>
+<td align="left">everysec</td>
+<td align="left">每个事件循环都将 aof_buf 缓冲区中的内容写入 AOF 文件，Redis 还会每秒在子线程中执行一次 fsync()。在实践中，推荐使用这种设置，一定程度上可以保证数据持久性，又不会明显降低 Redis 性能。</td>
+</tr>
+</tbody>
+</table>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">def</span> <span class="n">eventLoop</span><span class="p">()</span><span class="o">:</span>
+    <span class="k">while</span> <span class="n">True</span><span class="o">:</span>
+        <span class="cp"># 处理文件事件，接收命令请求以及发送命令回复
+</span>        <span class="cp"># 处理命令请求时可能会有新内容被追加到 aof_buf 缓冲区中
+</span>        <span class="n">processFileEvents</span><span class="p">()</span>
+        <span class="cp"># 处理时间事件
+</span>        <span class="n">processTimeEvents</span><span class="p">()</span>
+        <span class="cp"># 考虑是否要将 aof_buf 中的内容写入和保存到 AOF 文件里面
+</span>        <span class="n">flushAppendOnlyFile</span><span class="p">()</span>
+</code></pre></div></div>
+<h3 id="aof--1">3.2 AOF 重写</h3>
+<p>AOF 持久化并不是没有缺点的，Redis 会不断将接收到的写命令追加到 AOF 文件中，导致 AOF 文件越来越大。过大的 AOF 文件会消耗磁盘空间，并且导致 Redis 重启时更加缓慢。为了解决这个问题，在适当情况下，Redis 会对 AOF 文件进行重写，去除文件中冗余的命令，以减小 AOF 文件的体积。</p>
+<p>AOF的重写会执行大量的写入操作，Redis是单线程的，所以如果有服务器直接调用重写，服务器就不能处理其他命令了，因此Redis服务器新起了单独一个进程来执行AOF重写。当然也可以通过 <em><strong>BGREWRITEAOF</strong></em> 命令手动重写 AOF 文件。重写后的新 AOF 文件包含了恢复当前数据集所需的最小命令集合。</p>
+<p>在子进程执行AOF重写时，服务端接收到客户端的命令之后，先执行客户端发来的命令，然后将执行后的写命令追加到AOF缓冲区中，同时将执行后的写命令追加到AOF重写缓冲区中。 等到子进程完成了重写工作后，会发一个完成的信号给服务器，服务器就将AOF重写缓冲区中的所有内容追加到AOF文件中，然后原子性地覆盖现有的AOF文件。</p>
+<div class='markdown-alert markdown-alert-caution'><p class='markdown-alert-title'><svg class="octicon octicon-stop" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg> Caution</p><p>AOF 重写是一个有歧义的名字， 该功能是通过读取数据库中的键值对来实现的， 程序无须对现有 AOF 文件进行任何读入、分析或者写入操作。</p>
+</div>
+<h3 id="aof--2">3.3 AOF 相关配置</h3>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># 在 redis.conf 中通过以下配置开启 AOF 功能
+</span><span class="n">appendonly</span> <span class="n">yes</span>
+
+<span class="cp"># 文件存放目录，与RDB共用。默认为当前工作目录。
+</span><span class="n">dir</span> <span class="p">.</span><span class="o">/</span>
+
+<span class="cp"># 默认文件名为appendonly.aof
+</span><span class="n">appendfilename</span> <span class="s">"appendonly.aof"</span>
+
+<span class="cp"># fsync 相关配置 
+# 如果用户没有主动为appendfsync选项设置值,那么appendfsync选项的默认值为everysec
+# appendfsync always
+</span><span class="n">appendfsync</span> <span class="n">everysec</span>
+<span class="cp"># appendfsync no
+</span>
+<span class="cp"># Redis会记住自从上一次重写后AOF文件的大小（如果自Redis启动后还没重写过，则记住启动时使用的AOF文件的大小）。
+# 如果当前的文件大小比起记住的那个大小超过指定的百分比，则会触发重写。
+# 同时需要设置一个文件大小最小值，只有大于这个值文件才会重写，以防文件很小，但是已经达到百分比的情况。
+</span><span class="k">auto</span><span class="o">-</span><span class="n">aof</span><span class="o">-</span><span class="n">rewrite</span><span class="o">-</span><span class="n">percentage</span> <span class="mi">100</span>
+<span class="k">auto</span><span class="o">-</span><span class="n">aof</span><span class="o">-</span><span class="n">rewrite</span><span class="o">-</span><span class="n">min</span><span class="o">-</span><span class="n">size</span> <span class="mi">64</span><span class="n">mb</span>
+<span class="cp"># 上面两个配置的作用：当 AOF 文件的体积大于 64MB，并且 AOF 文件的体积比上一次重写之后的体积大了至少一倍，那么 Redis 就会执行 AOF 重写。
+</span>
+<span class="cp"># 要禁用自动的日志重写功能，我们可以把百分比设置为0：
+</span><span class="k">auto</span><span class="o">-</span><span class="n">aof</span><span class="o">-</span><span class="n">rewrite</span><span class="o">-</span><span class="n">percentage</span> <span class="mi">0</span>
+</code></pre></div></div>
+<h3 id="aof--3">3.4 AOF 的优点</h3>
+<ul>
+<li>比RDB可靠。你可以制定不同的 <em><strong>fsync</strong></em> 策略：<em><strong>no</strong></em>、<em><strong>everysec</strong></em> 和 <em><strong>always</strong></em>。默认是 <em><strong>everysec</strong></em>。这意味着你最多丢失一秒钟的数据。</li>
+<li>AOF日志文件是一个纯追加的文件。就算是遇到突然停电的情况，也不会出现日志的定位或者损坏问题。甚至如果因为某些原因（例如磁盘满了）命令只写了一半到日志文件里，我们也可以用 <em><strong>redis-check-aof</strong></em> 这个工具很简单的进行修复。</li>
+<li>当AOF文件太大时，Redis 会自动在后台进行重写。重写很安全，因为重写是在一个新的文件上进行，同时 Redis 会继续往旧的文件追加数据。新文件上会写入能重建当前数据集的最小操作命令的集合。当新文件重写完，Redis 会把新旧文件进行切换，然后开始把数据写到新文件上。</li>
+<li>AOF 把操作命令以简单易懂的格式一条接一条的保存在文件里，很容易导出来用于恢复数据。例如我们不小心用 <em><strong>FLUSHALL</strong></em> 命令把所有数据刷掉了，只要文件没有被重写，我们可以把服务停掉，把最后那条命令删掉，然后重启服务，这样就能把被刷掉的数据恢复回来。</li>
+</ul>
+<h3 id="aof-1">3.5 AOF的缺点</h3>
+<ul>
+<li>在相同的数据集下，AOF 文件的大小一般会比 RDB 文件大。</li>
+<li>在某些 <em><strong>fsync</strong></em> 策略下，AOF 的速度会比 RDB 慢。通常 <em><strong>fsync</strong></em> 设置为每秒一次就能获得比较高的性能，而在禁止 <em><strong>fsync</strong></em> 的情况下速度可以达到 RDB 的水平。</li>
+<li>在过去曾经发现一些很罕见的BUG导致使用AOF重建的数据跟原数据不一致的问题。</li>
+</ul>
+<h2 id="redis-40-">4. Redis 4.0 混合持久化</h2>
+<p>Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通过配置项 <em><strong>aof-use-rdb-preamble</strong></em> 开启）。如果把混合持久化打开，AOF 重写的时候就直接把 RDB 的内容写到 AOF 文件开头。这样做的好处是可以结合 RDB 和 AOF 的优点, 快速加载同时避免丢失过多的数据。当然缺点也是有的， AOF 里面的 RDB 部分就是压缩格式不再是 AOF 格式，可读性较差。</p>
+<h2 id="section">5. 写在最后</h2>
+<div class='markdown-alert markdown-alert-note'><p class='markdown-alert-title'><svg class="octicon octicon-info" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg> Note</p><p><strong>为什么持久化机制是 Redis 最令人困惑的特性之一？ —— antirez，Redis 作者</strong>
+<strong>Redis 的作者认为 Redis 的持久化机制是最令使用者误解和困惑的概念，困惑的来源是 Redis 的使用者对持久化机制的理解往往太想当然了。</strong>
+原文地址：<a href="http://oldblog.antirez.com/post/redis-persistence-demystified.html">http://oldblog.antirez.com/post/redis-persistence-demystified.html</a></p>
+</div>
+<h2 id="section-1">6. 参考资料</h2>
+<ol>
+<li><a href="http://antirez.com/post/redis-persistence-demystified.html">Redis persistence demystified</a></li>
+<li><a href="https://redis-doc-test.readthedocs.io/en/latest/topics/persistence/">Redis Persistence From Redis.io</a></li>
+<li>《Redis 设计与实现》黄建宏著</li>
+</ol>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>

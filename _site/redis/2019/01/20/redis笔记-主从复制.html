@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Redis-主从复制</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Redis-主从复制 | Jelinet&#39;s Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Redis-主从复制" />
+<meta name="author" content="Jelinet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Redis主从复制介绍" />
+<meta property="og:description" content="Redis主从复制介绍" />
+<link rel="canonical" href="http://localhost:4000/redis/2019/01/20/redis%E7%AC%94%E8%AE%B0-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.html" />
+<meta property="og:url" content="http://localhost:4000/redis/2019/01/20/redis%E7%AC%94%E8%AE%B0-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.html" />
+<meta property="og:site_name" content="Jelinet&#39;s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-01-20T14:09:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Redis-主从复制" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jelinet"},"dateModified":"2019-01-20T14:09:00+08:00","datePublished":"2019-01-20T14:09:00+08:00","description":"Redis主从复制介绍","headline":"Redis-主从复制","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/redis/2019/01/20/redis%E7%AC%94%E8%AE%B0-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.html"},"url":"http://localhost:4000/redis/2019/01/20/redis%E7%AC%94%E8%AE%B0-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/me.jpeg" alt="Jelinet" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">Jelinet</a>
+      </h2>
+      </div><p class="tagline">baseball,<br>console game,<br>musical&classical&rock,<br>LEGO,<br>programmer.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </section>
+    <section class="content">
+      <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><div class="post-container">
+  <a class="post-link" href="/redis/2019/01/20/redis%E7%AC%94%E8%AE%B0-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.html">
+    <h2 class="post-title">Redis-主从复制</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>Jan 20, 2019</div><ul class="post-categories"><li><strong><a href="/category/redis.html">redis</a></strong></li></ul></div>
+  <div class="post">
+    <h1 id="redis">Redis主从复制介绍</h1>
+<h2 id="section">1．什么是主从复制</h2>
+<h3 id="section-1">1.1简介</h3>
+<p>在分布式环境中，数据副本 <em><strong>（Replica）</strong></em> 和复制 <em><strong>（Replication）</strong></em> 作为提升系统可用性和读写性能的有效手段被大量应用系统设计中，Redis也不例外。Redis作为单机数据库使用时，适用场景有限且存在单点宕机问题，无法维持高可用。因此 Redis 允许通过 <em><strong>SLAVEOF</strong></em> 命令或者 <em><strong>slaveof</strong></em> 配置项来让一个 Redis server 复制另一个Redis server的数据集和状态，我们称之为主从复制，主服务器下文称 <em><strong>master</strong></em> ，从服务器下文称 <em><strong>slave</strong></em> ，Redis 采用异步的复制机制。</p>
+<p>复制机制的运行依靠三个特性：</p>
+<blockquote>
+<ol>
+<li>当一个 <em><strong>master</strong></em> 和一个 <em><strong>slave</strong></em> 连接正常时， <em><strong>master</strong></em> 会发送一连串的命令流来保持对 <em><strong>slave</strong></em> 的更新，以便于将自身数据集的变更复制给 <em><strong>slave：</strong></em> 包括客户端的写入、key的过期或被逐出等；</li>
+<li>当 <em><strong>master</strong></em> 和 <em><strong>slave</strong></em> 之间的连接断开后（断开的原因可能是网络问题或者连接超时） <em><strong>slave</strong></em> 重连上 <em><strong>master</strong></em> 并尝试进行部分重同步，这意味着它只会尝试获取在断开连接期间内丢失的命令流；</li>
+<li>当无法进行部分重同步时， <em><strong>slave</strong></em> 会请求进行全量重同步。这会涉及到一个更复杂的过程，例如 <em><strong>master</strong></em> 需要创建所有数据的快照，将之发送给 <em><strong>slave</strong></em> ，之后在数据集更改时持续发送命令流到 <em><strong>slave</strong></em> ；</li>
+</ol>
+</blockquote>
+<h3 id="section-2">1.2主从复制的优点</h3>
+<p><em><strong>master</strong></em> 可以关闭持久化机制，减少不必要的10操作且降低延迟，对于以性能著称的组件来说极为重要；</p>
+<p><em><strong>slave</strong></em> 虽然不能处理写请求，但是可以处理读请求，从而增加读取操作的吞吐量。但由于复制机制的原因，主从数据存在不一致的时间窗口；</p>
+<p>使得Redis可以告别单机版本的单点风险，采用副本形式提高可用性，在 <em><strong>master</strong></em> 宕机时可以将 <em><strong>slave</strong></em> 提升为 <em><strong>master</strong></em> 继续向外提供服务，也为Redis集群模式的诞生奠定了技术基础</p>
+<p>这里需要注意的是Redis 2.8版本之前与之后采用的复制方式不尽相同，主要区别在将成本极高的 <em><strong>sync</strong></em> 替换为 <em><strong>psync</strong></em> ，增加了断线重连情况下根据主从保存的 <em><strong>offset</strong></em> 即复制偏移量进行增量同步的功能，考虑到目前Squirrel 线上集群绝大部分收敛至3.2.8版本，因此本文不再赘述旧版复制机制。</p>
+<h3 id="section-3">1.3主从复制和集群</h3>
+<p>有时我们会混淆这两个概念，主从复制也是采用了多个Redis节点，和Redis集群表面上看很接近，那二者究竟有什么区别呢？</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Replication</td>
+<td>复制机制中包含了一个 <em><strong>master</strong></em> 和若干个 <em><strong>slave</strong></em>，其中写请求只能 <em><strong>master</strong></em> 来处理，数据的变更转化为数据流异步发送给 <em><strong>slaves</strong></em> 进行更新；读请求则可以根据使用场景来规定是否由 <em><strong>slave</strong></em> 处理从而增加系统的读吞吐量。一旦 <em><strong>master</strong></em> 发生故障，<em><strong>slave</strong></em> 可以被提升为 <em><strong>master</strong></em> 从而继续提供服务。因此总结起来，<em><strong>slave</strong></em> 在复制机制的场景下，可以提供故障恢复、分担读流量和数据备份的功能。</td>
+</tr>
+<tr>
+<td>Cluster</td>
+<td>集群机制的使用意味着你的数据量较大，数据会根据 <em><strong>Key</strong></em> 计算出的 <em><strong>slot</strong></em> 值自动在多个分片上进行分区***(Partitioning)***，客户端对某个 <em><strong>Key</strong></em> 的请求会被转发到持有那个 <em><strong>Key</strong></em> 的分片上。分片由一个 <em><strong>master</strong></em> 和若干个 <em><strong>slave</strong></em> 组成，二者间通过复制机制同步数据。因此总结来看，集群模式更像分区和复制机制的组合。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-4">2．如何开启主从复制</h2>
+<p>需要注意，主从复制的开启，完全是在 <em><strong>slave</strong></em> 发起的；不需要我们在 <em><strong>master</strong></em> 做任何事情。 <em><strong>slave</strong></em> 开启主从复制，有三种方式：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SLAVEOF 配置
+<span class="c"># 配置文件:在从服务器的配置文件中加入：</span>
+slaveof &lt;masterip&gt; &lt;masterport&gt;
+<span class="c"># 启动命令:Redis server 启动命令后加入：</span>
+<span class="nt">--slaveof</span> &lt;masterip&gt; &lt;masterport&gt;
+<span class="c"># 客户端命令:Redis server 启动后，直接通过客户端执行命令,则该Redis实例成为从节点。</span>
+slaveof &lt;masterip&gt; &lt;masterport&gt;
+</code></pre></div></div>
+<h2 id="section-5">3．主从复制机制的演变</h2>
+<p>从Redis 2.6到4.0开发人员对复制流程进行逐步的优化，以下是演进过程：</p>
+<ul>
+<li>2.8版本之前 Redis 复制采用 <em><strong>sync</strong></em> 命令，无论是第一次主从复制还是断线重连后再进行复制都采用全量同步，成本高</li>
+<li>2.8~4.0之间复制采用 <em><strong>psync</strong></em> 命令，这一特性主要添加了 Redis在断线重连时候可通过 <em><strong>offset</strong></em> 信息使用部分同步</li>
+<li>4.0版本之后也采用 <em><strong>psync</strong></em> ，相比于2.8版本的 <em><strong>psync</strong></em> 优化了增量复制，这里我们称为 <em><strong>psync2</strong></em> ，2.8版本的psync可以称为 <em><strong>psync1</strong></em></li>
+</ul>
+<p>我们先介绍 <em><strong>psync1</strong></em> 和 <em><strong>psync2</strong></em> 通用的复制原理，然后再细谈二者的区别和优化点，至于旧版 <em><strong>sync</strong></em> 的机制本文不再赘述。</p>
+<h2 id="section-6">4．主从复制的原理</h2>
+<p>主从复制过程可分为三个阶段：复制初始化、数据同步和命令传播。</p>
+<p><em><strong>复制初始化阶段</strong></em></p>
+<p>当执行完 <em><strong>slaveof</strong></em> 命令后， <em><strong>slave</strong></em> 根据指明的 <em><strong>master</strong></em> 地址向 <em><strong>master</strong></em> 发起socket连接， <em><strong>master</strong></em> 收到socket 连接之后将连接信息保存，此时连接建立完成；当socket 连接建立完成以后， <em><strong>slave</strong></em> 向 <em><strong>master</strong></em> 发送 <em><strong>PING</strong></em> 命令，以确认 <em><strong>master</strong></em> 是否存活，此时的结果返回如果是 <em><strong>PONG</strong></em> 则代表 <em><strong>master</strong></em> 可用，否则可能出现超时或者 <em><strong>master</strong></em> 此时在处理其他任务阻塞了，那么此时 <em><strong>slave</strong></em> 将断开 socket连接，然后进行重试；</p>
+<p>如果 <em><strong>master</strong></em> 连接设置了密码，则 <em><strong>slave</strong></em> 需要设置 <em><strong>masterauth</strong></em> 参数，此时 <em><strong>slave</strong></em> 会发送 <em><strong>auth</strong></em> 命令，命令格式为<span style="color:red;">auth＋密码</span> 进行密码验证，其中密码为 <em><strong>masterauth</strong></em> 参数配置的密码，需要注意的是如果 <em><strong>master</strong></em> 设置了密码验证，从库未配置 <em><strong>masterauth</strong></em> 参数则会报错，socket连接断开。当身份验证完成以后， <em><strong>slave</strong></em> 发送自己的监听端口， <em><strong>master</strong></em> 保存其端口信息，此时进入下一个阶段：数据同步阶段。</p>
+<p><em><strong>数据同步阶段</strong></em></p>
+<p><em><strong>master</strong></em> 和 <em><strong>slave</strong></em> 都确认对方信息以后，便可开始数据同步，此时 <em><strong>slave</strong></em> 向主库发送 <em><strong>psync</strong></em> 命令（需要注意的是redis 4.0对2.8版本的psync做了优化），主库收到该命令后判断是进行增量同步还是全量同步，然后根据策略进行数据的同步，当 <em><strong>master</strong></em> 有新的写操作时候，此时进入复制第三阶段：命令传播阶段。</p>
+<p><em><strong>命令传播阶段</strong></em></p>
+<p>当数据同步完成以后，在此后的时间里 <em><strong>master-slave</strong></em> 之间维护着心跳检查来确认对方是否在线，每隔一段时间（默认10秒，通过 <em><strong>repl-ping-slave-period</strong></em> 参数指定） <em><strong>master</strong></em> 向 <em><strong>slave</strong></em> 发送 PING 命令判断 <em><strong>slave</strong></em> 是否在线，而 <em><strong>slave</strong></em> 每秒一次向 <em><strong>master</strong></em> 发送 <em><strong>REPLCONF ACK</strong></em> 命令，命令格式为：<span style="color:red;">REPLCONF ACK offset</span> ，其中 <em><strong>offset</strong></em> 指 <em><strong>slave</strong></em> 保存的复制偏移量，作用有：</p>
+<ul>
+<li>
+<p>汇报自己复制偏移量， <em><strong>master</strong></em> 会对比复制偏移量向 <em><strong>slave</strong></em> 发送未同步的命令</p>
+</li>
+<li>
+<p>判断master是否在线</p>
+</li>
+</ul>
+<p><em><strong>slave</strong></em> 接送命令并执行，最终实现与主库数据相同</p>
+<h2 id="psync1psync2">5．PSYNC1和PSYNC2</h2>
+<h3 id="psync1">5.1 PSYNC1</h3>
+<p>为了解决旧版SYNC在处理断线重连复制场景下的低效问题，Redis 2.8采用 <em><strong>PSYNC</strong></em> 代替 SYNC 命令。 <em><strong>PSYNC</strong></em> 命令具有全量同步和部分同步两种模式。</p>
+<h4 id="section-7">5.1.1全量重同步</h4>
+<p>前者和SYNC大致相同，都是让 <em><strong>master</strong></em> 生成并发送 <em><strong>RDB</strong></em> 文件，然后再将保存在缓冲区中的写命令传播给 <em><strong>slave</strong></em> 来进行同步，相当于只有同步和命令传播两个阶段。</p>
+<h4 id="section-8">5.1.2部分重同步</h4>
+<p>部分同步适用于断线重连之后的同步， <em><strong>slave</strong></em> 只需要接收断线期间丢失的写命令就可以，不需要进行全量同步。为了实现部分同步，引入了复制偏移量 <em><strong>（offset）</strong></em> 、复制积压缓冲区 <em><strong>（replication backlog buffer）</strong></em> 和运行 <em><strong>ID(run_id）</strong></em> 三个概念。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>复制偏移量</td>
+<td>执行主从复制的双方都会分别维护一个复制偏移量，<em><strong>master</strong></em> 每次向 <em><strong>slave</strong></em> 传播 <em><strong>N</strong></em> 个字节，自己的复制偏移量就增加 <em><strong>N</strong></em>；同理 <em><strong>slave</strong></em> 接收 <em><strong>N</strong></em> 个字节，自身的复制偏移量也增加 <em><strong>N</strong></em>。通过对比主从之间的复制偏移量就可以知道主从间的同步状态。</td>
+</tr>
+<tr>
+<td>复制积压缓冲区</td>
+<td>复制积压缓冲区是 <em><strong>master</strong></em> 维护的一个固定长度的 FIFO 队列，默认大小为 1MB。当 <em><strong>master</strong></em> 进行命令传播时，不仅将写命令发给 <em><strong>slave</strong></em> 还会同时写进复制积压缓冲区，因此 <em><strong>master</strong></em> 的复制积压缓冲区会保存一部分最近传播的写命令。当 <em><strong>slave</strong></em> 重连上 <em><strong>master</strong></em> 时会将自己的复制偏移量通过 <em><strong>PSYNC</strong></em> 命令发给 <em><strong>master</strong></em>，<em><strong>master</strong></em> 检查自己的复制积压缓冲区，如果发现这部分未同步的命令还在自己的复制积压缓冲区中的话就可以利用这些保存的命令进行部分同步，反之如果断线太久这部分命令已经不在复制缓冲区中了，那没办法只能进行全量同步。</td>
+</tr>
+<tr>
+<td>运行ID</td>
+<td>令人疑惑的是上述逻辑看似已经很圆满了，这个 <em><strong>run_id</strong></em> 是做什么用呢？其实这是因为 <em><strong>master</strong></em> 可能会在 <em><strong>slave</strong></em> 断线期间发生变更，例如可能超时失去联系或者宕机导致断线重连的是一个崭新的 <em><strong>master</strong></em>，不再是断线前复制的那个了。自然崭新的 <em><strong>master</strong></em> 没有之前维护的复制积压缓冲区，只能进行全量同步。因此每个 Redis server 都会有自己的运行 ID，由 40 个随机的十六进制字符组成。当 <em><strong>slave</strong></em> 初次复制 <em><strong>master</strong></em> 时，<em><strong>master</strong></em> 会将自己的运行 ID 发给 <em><strong>slave</strong></em> 进行保存，这样 <em><strong>slave</strong></em>重连时再将这个运行 ID 发送给重连上的 <em><strong>master</strong></em> ，<em><strong>master</strong></em> 会接受这个 ID 并于自身的运行 ID 比较进而判断是否是同一个 <em><strong>master</strong></em>。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="psync1-1">5.1.3 PSYNC1的流程图</h4>
+<p><img src="/../../image/redis/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6PSYNC1%E7%9A%84%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt="img" /></p>
+<p>如果 <em><strong>slave</strong></em> 以前没有复制过任何 <em><strong>master</strong></em> ，或者之前执行过<span style="color:red;">SLAVEOF NO ONE</span>命令，那么 <em><strong>slave</strong></em> 在开始一次新的复制时将向主服务器发送<span style="color:red;">PSYNC ? - 1</span>命令，主动请求 <em><strong>master</strong></em> 进行完整重同步（因为这时不可能执行部分重同步）。相反地，如果 <em><strong>slave</strong></em> 已经复制过某个 <em><strong>master</strong></em> ，那么 <em><strong>slave</strong></em> 在开始一次新的复制时将向 <em><strong>master</strong></em> 发送 <span style="color:red;">PSYNC &lt;runid＞＜offset&gt;</span> 命令：其中runid是上一次复制的 <em><strong>master</strong></em> 的运行ID，而offset则是 <em><strong>slave</strong></em> 当前的复制偏移量，接收到这个命令的 <em><strong>master</strong></em> 会通过这两个参数来判断应该对 <em><strong>slave</strong></em> 执行哪种同步操作。</p>
+<p>根据情况，接收到PSYNC 命令的 <em><strong>master</strong></em> 会向 <em><strong>slave</strong></em> 返回以下三种回复的其中一种：</p>
+<ul>
+<li>
+<p>如果 <em><strong>master</strong></em> 返回<span style="color:red;">＋FULLRESYNC &lt;runid＞＜offset&gt;</span>回复，那么表示 <em><strong>master</strong></em> 将与 <em><strong>slave</strong></em> 执行完整重同步操作：其中runid是这个 <em><strong>master</strong></em> 的运行ID, <em><strong>slave</strong></em> 会将这个ID保存起来，在下一次发送PSYNC 命令时使用；而offset则是 <em><strong>master</strong></em> 当前的复制偏移量， <em><strong>slave</strong></em> 会将这个值作为自己的初始化偏移量；</p>
+</li>
+<li>
+<p>如果 <em><strong>master</strong></em> 返回<span style="color:red;">＋CONTINUE</span>回复，那么表示 <em><strong>master</strong></em> 将与 <em><strong>slave</strong></em> 执行部分同步操作， <em><strong>slave</strong></em> 只要等着master将自己缺少的那部分数据发送过来就可以了；</p>
+</li>
+<li>
+<p>如果 <em><strong>master</strong></em>返回<span style="color:red;">-ERR</span>回复，那么表示 <em><strong>master</strong></em> 的版本低于Redis 2.8，它识别不了psync命令， <em><strong>slave</strong></em> 将向 <em><strong>master</strong></em> 发送SYNC命令，并与 <em><strong>master</strong></em> 执行完整同步操作；</p>
+</li>
+</ul>
+<p>由此可见psync也有不足之处，当 <em><strong>slave</strong></em> 重启以后 <em><strong>master</strong></em> runid 发生变化，也就意味者 <em><strong>slave</strong></em> 还是会进行全量复制，而在实际的生产中进行 <em><strong>slave</strong></em> 的维护很多时候会进行重启，而正是有由于全量同步需要 <em><strong>master</strong></em> 执行快照，以及数据传输会带不小的影响。因此在4.0版本， <em><strong>psync</strong></em> 命令做了改进，我们称之为 <em><strong>psync2</strong></em> 。</p>
+<h3 id="psync2">5.2 PSYNC2</h3>
+<p>Redis 4.0版本新增 混合持久化，还优化了 <em><strong>psync</strong></em> （以下称 <em><strong>psync2</strong></em> ), <em><strong>psync2</strong></em> 最大的变化支持两种场景下的部分重同步，一个场景是 <em><strong>slave</strong></em> 提升为 <em><strong>master</strong></em> 后，其他 <em><strong>slave</strong></em> 可以从新提升的 <em><strong>master</strong></em> 进行部分重同步，这里需要 <em><strong>slave</strong></em> 默认开启复制积压缓冲区；另外一个场景就是 <em><strong>slave</strong></em> 重启后，可以进行部分重同步。<span style="color:red;">这里要注意和psync1的运行ID相比，这里的复制ID有不一样的意义。</span></p>
+<h4 id="section-9">5.2.1优化细节</h4>
+<p>Redis 4.0引入另外一个变量 <em><strong>master_replid 2</strong></em> 来存放同步过的 <em><strong>master</strong></em> 的复制ID，同时复制ID在 <em><strong>slave</strong></em> 上的意义不同于之前的运行ID，复制ID在 <em><strong>master</strong></em> 的意义和之前运行ID仍然是一样的，但对于 <em><strong>slave</strong></em> 来说，它保存的复制ID（即replid）表示当前正在同步的 <em><strong>master</strong></em> 的复制ID。 <em><strong>master_replid2</strong></em> 则表示前一个 <em><strong>master</strong></em> 的复制ID（如果它之前没复制过其他的 <em><strong>master</strong></em> ，那这个字段没用），这个在主从角色发生改变的时候会用到。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">redisServer</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="cm">/* Replication (`master`) */</span>                                        
+    <span class="kt">char</span> <span class="n">replid</span><span class="p">[</span><span class="n">CONFIG_RUN_ID_SIZE</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>  <span class="cm">/* My current replication ID. */</span>
+    <span class="kt">char</span> <span class="n">replid2</span><span class="p">[</span><span class="n">CONFIG_RUN_ID_SIZE</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span> <span class="cm">/* replid inherited from `master`*/</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+<p><em><strong>slave</strong></em> 在意外关闭前会调用 <em><strong>rdbSaveInfoAuxFields</strong></em> 函数把当前的复制 ID（即关闭前正在复制的 <em><strong>master</strong></em> 的 replid，因为 <em><strong>slave</strong></em> 中的 replid 字段保存的是 <em><strong>master</strong></em> 的复制 ID） 和复制偏移量一起保存到 RDB 文件中，后面该 <em><strong>slave</strong></em> 重启的时候，就可以从 RDB 文件中读取复制 ID 和复制偏移量，然后重连上 <em><strong>master</strong></em> 后 <em><strong>slave</strong></em> 将这两个值发送给 <em><strong>master，master</strong></em> 会如下判断是否允许 <em><strong>psync</strong></em>：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 如果 slave 发送过来的复制 ID 是当前 master 的复制 ID, 说明 master 没变过</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">strcasecmp</span><span class="p">(</span><span class="n">master_replid</span><span class="p">,</span> <span class="n">server</span><span class="p">.</span><span class="n">replid</span><span class="p">)</span> <span class="o">&amp;&amp;</span>   
+        <span class="c1">// 或者和现在的新 master 曾经属于同一 master</span>
+        <span class="p">(</span><span class="n">strcasecmp</span><span class="p">(</span><span class="n">master_replid</span><span class="p">,</span> <span class="n">server</span><span class="p">.</span><span class="n">replid2</span><span class="p">)</span> <span class="o">||</span>      
+         <span class="c1">// 但同步进度不能比当前 master 还快</span>
+         <span class="n">psync_offset</span> <span class="o">&gt;</span> <span class="n">server</span><span class="p">.</span><span class="n">second_replid_offset</span><span class="p">))</span> <span class="p">{</span>
+        <span class="p">...</span> <span class="p">...</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 判断同步进度是否已经超过范围</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">server</span><span class="p">.</span><span class="n">repl_backlog</span> <span class="o">||</span>                                                        
+        <span class="n">psync_offset</span> <span class="o">&lt;</span> <span class="n">server</span><span class="p">.</span><span class="n">repl_backlog_off</span> <span class="o">||</span>                                      
+        <span class="n">psync_offset</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">repl_backlog_off</span> <span class="o">+</span> <span class="n">server</span><span class="p">.</span><span class="n">repl_backlog_histlen</span><span class="p">))</span> <span class="p">{</span>                                                                                  
+        <span class="p">...</span> <span class="p">...</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+<p>另外当节点从 <em><strong>slave</strong></em> 提升为 <em><strong>master</strong></em> 后，会保存两个复制 ID（之前角色是 <em><strong>slave</strong></em> 的时候 <em><strong>replid2</strong></em> 没用，现在要派上用场了），分别是 <em><strong>replid</strong></em> 和 <em><strong>replid 2</strong></em>，其他 <em><strong>slave</strong></em> 复制的时候可以根据第二个复制 ID 来进行部分重同步。对应上述代码中第二行判断的情况。</p>
+<h2 id="section-10">6．参考资料</h2>
+<ol>
+<li><a href="https://redis-doc-test.readthedocs.io/en/latest/topics/replication/">Redis Replication</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Replication.Redis.Groups.html">Understanding edis Replication</a></li>
+<li><a href="https://antirez.com/news/110">The first release candidate of Redis 4.0 is out</a></li>
+</ol>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/jelinet" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://instagram.com/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a><a href=" https://t.me/j3l1n37" target="_blank">
+          <li>
+            <i class="icon-telegram"></i>
+          </li>
+        </a><a href="mailto:jelinet7@gmail.com" target="_blank">
+          <li>
+            <i class="icon-mail-alt"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2011-2026</p>
+    </footer>
+  </main>
+  
+</body>
+
+</html>
