@@ -1,11 +1,12 @@
 ---
 layout: post
-title:  "Redis-持久化"
+title:  "Redis-持久化介绍"
 date:   2018-06-24 10:00 +0800
 categories: redis
 typora-root-url: ./image
+comments: true
+toc: true
 ---
-# Redis-持久化介绍
 ## 1.RDB & AOF 简介
 
 Redis 提供了两种持久化策略 

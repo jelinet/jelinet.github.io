@@ -173,6 +173,11 @@
   {% if site.plainwhite.dark_mode %}
   <script type="text/javascript" src="{{ "/assets/js/darkmode.js" | relative_url }}"></script>
   {% endif %}
+  {% if page.toc==true %}
+  <script>
+    document.getElementById("withtoc-or-not").classList.add("withtoc");
+  </script>
+  {% endif %}
 
   {%- if site.plainwhite.analytics_id -%}
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.plainwhite.analytics_id }}"></script>

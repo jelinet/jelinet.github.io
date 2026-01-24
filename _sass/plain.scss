@@ -299,6 +299,45 @@ main {
     font-size: 12px;
   }
 }
+.toc {
+  width: 240px;
+  height: 100%;
+  position: fixed;
+  z-index: 4;
+  padding: 60px 20px 0 20px;
+  overflow-y: auto;
+  a {
+    color: $linkColor;
+    text-decoration: none;
+    transition: border-bottom 0.4s;
+    &:hover {
+      border-bottom: 0.5px solid $linkColor;
+    }
+  }
+}
+.toc:before {
+  content: "目录";
+  margin: 0 0 1em 1em;
+  font-weight: 700;
+  font-size: 1.2em;
+  display: block;
+  padding-bottom: 0.6em;
+  border-bottom: 3px double #f1f3f5;
+}
+.toc li:before {
+  content: "";
+}
+@media screen and (max-width: 1200px) {
+  .toc {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 2200px) and (min-width: 1200px) {
+  .withtoc {
+    padding-left: 220px;
+  }
+}
 .home_top{
     display: block;
     list-style-type: disc;
@@ -369,4 +408,8 @@ footer {
     }
     border-top: 1px solid #eee;
   }
+}
+
+aside {
+  display: block;
 }

@@ -4,6 +4,8 @@ title:  "ElasticSearch-Lucene BKD树"
 date:   2020-04-23 10:30 +0800
 categories: es
 typora-root-url: ./image
+comments: true
+toc: true
 ---
 
 ## Block KD tree介绍

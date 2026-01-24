@@ -4,6 +4,8 @@ title:  "ElasticSearch-Lucene"
 date:   2019-10-23 11:30 +0800
 categories: es
 typora-root-url: ./image
+comments: true
+toc: true
 ---
 
 ## Lucene词汇表和架构

@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "Redis-集群模式"
+title:  "Redis-集群模式介绍"
 date:   2019-02-26 17:40 +0800
 categories: redis
 typora-root-url: ./image
+comments: true
+toc: true
 ---
-
-# Redis集群模式介绍
 
 ## 1. Redis Cluster
 

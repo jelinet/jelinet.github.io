@@ -4,6 +4,8 @@ title:  "Redis-数据结构"
 date:   2018-03-26 18:54 +0800
 categories: redis
 typora-root-url: ./image
+comments: true
+toc: true
 ---
 
 # Redis数据结构与底层实现
@@ -354,5 +356,4 @@ listpack 头包含两个属性，分别记录了 listpack 总字节数和元素�
 +--------------------------------------------+
             (This is an element)
 ```
-
 

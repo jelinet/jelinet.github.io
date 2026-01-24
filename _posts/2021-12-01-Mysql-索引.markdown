@@ -4,6 +4,8 @@ title:  "Mysql-索引原理"
 date:   2021-12-01 16:30 +0800
 categories: mysql
 typora-root-url: ./image
+comments: true
+toc: true
 ---
 
 ## 1 数据页(B-tree Node)

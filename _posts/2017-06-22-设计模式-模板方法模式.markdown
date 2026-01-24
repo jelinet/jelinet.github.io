@@ -4,6 +4,8 @@ title:  "设计模式-模板方法模式"
 date:   2017-06-22 16:30 +0800
 categories: 设计模式
 typora-root-url: ./image
+comments: true
+toc: true
 ---
 
 # 模板方法模式
