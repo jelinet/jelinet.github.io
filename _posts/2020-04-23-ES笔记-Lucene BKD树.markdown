@@ -5,7 +5,7 @@ date:   2020-04-23 10:30 +0800
 categories: es
 typora-root-url: ./image
 comments: true
-toc: true
+toc: false
 ---
 
 ## Block KD tree介绍

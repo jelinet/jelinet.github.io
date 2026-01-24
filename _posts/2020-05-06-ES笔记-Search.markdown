@@ -13,11 +13,11 @@ toc: true
 ES 中的数据可以分为两类**精确值(Exact Values)**、**全文本(Full Text)**：
 
 - 精确值：包括数字，日期，一个具体字符串（例如"Hello World”）。
-  - 在 ES 中用 **[keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html){:target="_blank"}**、numeric数据类型表示。
+  - 在 ES 中用 **[keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html)**、numeric数据类型表示。
   - 精确值**不需要**做分词处理；
   - 精确值比较是二进制的，要么匹配，要么不匹配。
 - 全文本：非结构化的文本数据。
-  - 在 ES 中用 **[text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html){:target="_blank"}**数据类型表示。
+  - 在 ES 中用 **[text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html)**数据类型表示。
   - 全文本需要做分词处理；
   - 全文本查询找到的是"看起来像"你要的查询东西。
 
@@ -70,7 +70,7 @@ QUERY_THEN_FETCH：（默认的搜索方式）
 
 ES希望这个过程足够智能，能够将请求路由到其他数据副本，直到该节点恢复到足以处理更多搜索请求的程度。在ES中，此过程称为『自适应副本选择』。
 
-在实现过程中，ES参考一篇名为 C3的论文: [Cutting Tail Latency in Cloud Data Stores via Adaptive Replica Selection](https://www.usenix.org/conference/nsdi15/technical-sessions/presentation/suresh){:target="_blank"} 。这篇论文是为Cassandra写的，ES基于这篇论文的思想做了调整以适合自己的场景。
+在实现过程中，ES参考一篇名为 C3的论文: [Cutting Tail Latency in Cloud Data Stores via Adaptive Replica Selection](https://www.usenix.org/conference/nsdi15/technical-sessions/presentation/suresh) 。这篇论文是为Cassandra写的，ES基于这篇论文的思想做了调整以适合自己的场景。
 
 ES的ARS实现基于这样一个公式：对每个搜索请求，将分片的每个副本进行排序，以确定哪个最可能是转发请求的『最佳』副本，将请求路由到那里。ARS公式为:
 $$
@@ -108,11 +108,11 @@ PUT /_cluster/settings
 | 第90个百分位的延迟(毫秒) | 5215.34 | 1839.46 | -64.7  |
 | 第99个百分位的延迟(毫秒) | 6181.48 | 2433.55 | -60.6  |
 
-### **[numeric](https://www.elastic.co/guide/en/elasticsearch/reference/current/number.html)**{:target="_blank"} 还是keyword？
+### numeric 还是keyword？
 
-因为numeric支持等值精确查询，所以字段类型到底使用keyword还是numeric？答案是keyword。
+因为[numeric](https://www.elastic.co/guide/en/elasticsearch/reference/current/number.html)支持等值精确查询，所以字段类型到底使用keyword还是numeric？答案是keyword。
 
-numeric类型为了能有效的支持范围查询，它的存储结构并不是倒排索引。numeric类型从lucene6.0开始，使用了一种名为`block KD tree`的存储结构。[Block KD tree介绍在这里](https://jelinet.com/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html){:target="_blank"}，不过多阐述。
+numeric类型为了能有效的支持范围查询，它的存储结构并不是倒排索引。numeric类型从lucene6.0开始，使用了一种名为`block KD tree`的存储结构。[Block KD tree介绍在这里](https://jelinet.com/es/2020/04/23/ES%E7%AC%94%E8%AE%B0-Lucene-BKD%E6%A0%91.html)，不过多阐述。
 
 具体的ES内部（其实是Lucene）目前的版本是基于所谓的PointValues，比如整型在Lucene内部是IntPoint类表示，还有DoublePoint等，完整的对应关系是：
 

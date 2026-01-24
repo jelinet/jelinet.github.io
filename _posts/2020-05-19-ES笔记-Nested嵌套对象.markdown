@@ -158,13 +158,17 @@ https://github.com/elastic/elasticsearch/issues/14229
 
 更新 Mapping 操作如下：
 
+```c
 PUT products/_settings{ "index.mapping.nested_fields.limit": 10, "index.mapping.nested_objects.limit": 500}
+```
 
 index.mapping.nested_fields.limit 含义：一个索引中不同的 Nested 字段类型个数。
 
 如果超出，会报错如下：
 
+```c
 "reason" : "Limit of nested fields [1] has been exceeded"
+```
 
 index.mapping.nested_objects.limit 含义：一个 Nested 字段中对象数目,多了可能导致内存泄露。
 
