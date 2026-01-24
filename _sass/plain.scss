@@ -295,7 +295,7 @@ main {
   }
 }
 .post-container {
-  padding-left: 30px;
+  padding-left: 0px;
 }
 .post {
   font-family: "Merriweather", sans-serif;
@@ -348,11 +348,11 @@ main {
   }
 }
 .toc {
-  width: 240px;
+  width: 210px;
   height: 100%;
   position: fixed;
   z-index: 4;
-  padding: 60px 20px 0 20px;
+  padding: 60px 0px 60px 0px;
   overflow-y: auto;
   a {
     color: $linkColor;
@@ -361,6 +361,14 @@ main {
     &:hover {
       border-bottom: 0.5px solid $linkColor;
     }
+  }
+  ul {
+    list-style: none;
+    padding-inline-start: 0px;
+    margin: 0 0 0.3em 1.3em;
+  }
+  li {
+    margin: 0 0 0.1em 0em;
   }
 }
 .toc:before {
@@ -383,7 +391,7 @@ main {
 
 @media screen and (max-width: 2200px) and (min-width: 1200px) {
   .withtoc {
-    padding-left: 220px;
+    padding-left: 240px;
   }
 }
 .home_top{
@@ -458,6 +466,6 @@ footer {
   }
 }
 
-aside {
+.aside-toc {
   display: block;
 }
