@@ -27,6 +27,22 @@ layout: default
   <div class="post">
     {{ content }}
   </div>
+  <div class="pagination">
+  {% if page.previous.url %}
+    <span class="prev" >
+      <a href="{{ site.url }}{{ site.baseurl }}{{ page.previous.url }}">
+        ← 上一篇
+      </a>
+    </span>
+  {% endif %}
+  {% if page.next.url %}
+    <span class="next" >
+      <a href="{{ site.url }}{{ site.baseurl }}{{ page.next.url }}">
+        下一篇 →
+      </a>
+    </span>
+  {% endif %}
+</div>
   {%- if site.plainwhite.disqus_shortname -%}
   <div id="disqus_thread" style="margin-top:25px"></div>
   <script>

@@ -44,8 +44,56 @@ h2 {
     margin: 0.3em 0;
   }
 }
+.pagination {
+  border-top: 1px solid #f1f3f5;
+  font-weight: 300;
+  padding: 40px 0;
+  width: 100%;
+  display: inline-block;
+}
+@media screen and (max-width: 1200px) {
+  .pagination {
+    font-size: 14px;
+    padding: 24px 0;
+  }
+}
+.pagination > .prev {
+  float: left;
+  width: 50%;
+}
+.pagination > .prev a {
+  color: #868e96;
+  border: 1px solid #f1f3f5;
+  padding: 10px 20px;
+  background: #f8f9fa;
+  text-decoration:none;
+}
+.pagination > .prev a:hover, .pagination > .prev a:focus {
+  color: #0a59b0;
+  border: 1px solid #0a59b0;
+  background: #f8f9fa;
+  text-decoration:none;
+}
+.pagination > .next {
+  float: right;
+  text-align: right;
+  width: 50%;
+}
+.pagination > .next a {
+  color: #868e96;
+  border: 1px solid #f1f3f5;
+  padding: 10px 20px;
+  background: #f8f9fa;
+  text-decoration:none;
+}
+.pagination > .next a:hover, .pagination > .next a:focus {
+  color: #0a59b0;
+  border: 1px solid #0a59b0;
+  background: #f8f9fa;
+  text-decoration:none;
+}
 main {
-  margin: 0 90px;
+  margin: 0 10px 0px 75px;
   display: flex;
   height: 100%;
 
@@ -54,10 +102,10 @@ main {
     max-width: 1440px;
   }
   @media screen and (max-width: 1280px) {
-    margin: 0 75px;
+    margin: 0 10px 0px 75px;
   }
   @media screen and (max-width: 1024px) {
-    margin: 0 35px;
+    margin: 0 5px 0px 35px;
   }
 
   @media screen and (max-width: $mobileW) {

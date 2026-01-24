@@ -321,9 +321,9 @@ typedef struct quicklistNode {
 
 ![图片](/../../image/redis/redis_quicklist.png)
 
-## [listpack](https://github.com/antirez/listpack/blob/master/listpack.md){:target="_blank"}
+## listpack
 
-一个字符串序列化的list，每个元素是一个string或者intger
+ [listpack](https://github.com/antirez/listpack/blob/master/listpack.md) 一个字符串序列化的list，每个元素是一个string或者intger
 
 ```c
  /* Each entry in the listpack is either a string or an integer. */
@@ -340,7 +340,7 @@ typedef struct {
 
 **listpack 结构设计**
 
-```
+```c
 <tot-bytes> <num-elements> <element-1> ... <element-N> <listpack-end-byte>
 ```
 
@@ -350,7 +350,7 @@ listpack 头包含两个属性，分别记录了 listpack 总字节数和元素�
 
 **元素**
 
-```
+```c
 <encoding-type><element-data><element-tot-len>
 |                                            |
 +--------------------------------------------+

@@ -18,6 +18,6 @@ group :jekyll_plugins do
   gem "jekyll-gfm-admonitions", "~> 1.2.0"
   gem "plainwhite", "~> 0.13"
   gem "webrick", "~> 1.7"
-  gem 'kramdown-plantuml'
+  gem "kramdown-plantuml"
 end
 
