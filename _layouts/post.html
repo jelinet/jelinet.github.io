@@ -45,18 +45,21 @@ layout: default
       </span>
     {% endif %}
     </div>
-      {%- if site.plainwhite.disqus_shortname -%}
+{%- if site.plainwhite.disqus_shortname -%}
 <div id="disqus_thread" style="margin-top:25px"></div>
+{%- endif -%}
 </div>
 {% if page.toc==true %}
 <script>
   document.getElementById("withtoc-or-not").classList.add("withtoc");
 </script>
 {% endif %}
+
 <script>
   var disqus_config = function () {
     this.page.url = '{{ page.url | absolute_url }}';
     this.page.identifier = '{{ page.url | absolute_url }}';
+    this.page.title = '{{ page.title }}'; 
   };
   (function () {
     var d = document, s = d.createElement('script');
@@ -64,11 +67,13 @@ layout: default
     s.setAttribute('data-timestamp', +new Date());
     (d.head || d.body).appendChild(s);
   })();
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://{{ site.plainwhite.disqus_shortname }}.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
 </script>
-<script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments
-    powered by Disqus.</a></noscript>
-{%- endif -%}
 
 
 
